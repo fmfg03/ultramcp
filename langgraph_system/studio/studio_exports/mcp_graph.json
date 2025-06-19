@@ -1,0 +1,141 @@
+{
+  "graph": {
+    "name": "MCP Complete Agent",
+    "description": "Agente MCP completo con reasoning, building, evaluation y retry",
+    "nodes": [
+      {
+        "id": "initialize",
+        "name": "Initialize",
+        "type": "start",
+        "description": "Inicializaci\u00f3n del agente y contexto",
+        "color": "#4CAF50"
+      },
+      {
+        "id": "health_check",
+        "name": "Health Check",
+        "type": "validation",
+        "description": "Verificaci\u00f3n de salud de modelos locales",
+        "color": "#2196F3"
+      },
+      {
+        "id": "reasoning",
+        "name": "Reasoning Shell",
+        "type": "processing",
+        "description": "An\u00e1lisis y planificaci\u00f3n de la tarea",
+        "color": "#FF9800"
+      },
+      {
+        "id": "adaptive_selection",
+        "name": "Model Selection",
+        "type": "decision",
+        "description": "Selecci\u00f3n adaptativa de modelo LLM",
+        "color": "#9C27B0"
+      },
+      {
+        "id": "execute_llm",
+        "name": "LLM Execution",
+        "type": "processing",
+        "description": "Ejecuci\u00f3n con LLM local + Langwatch",
+        "color": "#F44336"
+      },
+      {
+        "id": "evaluate",
+        "name": "Reward Shell",
+        "type": "evaluation",
+        "description": "Evaluaci\u00f3n de calidad y scoring",
+        "color": "#4CAF50"
+      },
+      {
+        "id": "contradiction_analysis",
+        "name": "Contradiction Analysis",
+        "type": "analysis",
+        "description": "An\u00e1lisis de contradicci\u00f3n expl\u00edcita",
+        "color": "#E91E63"
+      },
+      {
+        "id": "retry_analysis",
+        "name": "Retry Analysis",
+        "type": "decision",
+        "description": "Decisi\u00f3n de retry inteligente",
+        "color": "#607D8B"
+      },
+      {
+        "id": "finalize",
+        "name": "Finalize",
+        "type": "end",
+        "description": "Finalizaci\u00f3n y entrega de resultados",
+        "color": "#795548"
+      }
+    ],
+    "edges": [
+      {
+        "from": "initialize",
+        "to": "health_check",
+        "type": "always"
+      },
+      {
+        "from": "health_check",
+        "to": "reasoning",
+        "type": "conditional",
+        "condition": "system_healthy"
+      },
+      {
+        "from": "health_check",
+        "to": "finalize",
+        "type": "conditional",
+        "condition": "system_unhealthy"
+      },
+      {
+        "from": "reasoning",
+        "to": "adaptive_selection",
+        "type": "always"
+      },
+      {
+        "from": "adaptive_selection",
+        "to": "execute_llm",
+        "type": "always"
+      },
+      {
+        "from": "execute_llm",
+        "to": "evaluate",
+        "type": "always"
+      },
+      {
+        "from": "evaluate",
+        "to": "contradiction_analysis",
+        "type": "always"
+      },
+      {
+        "from": "contradiction_analysis",
+        "to": "retry_analysis",
+        "type": "always"
+      },
+      {
+        "from": "retry_analysis",
+        "to": "adaptive_selection",
+        "type": "conditional",
+        "condition": "should_retry"
+      },
+      {
+        "from": "retry_analysis",
+        "to": "finalize",
+        "type": "conditional",
+        "condition": "should_finalize"
+      }
+    ],
+    "layout": {
+      "type": "hierarchical",
+      "direction": "top-bottom",
+      "spacing": {
+        "node": 100,
+        "level": 150
+      }
+    }
+  },
+  "metadata": {
+    "generated_at": 1750220990.236802,
+    "version": "1.0.0",
+    "node_count": 9,
+    "edge_count": 10
+  }
+}

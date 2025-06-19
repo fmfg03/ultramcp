@@ -1,0 +1,78 @@
+{
+  "graphs": {
+    "mcp_reasoning_agent": {
+      "path": "./langgraph_system/agents/reasoning_agent.py:graph",
+      "description": "Agente de razonamiento MCP con contradicción explícita y LLMs locales",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "model_type": {
+            "type": "string",
+            "enum": ["auto", "mistral-local", "llama-local", "deepseek-local"],
+            "default": "auto"
+          },
+          "max_retries": {
+            "type": "integer",
+            "default": 3
+          },
+          "enable_contradiction": {
+            "type": "boolean", 
+            "default": true
+          }
+        }
+      }
+    },
+    "mcp_builder_agent": {
+      "path": "./langgraph_system/agents/builder_agent.py:graph", 
+      "description": "Agente constructor MCP que ejecuta tareas usando reasoning y reward shells",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "build_type": {
+            "type": "string",
+            "enum": ["website", "code", "document", "analysis"],
+            "default": "general"
+          },
+          "output_format": {
+            "type": "string",
+            "enum": ["markdown", "html", "json", "code"],
+            "default": "markdown"
+          }
+        }
+      }
+    },
+    "mcp_complete_agent": {
+      "path": "./langgraph_system/agents/complete_mcp_agent.py:graph",
+      "description": "Agente MCP completo con todas las funcionalidades integradas",
+      "config_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "description": "ID de sesión para tracking"
+          },
+          "langwatch_enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "local_llms_enabled": {
+            "type": "boolean", 
+            "default": true
+          }
+        }
+      }
+    }
+  },
+  "env": ".env",
+  "dependencies": [
+    "langgraph>=0.4.8",
+    "langgraph-api>=0.2.3", 
+    "langgraph-sdk>=0.1.61",
+    "langchain>=0.3.25",
+    "langwatch",
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart"
+  ]
+}
+

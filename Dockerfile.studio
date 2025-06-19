@@ -1,0 +1,45 @@
+# MCP LangGraph Studio Dockerfile
+# Python-based service for LangGraph Studio
+
+FROM python:3.11-slim AS base
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user
+RUN useradd --create-home --shell /bin/bash mcp
+
+WORKDIR /app
+
+# Copy requirements
+COPY langgraph_system/requirements.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application
+COPY langgraph_system/ ./
+
+# Create keys directory if needed (optional for studio)
+RUN mkdir -p ./keys && chown mcp:mcp ./keys
+
+# Set ownership
+RUN chown -R mcp:mcp /app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8123/health || exit 1
+
+# Switch to non-root user
+USER mcp
+
+# Expose ports
+EXPOSE 8123 8124
+
+# Start the studio server
+CMD ["python", "studio/studio_server.py"]
+

@@ -1,0 +1,23 @@
+{
+  "package_info": {
+    "name": "Agentius MCP Studio Export Package",
+    "version": "1.0",
+    "generated": "2025-06-18T00:34:36.353680",
+    "description": "Complete export package for demos and pitch decks"
+  },
+  "diagrams": {
+    "main_diagram": "studio_exports/mcp_graph_pitch_deck.mmd",
+    "technical_diagram": "studio_exports/mcp_graph_technical_doc.dot",
+    "json_schema": "studio_exports/mcp_graph_schema.json",
+    "readme": "studio_exports/README.md"
+  },
+  "screenshots": {
+    "studio_interface": "studio_exports/screenshots/langgraph_studio_interface.png",
+    "debug_interface": "studio_exports/screenshots/debug_interface.png"
+  },
+  "usage_instructions": {
+    "pitch_deck": "Use Mermaid diagrams for clean presentations",
+    "technical_docs": "Use Graphviz DOT files for detailed documentation",
+    "development": "Use JSON schema for programmatic access"
+  }
+}

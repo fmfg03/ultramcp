@@ -1,0 +1,37 @@
+---
+title: Agentius MCP - Autonomous Agent System
+---
+graph TD
+    %% Configuración del tema
+    classDef startNode fill:#4CAF50,stroke:#333,stroke-width:3px,color:#fff
+    classDef processNode fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    classDef decisionNode fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
+    classDef llmNode fill:#FF5722,stroke:#333,stroke-width:2px,color:#fff
+    classDef endNode fill:#795548,stroke:#333,stroke-width:3px,color:#fff
+    
+    %% Nodos del grafo
+    START([🚀 START]):::startNode
+    INIT[📋 Initialize<br/>Session & Config]:::processNode
+    HEALTH[🔍 Health Check<br/>System Status]:::processNode
+    REASONING[🧠 Reasoning Shell<br/>Task Analysis]:::processNode
+    SELECTION{🎯 Model Selection<br/>Adaptive Choice}:::decisionNode
+    EXECUTE[⚡ LLM Execution<br/>Local Models]]:::llmNode
+    EVALUATE[📊 Reward Shell<br/>Quality Assessment]:::processNode
+    CONTRADICTION[🔥 Contradiction Analysis<br/>Failure Detection]:::processNode
+    RETRY{🔄 Retry Analysis<br/>Continue or Stop?}:::decisionNode
+    FINALIZE[✅ Finalize<br/>Results & Cleanup]:::processNode
+    END([🎉 END]):::endNode
+
+    %% Flujo simplificado para pitch
+    START --> INIT
+    INIT --> REASONING
+    REASONING --> SELECTION
+    SELECTION --> EXECUTE
+    EXECUTE --> EVALUATE
+    EVALUATE --> CONTRADICTION
+    CONTRADICTION --> RETRY
+    RETRY -->|Continue| SELECTION
+    RETRY -->|Complete| FINALIZE
+    FINALIZE --> END
+
+    %% Intelligent Orchestration with Local LLMs

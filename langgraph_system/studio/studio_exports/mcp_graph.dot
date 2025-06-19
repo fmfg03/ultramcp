@@ -1,0 +1,26 @@
+digraph MCPAgent {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+    edge [fontsize=10];
+
+    initialize [label="Initialize\nInicialización del agente y contexto", shape=ellipse, fillcolor="#4CAF50", style=filled];
+    health_check [label="Health Check\nVerificación de salud de modelos locales", fillcolor="#2196F3", style=filled];
+    reasoning [label="Reasoning Shell\nAnálisis y planificación de la tarea", fillcolor="#FF9800", style=filled];
+    adaptive_selection [label="Model Selection\nSelección adaptativa de modelo LLM", shape=diamond, fillcolor="#9C27B0", style=filled];
+    execute_llm [label="LLM Execution\nEjecución con LLM local + Langwatch", fillcolor="#F44336", style=filled];
+    evaluate [label="Reward Shell\nEvaluación de calidad y scoring", fillcolor="#4CAF50", style=filled];
+    contradiction_analysis [label="Contradiction Analysis\nAnálisis de contradicción explícita", fillcolor="#E91E63", style=filled];
+    retry_analysis [label="Retry Analysis\nDecisión de retry inteligente", shape=diamond, fillcolor="#607D8B", style=filled];
+    finalize [label="Finalize\nFinalización y entrega de resultados", shape=ellipse, fillcolor="#795548", style=filled];
+
+    initialize -> health_check;
+    health_check -> reasoning [label="system_healthy", style=dashed, color=red];
+    health_check -> finalize [label="system_unhealthy", style=dashed, color=red];
+    reasoning -> adaptive_selection;
+    adaptive_selection -> execute_llm;
+    execute_llm -> evaluate;
+    evaluate -> contradiction_analysis;
+    contradiction_analysis -> retry_analysis;
+    retry_analysis -> adaptive_selection [label="should_retry", style=dashed, color=red];
+    retry_analysis -> finalize [label="should_finalize", style=dashed, color=red];
+}

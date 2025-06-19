@@ -1,0 +1,53 @@
+{
+  "dashboard": {
+    "title": "Agentius MCP - LangGraph Studio",
+    "refresh_interval": 5000,
+    "auto_scroll": true
+  },
+  "panels": [
+    {
+      "id": "system_overview",
+      "title": "System Overview",
+      "type": "metrics",
+      "metrics": [
+        "active_sessions",
+        "total_requests",
+        "avg_response_time",
+        "success_rate"
+      ]
+    },
+    {
+      "id": "model_performance",
+      "title": "Model Performance",
+      "type": "chart",
+      "chart_type": "bar",
+      "data_source": "model_metrics"
+    },
+    {
+      "id": "contradiction_analysis",
+      "title": "Contradiction Effectiveness",
+      "type": "chart",
+      "chart_type": "line",
+      "data_source": "contradiction_metrics"
+    },
+    {
+      "id": "session_flow",
+      "title": "Current Session Flow",
+      "type": "graph",
+      "graph_type": "mermaid",
+      "data_source": "current_session"
+    }
+  ],
+  "alerts": [
+    {
+      "condition": "error_rate > 0.1",
+      "message": "High error rate detected",
+      "severity": "warning"
+    },
+    {
+      "condition": "avg_response_time > 30000",
+      "message": "Response time degradation",
+      "severity": "warning"
+    }
+  ]
+}

@@ -1,0 +1,312 @@
+version: '3.8'
+
+# Production environment with optimizations and scaling
+services:
+  # PostgreSQL Database with replication ready
+  mcp-database:
+    image: postgres:15-alpine
+    container_name: mcp-database-prod
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MCP_DB_PASSWORD: ${MCP_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-mcp-db.sh:/docker-entrypoint-initdb.d/init-mcp-db.sh:ro
+      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    networks:
+      - mcp-prod-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cluster for high availability
+  mcp-redis:
+    image: redis:7-alpine
+    container_name: mcp-redis-prod
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_prod_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - mcp-prod-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # MCP Backend - Scalable instances
+  mcp-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: production
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://mcp_user:${MCP_DB_PASSWORD}@mcp-database:5432/mcp_system
+      REDIS_URL: redis://:${REDIS_PASSWORD}@mcp-redis:6379
+      LANGWATCH_API_KEY: ${LANGWATCH_API_KEY}
+      STUDIO_SECRET: ${STUDIO_SECRET}
+      MCP_API_KEYS: ${MCP_API_KEYS}
+      JWT_SECRET: ${JWT_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      RATE_LIMIT_ENABLED: "true"
+      SECURITY_ENABLED: "true"
+    volumes:
+      - ./keys:/app/keys:ro
+      - backend_prod_logs:/app/logs
+      - backend_prod_uploads:/app/uploads
+      - backend_prod_temp:/app/temp
+    networks:
+      - mcp-prod-network
+    depends_on:
+      mcp-database:
+        condition: service_healthy
+      mcp-redis:
+        condition: service_healthy
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # LangGraph Studio - Production optimized
+  mcp-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile.studio
+    environment:
+      PYTHONPATH: /app
+      STUDIO_SECRET: ${STUDIO_SECRET}
+      DATABASE_URL: postgresql://mcp_user:${MCP_DB_PASSWORD}@mcp-database:5432/mcp_system
+      REDIS_URL: redis://:${REDIS_PASSWORD}@mcp-redis:6379
+      FLASK_ENV: production
+      GUNICORN_WORKERS: 4
+      GUNICORN_THREADS: 2
+    volumes:
+      - ./keys:/app/keys:ro
+      - studio_prod_exports:/app/studio/studio_exports
+    networks:
+      - mcp-prod-network
+    depends_on:
+      mcp-database:
+        condition: service_healthy
+      mcp-redis:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # DevTool Frontend - Production build
+  mcp-devtool:
+    build:
+      context: .
+      dockerfile: Dockerfile.devtool
+      target: production
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+      VITE_STUDIO_BASE_URL: ${VITE_STUDIO_BASE_URL:-/studio}
+      VITE_WS_BASE_URL: ${VITE_WS_BASE_URL:-/ws}
+    networks:
+      - mcp-prod-network
+    depends_on:
+      - mcp-backend
+      - mcp-studio
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx Load Balancer
+  mcp-nginx:
+    image: nginx:alpine
+    container_name: mcp-nginx-prod
+    volumes:
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - mcp-prod-network
+    depends_on:
+      - mcp-backend
+      - mcp-devtool
+      - mcp-studio
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Monitoring and Logging (Optional)
+  mcp-monitoring:
+    image: prom/prometheus:latest
+    container_name: mcp-monitoring
+    volumes:
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - mcp-prod-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+  backend_prod_logs:
+    driver: local
+  backend_prod_uploads:
+    driver: local
+  backend_prod_temp:
+    driver: local
+  studio_prod_exports:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  mcp-prod-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+

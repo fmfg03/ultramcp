@@ -1,0 +1,196 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  mcp-database:
+    image: postgres:15-alpine
+    container_name: mcp-database
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      MCP_DB_PASSWORD: ${MCP_DB_PASSWORD:-mcp_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-mcp-db.sh:/docker-entrypoint-initdb.d/init-mcp-db.sh:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Redis Cache
+  mcp-redis:
+    image: redis:7-alpine
+    container_name: mcp-redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "6379:6379"
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # MCP Backend
+  mcp-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: mcp-backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      DATABASE_URL: postgresql://mcp_user:${MCP_DB_PASSWORD:-mcp_password}@mcp-database:5432/mcp_system
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_password}@mcp-redis:6379
+      LANGWATCH_API_KEY: ${LANGWATCH_API_KEY}
+      STUDIO_SECRET: ${STUDIO_SECRET:-studio_secret}
+      MCP_API_KEYS: ${MCP_API_KEYS:-dev-key-123,test-key-456}
+      JWT_SECRET: ${JWT_SECRET:-jwt_secret_key}
+      SESSION_SECRET: ${SESSION_SECRET:-session_secret_key}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    volumes:
+      - ./backend:/app:ro
+      - ./keys:/app/keys:ro
+      - backend_logs:/app/logs
+      - backend_uploads:/app/uploads
+      - backend_temp:/app/temp
+    ports:
+      - "3000:3000"
+    networks:
+      - mcp-network
+    depends_on:
+      mcp-database:
+        condition: service_healthy
+      mcp-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # LangGraph Studio
+  mcp-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile.studio
+    container_name: mcp-studio
+    environment:
+      PYTHONPATH: /app
+      STUDIO_SECRET: ${STUDIO_SECRET:-studio_secret}
+      DATABASE_URL: postgresql://mcp_user:${MCP_DB_PASSWORD:-mcp_password}@mcp-database:5432/mcp_system
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_password}@mcp-redis:6379
+    volumes:
+      - ./langgraph_system:/app:ro
+      - ./keys:/app/keys:ro
+      - studio_exports:/app/studio/studio_exports
+    ports:
+      - "8123:8123"
+      - "8124:8124"
+    networks:
+      - mcp-network
+    depends_on:
+      mcp-database:
+        condition: service_healthy
+      mcp-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # DevTool Frontend
+  mcp-devtool:
+    build:
+      context: .
+      dockerfile: Dockerfile.devtool
+    container_name: mcp-devtool
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
+      VITE_STUDIO_BASE_URL: ${VITE_STUDIO_BASE_URL:-http://localhost:8123}
+      VITE_WS_BASE_URL: ${VITE_WS_BASE_URL:-ws://localhost:3000}
+    ports:
+      - "5173:80"
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-backend
+      - mcp-studio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Nginx Load Balancer (Optional for production)
+  mcp-nginx:
+    image: nginx:alpine
+    container_name: mcp-nginx
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - mcp-network
+    depends_on:
+      - mcp-backend
+      - mcp-devtool
+      - mcp-studio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_logs:
+    driver: local
+  backend_uploads:
+    driver: local
+  backend_temp:
+    driver: local
+  studio_exports:
+    driver: local
+
+networks:
+  mcp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

@@ -1,0 +1,333 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentius MCP - Real-time Debugger</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #4CAF50;
+            margin: 0;
+        }
+        
+        .debug-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: #2d2d2d;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #444;
+        }
+        
+        .panel h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        
+        .execution-state {
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .breakpoint {
+            background: #2a1a1a;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            border-left: 4px solid #F44336;
+        }
+        
+        .event {
+            background: #1a1a2e;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .status-running { border-left-color: #4CAF50; }
+        .status-paused { border-left-color: #FF9800; }
+        .status-error { border-left-color: #F44336; }
+        .status-completed { border-left-color: #2196F3; }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button.danger {
+            background: #F44336;
+        }
+        
+        button.danger:hover {
+            background: #da190b;
+        }
+        
+        .log-area {
+            height: 300px;
+            overflow-y: auto;
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .connected {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .disconnected {
+            background: #F44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">Disconnected</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Agentius MCP - Real-time Debugger</h1>
+            <p>Debugging visual en tiempo real para el sistema MCP</p>
+        </div>
+        
+        <div class="controls">
+            <button onclick="addBreakpoint()">Add Breakpoint</button>
+            <button onclick="clearBreakpoints()" class="danger">Clear All Breakpoints</button>
+            <button onclick="pauseAll()" class="danger">Pause All</button>
+            <button onclick="resumeAll()">Resume All</button>
+        </div>
+        
+        <div class="debug-panels">
+            <div class="panel">
+                <h3>📊 Execution States</h3>
+                <div id="executionStates"></div>
+            </div>
+            
+            <div class="panel">
+                <h3>🔴 Breakpoints</h3>
+                <div id="breakpoints"></div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h3>📝 Event Log</h3>
+            <div class="log-area" id="eventLog"></div>
+        </div>
+    </div>
+    
+    <script>
+        let ws = null;
+        let executionStates = {};
+        let breakpoints = {};
+        let events = [];
+        
+        function connect() {
+            ws = new WebSocket('ws://localhost:8124');
+            
+            ws.onopen = function() {
+                document.getElementById('connectionStatus').textContent = 'Connected';
+                document.getElementById('connectionStatus').className = 'connection-status connected';
+            };
+            
+            ws.onclose = function() {
+                document.getElementById('connectionStatus').textContent = 'Disconnected';
+                document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                setTimeout(connect, 3000); // Reconectar automáticamente
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleMessage(data);
+            };
+        }
+        
+        function handleMessage(data) {
+            switch(data.type) {
+                case 'debug_event':
+                    addEvent(data.event);
+                    break;
+                case 'execution_paused':
+                case 'execution_resumed':
+                    updateExecutionState(data);
+                    break;
+                case 'breakpoint_added':
+                case 'breakpoint_removed':
+                case 'breakpoint_toggled':
+                    updateBreakpoints(data);
+                    break;
+            }
+        }
+        
+        function addEvent(event) {
+            events.unshift(event);
+            if (events.length > 100) events.pop();
+            
+            updateEventLog();
+            
+            // Actualizar estado de ejecución si es relevante
+            if (event.event_type === 'node_enter' || event.event_type === 'node_exit') {
+                updateExecutionStates();
+            }
+        }
+        
+        function updateEventLog() {
+            const logArea = document.getElementById('eventLog');
+            logArea.innerHTML = events.map(event => 
+                `<div class="event">
+                    <strong>${new Date(event.timestamp * 1000).toLocaleTimeString()}</strong> 
+                    [${event.event_type}] ${event.node_id} (${event.session_id})
+                    <br><small>${JSON.stringify(event.data, null, 2)}</small>
+                </div>`
+            ).join('');
+            logArea.scrollTop = 0;
+        }
+        
+        function updateExecutionStates() {
+            // Esta función se actualizaría con datos reales del servidor
+            const container = document.getElementById('executionStates');
+            container.innerHTML = Object.values(executionStates).map(state => 
+                `<div class="execution-state status-${state.status}">
+                    <strong>Session:</strong> ${state.session_id}<br>
+                    <strong>Current Node:</strong> ${state.current_node}<br>
+                    <strong>Status:</strong> ${state.status}<br>
+                    <strong>Path:</strong> ${state.execution_path.join(' → ')}
+                </div>`
+            ).join('') || '<p>No active executions</p>';
+        }
+        
+        function updateBreakpoints(data) {
+            // Actualizar breakpoints basado en el mensaje
+            updateBreakpointDisplay();
+        }
+        
+        function updateBreakpointDisplay() {
+            const container = document.getElementById('breakpoints');
+            container.innerHTML = Object.entries(breakpoints).map(([id, bp]) => 
+                `<div class="breakpoint">
+                    <strong>Node:</strong> ${bp.node_id}<br>
+                    <strong>Condition:</strong> ${bp.condition || 'Always'}<br>
+                    <strong>Hits:</strong> ${bp.hit_count}<br>
+                    <button onclick="toggleBreakpoint('${id}')">${bp.enabled ? 'Disable' : 'Enable'}</button>
+                    <button onclick="removeBreakpoint('${id}')" class="danger">Remove</button>
+                </div>`
+            ).join('') || '<p>No breakpoints set</p>';
+        }
+        
+        function addBreakpoint() {
+            const nodeId = prompt('Enter node ID:');
+            const condition = prompt('Enter condition (optional):');
+            
+            if (nodeId) {
+                // Enviar comando al servidor
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({
+                        action: 'add_breakpoint',
+                        node_id: nodeId,
+                        condition: condition || null
+                    }));
+                }
+            }
+        }
+        
+        function removeBreakpoint(id) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'remove_breakpoint',
+                    breakpoint_id: id
+                }));
+            }
+        }
+        
+        function toggleBreakpoint(id) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'toggle_breakpoint',
+                    breakpoint_id: id
+                }));
+            }
+        }
+        
+        function clearBreakpoints() {
+            if (confirm('Clear all breakpoints?')) {
+                Object.keys(breakpoints).forEach(id => removeBreakpoint(id));
+            }
+        }
+        
+        function pauseAll() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'pause_all'
+                }));
+            }
+        }
+        
+        function resumeAll() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    action: 'resume_all'
+                }));
+            }
+        }
+        
+        // Conectar al iniciar
+        connect();
+        
+        // Actualizar displays periódicamente
+        setInterval(updateExecutionStates, 1000);
+    </script>
+</body>
+</html>
+    

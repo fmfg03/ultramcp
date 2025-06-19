@@ -1,0 +1,38 @@
+---
+title: "Agentius MCP - Autonomous Agent Runtime"
+---
+graph LR
+    %% AGENTIUS MCP - Pitch Deck Version
+    %% Simplified flow for presentations
+    
+    %% Styling
+    classDef input fill:#e3f2fd,stroke:#1976d2,stroke-width:4px,color:#fff,font-size:14px
+    classDef intelligence fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px,color:#fff,font-size:14px
+    classDef execution fill:#e8f5e8,stroke:#388e3c,stroke-width:3px,color:#fff,font-size:14px
+    classDef output fill:#fff3e0,stroke:#f57c00,stroke-width:4px,color:#fff,font-size:14px
+    
+    %% Main Components
+    INPUT[📝 User Input<br/>Natural Language]:::input
+    REASONING[🧠 AI Reasoning<br/>Task Planning]:::intelligence
+    MODELS[🤖 Local LLMs<br/>Mistral • LLaMA • DeepSeek]:::execution
+    CONTRADICTION[🔥 Contradiction Engine<br/>Learns from Failures]:::intelligence
+    OUTPUT[✨ Optimized Result<br/>High Quality Output]:::output
+    
+    %% Flow
+    INPUT --> REASONING
+    REASONING --> MODELS
+    MODELS --> OUTPUT
+    
+    %% Feedback Loop
+    OUTPUT -.->|❌ Low Quality| CONTRADICTION
+    CONTRADICTION -.->|🔄 Force New Approach| REASONING
+    
+    %% Key Features (annotations)
+    REASONING -.->|"Auto-detects best model<br/>for each task type"| MODELS
+    MODELS -.->|"100% Local Processing<br/>No API dependencies"| OUTPUT
+    CONTRADICTION -.->|"Explicit contradiction<br/>transforms failures into learning"| REASONING
+    
+    %% Monitoring Layer
+    LANGWATCH[📊 Langwatch<br/>Real-time Analytics]:::intelligence
+    MODELS -.-> LANGWATCH
+    LANGWATCH -.-> OUTPUT

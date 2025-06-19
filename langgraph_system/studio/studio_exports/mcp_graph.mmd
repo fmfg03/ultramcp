@@ -1,0 +1,29 @@
+graph TD
+    initialize((Initialize))
+    style initialize fill:#4CAF50
+    health_check[Health Check]
+    style health_check fill:#2196F3
+    reasoning[Reasoning Shell]
+    style reasoning fill:#FF9800
+    adaptive_selection{Model Selection}
+    style adaptive_selection fill:#9C27B0
+    execute_llm[LLM Execution]
+    style execute_llm fill:#F44336
+    evaluate[Reward Shell]
+    style evaluate fill:#4CAF50
+    contradiction_analysis[Contradiction Analysis]
+    style contradiction_analysis fill:#E91E63
+    retry_analysis{Retry Analysis}
+    style retry_analysis fill:#607D8B
+    finalize((Finalize))
+    style finalize fill:#795548
+    initialize --> health_check
+    health_check -->|system_healthy| reasoning
+    health_check -->|system_unhealthy| finalize
+    reasoning --> adaptive_selection
+    adaptive_selection --> execute_llm
+    execute_llm --> evaluate
+    evaluate --> contradiction_analysis
+    contradiction_analysis --> retry_analysis
+    retry_analysis -->|should_retry| adaptive_selection
+    retry_analysis -->|should_finalize| finalize

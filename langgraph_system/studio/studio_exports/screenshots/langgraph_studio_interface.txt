@@ -1,0 +1,10 @@
+Screenshot Placeholder: LangGraph Studio Interface
+Resolution: 1920x1080
+Timestamp: 2025-06-18T00:34:36.353622
+
+To capture real screenshots, integrate with:
+- Playwright: pip install playwright
+- Selenium: pip install selenium
+- Or use system screenshot tools
+
+This file represents where the actual screenshot would be saved.

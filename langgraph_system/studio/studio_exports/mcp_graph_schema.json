@@ -1,0 +1,160 @@
+{
+  "graph_id": "mcp_reasoning_agent",
+  "version": "1.0",
+  "description": "Agentius MCP - Autonomous Agent System with Local LLMs",
+  "nodes": [
+    {
+      "id": "initialize",
+      "type": "start",
+      "label": "Initialize",
+      "description": "Initialize session and configuration",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "health_check",
+      "type": "process",
+      "label": "Health Check",
+      "description": "Verify system health and model availability",
+      "position": {
+        "x": 0,
+        "y": 100
+      }
+    },
+    {
+      "id": "reasoning",
+      "type": "process",
+      "label": "Reasoning Shell",
+      "description": "Analyze task and create execution plan",
+      "position": {
+        "x": 0,
+        "y": 200
+      }
+    },
+    {
+      "id": "adaptive_selection",
+      "type": "decision",
+      "label": "Model Selection",
+      "description": "Select optimal LLM model for task",
+      "position": {
+        "x": 0,
+        "y": 300
+      }
+    },
+    {
+      "id": "execute_llm",
+      "type": "process",
+      "label": "LLM Execution",
+      "description": "Execute task using selected local LLM",
+      "position": {
+        "x": 0,
+        "y": 400
+      }
+    },
+    {
+      "id": "evaluate",
+      "type": "process",
+      "label": "Reward Shell",
+      "description": "Evaluate output quality and score",
+      "position": {
+        "x": 0,
+        "y": 500
+      }
+    },
+    {
+      "id": "contradiction_analysis",
+      "type": "process",
+      "label": "Contradiction Analysis",
+      "description": "Apply explicit contradiction if needed",
+      "position": {
+        "x": 0,
+        "y": 600
+      }
+    },
+    {
+      "id": "retry_analysis",
+      "type": "decision",
+      "label": "Retry Analysis",
+      "description": "Decide whether to retry or finalize",
+      "position": {
+        "x": 0,
+        "y": 700
+      }
+    },
+    {
+      "id": "finalize",
+      "type": "process",
+      "label": "Finalize",
+      "description": "Finalize results and cleanup",
+      "position": {
+        "x": 0,
+        "y": 800
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "initialize",
+      "to": "health_check",
+      "condition": null
+    },
+    {
+      "from": "health_check",
+      "to": "reasoning",
+      "condition": "system_healthy"
+    },
+    {
+      "from": "health_check",
+      "to": "finalize",
+      "condition": "system_unhealthy"
+    },
+    {
+      "from": "reasoning",
+      "to": "adaptive_selection",
+      "condition": null
+    },
+    {
+      "from": "adaptive_selection",
+      "to": "execute_llm",
+      "condition": null
+    },
+    {
+      "from": "execute_llm",
+      "to": "evaluate",
+      "condition": null
+    },
+    {
+      "from": "evaluate",
+      "to": "contradiction_analysis",
+      "condition": null
+    },
+    {
+      "from": "contradiction_analysis",
+      "to": "retry_analysis",
+      "condition": null
+    },
+    {
+      "from": "retry_analysis",
+      "to": "adaptive_selection",
+      "condition": "should_retry"
+    },
+    {
+      "from": "retry_analysis",
+      "to": "finalize",
+      "condition": "should_finalize"
+    }
+  ],
+  "metadata": {
+    "created": "2025-06-18T00:34:36.353132",
+    "langwatch_integration": true,
+    "local_llm_support": [
+      "mistral",
+      "llama",
+      "deepseek"
+    ],
+    "contradiction_explicit": true,
+    "recursive_planning": true
+  }
+}

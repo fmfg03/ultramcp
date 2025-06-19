@@ -1,0 +1,32 @@
+# LangGraph Studio Configuration
+
+## Studio Configuration for MCP System
+studio_url: "https://smith.langchain.com"
+enable_debugging: true
+debug_port: 5678
+auto_reload: true
+host: "0.0.0.0"
+port: 8123
+
+## Graph Visualization Settings
+export_format: "mermaid"
+export_path: "./langgraph_system/studio/studio_exports/"
+enable_realtime_debugging: true
+
+## Monitoring Integration
+langwatch_integration: true
+session_tracking: true
+performance_metrics: true
+
+## Development Settings
+hot_reload: true
+browser_auto_open: false
+tunnel_enabled: true
+log_level: "INFO"
+
+## Export Settings
+mermaid_theme: "default"
+include_metadata: true
+include_state_schemas: true
+include_edge_conditions: true
+

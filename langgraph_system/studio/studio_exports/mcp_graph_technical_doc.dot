@@ -1,0 +1,64 @@
+digraph MCPSystem {
+    label="MCP System Architecture";
+    labelloc="t";
+    fontsize=20;
+    fontname="Arial Bold";
+    
+    // Configuración general
+    rankdir=TD;
+    node [fontname="Arial", fontsize=12];
+    edge [fontname="Arial", fontsize=10];
+    
+    // Estilos de nodos
+    node [shape=ellipse, style=filled];
+    
+    // Nodos del sistema
+    start [label="🚀 START", fillcolor="#4CAF50", fontcolor="white"];
+    init [label="📋 Initialize", fillcolor="#2196F3", fontcolor="white"];
+    health [label="🔍 Health Check", fillcolor="#2196F3", fontcolor="white"];
+    reasoning [label="🧠 Reasoning Shell", fillcolor="#FF9800", fontcolor="white"];
+    selection [label="🎯 Model Selection", fillcolor="#9C27B0", fontcolor="white", shape=diamond];
+    execute [label="⚡ LLM Execution", fillcolor="#F44336", fontcolor="white"];
+    evaluate [label="📊 Reward Shell", fillcolor="#4CAF50", fontcolor="white"];
+    contradiction [label="🔥 Contradiction", fillcolor="#E91E63", fontcolor="white"];
+    retry [label="🔄 Retry Analysis", fillcolor="#607D8B", fontcolor="white", shape=diamond];
+    finalize [label="✅ Finalize", fillcolor="#795548", fontcolor="white"];
+    end [label="🎉 END", fillcolor="#4CAF50", fontcolor="white"];
+    
+    // Conexiones principales
+    start -> init;
+    init -> health;
+    health -> reasoning [label="healthy"];
+    health -> end [label="error", color="red"];
+    reasoning -> selection;
+    selection -> execute;
+    execute -> evaluate;
+    evaluate -> contradiction [label="score < 0.8"];
+    evaluate -> finalize [label="score ≥ 0.8"];
+    contradiction -> retry;
+    retry -> selection [label="retry"];
+    retry -> finalize [label="stop"];
+    finalize -> end;
+
+    // Detalles adicionales
+    subgraph cluster_llm {
+        label="Local LLM Models";
+        style=filled;
+        fillcolor="#f0f0f0";
+        
+        mistral [label="Mistral\nLocal", fillcolor="#FFE0B2"];
+        llama [label="LLaMA\nLocal", fillcolor="#FFE0B2"];
+        deepseek [label="DeepSeek\nLocal", fillcolor="#FFE0B2"];
+    }
+    
+    selection -> mistral [style=dashed];
+    selection -> llama [style=dashed];
+    selection -> deepseek [style=dashed];
+    
+    // Langwatch monitoring
+    langwatch [label="📊 Langwatch\nMonitoring", fillcolor="#FFEB3B", shape=box];
+    execute -> langwatch [style=dotted, label="track"];
+    evaluate -> langwatch [style=dotted, label="track"];
+    contradiction -> langwatch [style=dotted, label="track"];
+
+}

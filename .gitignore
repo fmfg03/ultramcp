@@ -1,0 +1,114 @@
+# Environment files
+.env*
+!.env.example
+!.env.langwatch.example
+
+# Secrets and keys
+keys/
+secrets/
+credentials/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.yarn/
+
+# Coverage directory
+coverage/
+*.lcov
+.nyc_output/
+
+# Temporary folders
+tmp/
+temp/
+.tmp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Test files
+test-results/
+coverage/
+
+# Monitoring data
+prometheus_data/
+grafana_data/
+
+# SSL certificates (managed separately)
+*.crt
+*.cert
+*.ca-bundle
+
+# Local development files
+.env.local
+.env.development
+.env.test
+
+
+# Keys directory - keep structure but ignore actual keys
+keys/*
+!keys/.gitkeep

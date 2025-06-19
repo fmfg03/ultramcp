@@ -1,0 +1,56 @@
+# DevTool Frontend Dockerfile with Security Hardening
+# Multi-stage build for production optimization
+
+# Stage 1: Dependencies
+FROM node:20-alpine AS dependencies
+WORKDIR /app
+
+# Copy package files
+COPY mcp-devtool-client/package*.json ./
+COPY mcp-devtool-client/pnpm-lock.yaml* ./
+
+# Install dependencies
+RUN npm install -g pnpm
+RUN pnpm install --frozen-lockfile
+
+# Stage 2: Build
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies and source
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY mcp-devtool-client/ ./
+
+# Build the application
+RUN pnpm build
+
+# Stage 3: Production with Nginx
+FROM nginx:alpine AS production
+
+# Create nginx user (if not exists)
+RUN addgroup -g 101 -S nginx || true
+RUN adduser -S nginx -u 101 -G nginx || true
+
+# Copy built application
+COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY docker/nginx/devtool.conf /etc/nginx/conf.d/default.conf
+
+# Create necessary directories
+RUN mkdir -p /var/cache/nginx /var/log/nginx /var/run
+RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /var/run
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:80/health || exit 1
+
+# Switch to non-root user
+USER nginx
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
+

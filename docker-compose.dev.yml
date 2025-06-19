@@ -1,0 +1,120 @@
+version: '3.8'
+
+# Development environment with hot reload and debugging
+services:
+  # PostgreSQL Database
+  mcp-database-dev:
+    image: postgres:15-alpine
+    container_name: mcp-database-dev
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      MCP_DB_PASSWORD: mcp_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-mcp-db.sh:/docker-entrypoint-initdb.d/init-mcp-db.sh:ro
+    ports:
+      - "5433:5432"
+    networks:
+      - mcp-dev-network
+
+  # Redis Cache
+  mcp-redis-dev:
+    image: redis:7-alpine
+    container_name: mcp-redis-dev
+    command: redis-server --requirepass redis_password
+    ports:
+      - "6380:6379"
+    networks:
+      - mcp-dev-network
+
+  # MCP Backend (Development with hot reload)
+  mcp-backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      target: dependencies
+    container_name: mcp-backend-dev
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://mcp_user:mcp_password@mcp-database-dev:5432/mcp_system
+      REDIS_URL: redis://:redis_password@mcp-redis-dev:6379
+      STUDIO_SECRET: dev_studio_secret
+      MCP_API_KEYS: dev-key-123,test-key-456
+      JWT_SECRET: dev_jwt_secret
+      SESSION_SECRET: dev_session_secret
+    volumes:
+      - ./backend:/app
+      - ./keys:/app/keys
+      - /app/node_modules
+    ports:
+      - "3001:3000"
+      - "9229:9229"  # Debug port
+    networks:
+      - mcp-dev-network
+    depends_on:
+      - mcp-database-dev
+      - mcp-redis-dev
+    command: npm run dev
+    stdin_open: true
+    tty: true
+
+  # LangGraph Studio (Development)
+  mcp-studio-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.studio
+    container_name: mcp-studio-dev
+    environment:
+      PYTHONPATH: /app
+      STUDIO_SECRET: dev_studio_secret
+      DATABASE_URL: postgresql://mcp_user:mcp_password@mcp-database-dev:5432/mcp_system
+      REDIS_URL: redis://:redis_password@mcp-redis-dev:6379
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+    volumes:
+      - ./langgraph_system:/app
+      - ./keys:/app/keys
+    ports:
+      - "8124:8123"
+      - "8125:8124"
+    networks:
+      - mcp-dev-network
+    depends_on:
+      - mcp-database-dev
+      - mcp-redis-dev
+
+  # DevTool Frontend (Development with hot reload)
+  mcp-devtool-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.devtool
+      target: dependencies
+    container_name: mcp-devtool-dev
+    environment:
+      VITE_API_BASE_URL: http://localhost:3001
+      VITE_STUDIO_BASE_URL: http://localhost:8124
+      VITE_WS_BASE_URL: ws://localhost:3001
+    volumes:
+      - ./mcp-devtool-client:/app
+      - /app/node_modules
+    ports:
+      - "5174:5173"
+    networks:
+      - mcp-dev-network
+    depends_on:
+      - mcp-backend-dev
+    command: npm run dev -- --host 0.0.0.0
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  mcp-dev-network:
+    driver: bridge
+

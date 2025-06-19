@@ -1,0 +1,499 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentius MCP - System Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto auto;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #4CAF50;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .metric-value {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #667eea;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .mermaid-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #856404;
+        }
+        
+        .alert.warning {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .alert.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .grid-full {
+            grid-column: 1 / -1;
+        }
+        
+        .grid-half {
+            grid-column: span 2;
+        }
+        
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="refresh-indicator">
+        🔄 Auto-refresh: 30s
+    </div>
+    
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 Agentius MCP Dashboard</h1>
+            <div class="subtitle">Real-time System Monitoring & Analytics</div>
+            <div class="status-indicators">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>System Online</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>LangWatch Active</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>Local LLMs Ready</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>Debugging Enabled</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Metrics -->
+        <div class="card">
+            <h3>📊 System Metrics</h3>
+            <div class="metric">
+                <span class="metric-label">Active Sessions</span>
+                <span class="metric-value">3</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Total Requests</span>
+                <span class="metric-value">150</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Avg Response Time</span>
+                <span class="metric-value">2500ms</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Success Rate</span>
+                <span class="metric-value">92.0%</span>
+            </div>
+        </div>
+        
+        <!-- Model Performance -->
+        <div class="card">
+            <h3>🤖 Model Performance</h3>
+            <div class="chart-container">
+                <canvas id="modelChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Contradiction Analysis -->
+        <div class="card">
+            <h3>🔥 Contradiction Analysis</h3>
+            <div class="metric">
+                <span class="metric-label">Total Contradictions</span>
+                <span class="metric-value">12</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Avg Effectiveness</span>
+                <span class="metric-value">75.0%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Success After Contradiction</span>
+                <span class="metric-value">83.0%</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="contradictionChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Session Analytics -->
+        <div class="card grid-half">
+            <h3>📈 Session Analytics (24h)</h3>
+            <div class="metric">
+                <span class="metric-label">Total Sessions</span>
+                <span class="metric-value">0</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Completion Rate</span>
+                <span class="metric-value">0.0%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Avg Duration</span>
+                <span class="metric-value">0.0s</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Avg Quality Score</span>
+                <span class="metric-value">0.00</span>
+            </div>
+        </div>
+        
+        <!-- Performance Trends -->
+        <div class="card">
+            <h3>📊 Performance Trends</h3>
+            <div class="chart-container">
+                <canvas id="trendsChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- System Flow Visualization -->
+        <div class="card grid-full">
+            <h3>🔄 System Flow Visualization</h3>
+            <div class="mermaid-container">
+                <div class="mermaid">
+graph TD
+    START([🚀 User Input]) --> REASONING[🧠 Reasoning Shell]
+    REASONING --> SELECTION{🎯 Model Selection}
+    SELECTION --> MISTRAL[🧙‍♂️ Mistral Local]
+    SELECTION --> LLAMA[🦙 LLaMA Local]
+    SELECTION --> DEEPSEEK[🔬 DeepSeek Local]
+    MISTRAL --> EXECUTE[⚡ Execute]
+    LLAMA --> EXECUTE
+    DEEPSEEK --> EXECUTE
+    EXECUTE --> EVALUATE[📊 Reward Shell]
+    EVALUATE --> CONTRADICTION{🔥 Contradiction?}
+    CONTRADICTION -->|Yes| REASONING
+    CONTRADICTION -->|No| RESULT[✨ Final Result]
+    
+    classDef startEnd fill:#4CAF50,stroke:#333,stroke-width:2px,color:#fff
+    classDef process fill:#2196F3,stroke:#333,stroke-width:2px,color:#fff
+    classDef decision fill:#FF9800,stroke:#333,stroke-width:2px,color:#fff
+    classDef model fill:#9C27B0,stroke:#333,stroke-width:2px,color:#fff
+    
+    class START,RESULT startEnd
+    class REASONING,EXECUTE,EVALUATE process
+    class SELECTION,CONTRADICTION decision
+    class MISTRAL,LLAMA,DEEPSEEK model
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alerts -->
+        <div class="card grid-full">
+            <h3>🚨 System Alerts</h3>
+            <div id="alerts-container">
+                <!-- Alerts will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+        
+        // Chart.js configurations
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        };
+        
+        // Model Performance Chart
+        const modelCtx = document.getElementById('modelChart').getContext('2d');
+        const modelChart = new Chart(modelCtx, {
+            type: 'bar',
+            data: {
+                labels: ["mistral-local", "llama-local", "deepseek-local"],
+                datasets: [{
+                    label: 'Avg Response Time (ms)',
+                    data: [2300, 2600, 2400],
+                    backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Quality Score',
+                    data: [850.0, 820.0, 880.0],
+                    backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+        
+        // Contradiction Effectiveness Chart
+        const contradictionCtx = document.getElementById('contradictionChart').getContext('2d');
+        const contradictionChart = new Chart(contradictionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Successful', 'Failed'],
+                datasets: [{
+                    data: [
+                        83.0,
+                        17.0
+                    ],
+                    backgroundColor: ['#4CAF50', '#F44336'],
+                    borderWidth: 2
+                }]
+            },
+            options: chartOptions
+        });
+        
+        // Performance Trends Chart
+        const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+        const trendsChart = new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: ['6h ago', '5h ago', '4h ago', '3h ago', '2h ago', '1h ago', 'Now'],
+                datasets: [{
+                    label: 'Response Time (ms)',
+                    data: [2500, 2300, 2100, 2400, 2200, 2000, 2500],
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Success Rate (%)',
+                    data: [85, 87, 90, 88, 92, 94, 92.0],
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                ...chartOptions,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+        
+        // Populate alerts
+        function populateAlerts() {
+            const alertsContainer = document.getElementById('alerts-container');
+            const alerts = [];
+            
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = '<div class="alert info">✅ No active alerts - System running smoothly</div>';
+                return;
+            }
+            
+            alertsContainer.innerHTML = alerts.map(alert => 
+                `<div class="alert ${alert.severity}">
+                    <strong>${alert.type.toUpperCase()}</strong>: ${alert.message}
+                    <small style="float: right;">${new Date(alert.timestamp).toLocaleTimeString()}</small>
+                </div>`
+            ).join('');
+        }
+        
+        populateAlerts();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            window.location.reload();
+        }, 30000);
+        
+        // WebSocket connection for real-time updates
+        const ws = new WebSocket(`ws://${window.location.host}/ws/debug`);
+        
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (data.type === 'metrics_update') {
+                // Update charts with new data
+                console.log('Real-time metrics update:', data);
+            }
+        };
+    </script>
+</body>
+</html>
+        

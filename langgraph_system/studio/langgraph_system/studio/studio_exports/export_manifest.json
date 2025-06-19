@@ -1,0 +1,22 @@
+{
+  "export_timestamp": "2025-06-18T00:51:59.899304",
+  "system_version": "1.0.0",
+  "exports": {
+    "mermaid": "langgraph_system/studio/studio_exports/graphs/mcp_complete_system.mmd",
+    "pitch_deck": "langgraph_system/studio/studio_exports/graphs/mcp_pitch_deck.mmd",
+    "dot": "langgraph_system/studio/studio_exports/graphs/mcp_system.dot",
+    "schema": "langgraph_system/studio/studio_exports/graphs/mcp_schema.json"
+  },
+  "metadata": {
+    "total_nodes": 11,
+    "total_edges": 13,
+    "features": [
+      "Reasoning Shell",
+      "Reward Shell",
+      "Contradiction Analysis",
+      "Intelligent Retry",
+      "Local LLMs",
+      "Langwatch Integration"
+    ]
+  }
+}

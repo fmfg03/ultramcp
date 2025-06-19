@@ -1,0 +1,202 @@
+{
+  "system": {
+    "name": "Agentius MCP",
+    "version": "1.0.0",
+    "description": "Autonomous Agent Runtime with Local LLMs and Contradiction Learning"
+  },
+  "architecture": {
+    "type": "LangGraph StateGraph",
+    "nodes": {
+      "initialize": {
+        "type": "memory",
+        "description": "Initialize session and configuration",
+        "inputs": [
+          "user_input",
+          "config"
+        ],
+        "outputs": [
+          "session_id",
+          "initial_state"
+        ]
+      },
+      "health_check": {
+        "type": "evaluation",
+        "description": "Check system and model health",
+        "inputs": [
+          "system_state"
+        ],
+        "outputs": [
+          "health_status",
+          "available_models"
+        ]
+      },
+      "reasoning": {
+        "type": "reasoning",
+        "description": "Enhanced reasoning with task analysis",
+        "inputs": [
+          "user_input",
+          "context"
+        ],
+        "outputs": [
+          "task_plan",
+          "complexity_score"
+        ]
+      },
+      "adaptive_selection": {
+        "type": "decision",
+        "description": "Auto-detect best model for task",
+        "inputs": [
+          "task_plan",
+          "available_models"
+        ],
+        "outputs": [
+          "selected_model",
+          "selection_reason"
+        ]
+      },
+      "execute_llm": {
+        "type": "execution",
+        "description": "Execute with local LLM and Langwatch tracking",
+        "inputs": [
+          "prompt",
+          "model_config"
+        ],
+        "outputs": [
+          "response",
+          "metrics",
+          "tokens"
+        ]
+      },
+      "evaluate": {
+        "type": "evaluation",
+        "description": "Multi-dimensional quality assessment",
+        "inputs": [
+          "response",
+          "original_task"
+        ],
+        "outputs": [
+          "score",
+          "feedback",
+          "quality_metrics"
+        ]
+      },
+      "contradiction_analysis": {
+        "type": "decision",
+        "description": "Detect failures and apply contradiction",
+        "inputs": [
+          "score",
+          "attempt_history"
+        ],
+        "outputs": [
+          "contradiction_needed",
+          "contradiction_prompt"
+        ]
+      },
+      "retry_analysis": {
+        "type": "decision",
+        "description": "Intelligent retry strategy selection",
+        "inputs": [
+          "score",
+          "attempts",
+          "contradiction_applied"
+        ],
+        "outputs": [
+          "should_retry",
+          "retry_strategy"
+        ]
+      },
+      "finalize": {
+        "type": "memory",
+        "description": "Save results and cleanup",
+        "inputs": [
+          "final_response",
+          "session_data"
+        ],
+        "outputs": [
+          "saved_session",
+          "cleanup_status"
+        ]
+      }
+    },
+    "edges": {
+      "conditional": [
+        {
+          "from": "health_check",
+          "to": "end",
+          "condition": "system_unhealthy"
+        },
+        {
+          "from": "evaluate",
+          "to": "finalize",
+          "condition": "score >= 0.8"
+        },
+        {
+          "from": "contradiction_analysis",
+          "to": "reasoning",
+          "condition": "apply_contradiction"
+        },
+        {
+          "from": "retry_analysis",
+          "to": "adaptive_selection",
+          "condition": "should_retry"
+        },
+        {
+          "from": "retry_analysis",
+          "to": "finalize",
+          "condition": "max_retries"
+        }
+      ],
+      "sequential": [
+        "start -> initialize",
+        "initialize -> health_check",
+        "health_check -> reasoning",
+        "reasoning -> adaptive_selection",
+        "adaptive_selection -> execute_llm",
+        "execute_llm -> evaluate",
+        "evaluate -> contradiction_analysis",
+        "contradiction_analysis -> retry_analysis",
+        "retry_analysis -> finalize",
+        "finalize -> end"
+      ]
+    }
+  },
+  "features": {
+    "local_llms": {
+      "models": [
+        "mistral-local",
+        "llama-local",
+        "deepseek-local"
+      ],
+      "format": ".gguf",
+      "auto_selection": true,
+      "fallback_enabled": true
+    },
+    "contradiction_learning": {
+      "enabled": true,
+      "intensities": [
+        "mild",
+        "moderate",
+        "strong",
+        "extreme"
+      ],
+      "effectiveness_tracking": true
+    },
+    "monitoring": {
+      "langwatch_integration": true,
+      "realtime_debugging": true,
+      "session_tracking": true,
+      "performance_metrics": true
+    },
+    "retry_strategies": {
+      "simple": "Same model, enhanced prompt",
+      "enhanced": "Different model, contradiction prompt",
+      "alternative": "Alternative approach",
+      "decomposed": "Break into subtasks"
+    }
+  },
+  "export_metadata": {
+    "generated_at": "2025-06-18T00:51:59.898981",
+    "export_version": "1.0",
+    "schema_version": "1.0"
+  }
+}

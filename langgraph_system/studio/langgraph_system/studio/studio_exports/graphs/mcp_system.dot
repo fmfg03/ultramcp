@@ -1,0 +1,62 @@
+digraph MCP_System {
+    // MCP System - Technical Architecture
+    // Generated for technical documentation
+    
+    // Graph settings
+    rankdir=TD;
+    node [shape=box, style=filled, fontname="Arial"];
+    edge [fontname="Arial", fontsize=10];
+    
+    // Node definitions with colors
+    start [label="START", shape=ellipse, fillcolor="#4CAF50"];
+    init [label="Initialize\nSession", fillcolor="#E3F2FD"];
+    health [label="Health\nCheck", fillcolor="#FFF3E0"];
+    reasoning [label="Reasoning\nShell", fillcolor="#F3E5F5"];
+    selection [label="Model\nSelection", fillcolor="#FCE4EC", shape=diamond];
+    execute [label="LLM\nExecution", fillcolor="#FFEBEE"];
+    evaluate [label="Reward\nShell", fillcolor="#E8F5E8"];
+    contradiction [label="Contradiction\nAnalysis", fillcolor="#FFF3E0"];
+    retry [label="Retry\nAnalysis", fillcolor="#F1F8E9", shape=diamond];
+    finalize [label="Finalize\nResults", fillcolor="#E3F2FD"];
+    end [label="END", shape=ellipse, fillcolor="#795548"];
+    
+    // Local LLM nodes
+    mistral [label="Mistral\nLocal", fillcolor="#FFCDD2"];
+    llama [label="LLaMA\nLocal", fillcolor="#FFCDD2"];
+    deepseek [label="DeepSeek\nLocal", fillcolor="#FFCDD2"];
+    
+    // Main flow
+    start -> init;
+    init -> health;
+    health -> reasoning;
+    reasoning -> selection;
+    selection -> execute;
+    execute -> evaluate;
+    evaluate -> contradiction;
+    contradiction -> retry;
+    retry -> finalize;
+    finalize -> end;
+    
+    // Model selection
+    selection -> mistral [style=dashed, label="general"];
+    selection -> llama [style=dashed, label="text"];
+    selection -> deepseek [style=dashed, label="math"];
+    mistral -> execute [style=dashed];
+    llama -> execute [style=dashed];
+    deepseek -> execute [style=dashed];
+    
+    // Conditional flows
+    health -> end [label="unhealthy", color=red];
+    evaluate -> finalize [label="score >= 0.8", color=green];
+    contradiction -> reasoning [label="apply contradiction", color=orange];
+    retry -> selection [label="retry", color=blue];
+    retry -> finalize [label="max retries", color=red];
+    
+    // Subgraph for local models
+    subgraph cluster_llms {
+        label="Local LLM Models";
+        style=filled;
+        fillcolor="#F5F5F5";
+        mistral; llama; deepseek;
+    }
+}
