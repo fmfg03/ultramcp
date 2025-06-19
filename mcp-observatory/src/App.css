@@ -1,0 +1,329 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Nuclear Brutalist Theme */
+:root {
+  --radius: 0.125rem;
+  --background: #000000;
+  --foreground: #00ff00;
+  --card: #0a0a0a;
+  --card-foreground: #00ff00;
+  --popover: #0a0a0a;
+  --popover-foreground: #00ff00;
+  --primary: #ff0000;
+  --primary-foreground: #000000;
+  --secondary: #333333;
+  --secondary-foreground: #00ff00;
+  --muted: #1a1a1a;
+  --muted-foreground: #888888;
+  --accent: #ffff00;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --border: #333333;
+  --input: #1a1a1a;
+  --ring: #00ff00;
+  --chart-1: #ff0000;
+  --chart-2: #00ff00;
+  --chart-3: #ffff00;
+  --chart-4: #ff8800;
+  --chart-5: #8800ff;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #00ff00;
+  --sidebar-primary: #ff0000;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #333333;
+  --sidebar-accent-foreground: #00ff00;
+  --sidebar-border: #333333;
+  --sidebar-ring: #00ff00;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #00ff00;
+  --card: #0a0a0a;
+  --card-foreground: #00ff00;
+  --popover: #0a0a0a;
+  --popover-foreground: #00ff00;
+  --primary: #ff0000;
+  --primary-foreground: #000000;
+  --secondary: #333333;
+  --secondary-foreground: #00ff00;
+  --muted: #1a1a1a;
+  --muted-foreground: #888888;
+  --accent: #ffff00;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --border: #333333;
+  --input: #1a1a1a;
+  --ring: #00ff00;
+  --chart-1: #ff0000;
+  --chart-2: #00ff00;
+  --chart-3: #ffff00;
+  --chart-4: #ff8800;
+  --chart-5: #8800ff;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #00ff00;
+  --sidebar-primary: #ff0000;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #333333;
+  --sidebar-accent-foreground: #00ff00;
+  --sidebar-border: #333333;
+  --sidebar-ring: #00ff00;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-mono;
+    font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  }
+}
+
+/* Nuclear Terminal Styles */
+.nuclear-terminal {
+  background: #000000;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  border: 2px solid #333333;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.nuclear-glow {
+  text-shadow: 0 0 5px currentColor;
+}
+
+.nuclear-blink {
+  animation: nuclear-blink 1s infinite;
+}
+
+@keyframes nuclear-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+.nuclear-pulse {
+  animation: nuclear-pulse 2s infinite;
+}
+
+@keyframes nuclear-pulse {
+  0% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+}
+
+.nuclear-scan {
+  position: relative;
+  overflow: hidden;
+}
+
+.nuclear-scan::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+  animation: nuclear-scan 3s infinite;
+}
+
+@keyframes nuclear-scan {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.nuclear-grid {
+  background-image: 
+    linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.nuclear-border {
+  border: 1px solid #333333;
+  box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
+}
+
+.nuclear-critical {
+  color: #ff0000;
+  text-shadow: 0 0 10px #ff0000;
+  animation: nuclear-critical 0.5s infinite;
+}
+
+@keyframes nuclear-critical {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.nuclear-warning {
+  color: #ffff00;
+  text-shadow: 0 0 5px #ffff00;
+}
+
+.nuclear-success {
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+.nuclear-info {
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+/* Matrix-style text effect */
+.matrix-text {
+  font-family: 'Courier New', monospace;
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+  letter-spacing: 1px;
+}
+
+/* Nuclear button styles */
+.nuclear-button {
+  background: #1a1a1a;
+  border: 1px solid #333333;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.nuclear-button:hover {
+  background: #333333;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px #00ff00;
+}
+
+.nuclear-button:active {
+  background: #00ff00;
+  color: #000000;
+}
+
+/* Status indicators */
+.status-online {
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+.status-warning {
+  color: #ffff00;
+  text-shadow: 0 0 5px #ffff00;
+}
+
+.status-error {
+  color: #ff0000;
+  text-shadow: 0 0 5px #ff0000;
+  animation: nuclear-blink 1s infinite;
+}
+
+.status-offline {
+  color: #666666;
+}
+
+/* Metric cards */
+.metric-card {
+  background: #0a0a0a;
+  border: 1px solid #333333;
+  box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.05);
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: bold;
+  text-shadow: 0 0 5px currentColor;
+}
+
+/* Terminal output */
+.terminal-output {
+  background: #000000;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 10px;
+  border: 1px solid #333333;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.terminal-line {
+  margin-bottom: 2px;
+}
+
+.terminal-prompt {
+  color: #ffff00;
+}
+
+.terminal-error {
+  color: #ff0000;
+}
+
+.terminal-success {
+  color: #00ff00;
+}
+
+.terminal-info {
+  color: #00ffff;
+}
+
