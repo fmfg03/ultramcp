@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground;
+}
+
+/* Brutalist design elements */
+.brutalist-border {
+  @apply border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)];
+}
+
+.brutalist-button {
+  @apply bg-black text-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] 
+         hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]
+         transition-all duration-150 font-bold uppercase tracking-wider;
+}
+
+.brutalist-card {
+  @apply bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)];
+}
+
+/* Agent status indicators */
+.agent-running {
+  @apply animate-pulse bg-green-500;
+}
+
+.agent-idle {
+  @apply bg-gray-400;
+}
+
+.agent-error {
+  @apply animate-pulse bg-red-500;
+}
+
+/* Live stream effects */
+.live-indicator {
+  @apply relative;
+}
+
+.live-indicator::before {
+  content: '';
+  @apply absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping;
+}
+
+.live-indicator::after {
+  content: '';
+  @apply absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full;
+}
+
+/* Terminal-like styling */
+.terminal {
+  @apply bg-black text-green-400 font-mono text-sm p-4 rounded-none border-4 border-green-400;
+}
+
+.terminal-cursor {
+  @apply animate-pulse;
+}
+
+/* Graph node styling */
+.graph-node {
+  @apply transition-all duration-200 hover:scale-110 cursor-pointer;
+}
+
+.graph-node.active {
+  @apply ring-4 ring-blue-500 ring-opacity-50;
+}
+
+.graph-node.disabled {
+  @apply opacity-50 grayscale;
+}
+
+/* Metrics dashboard */
+.metric-card {
+  @apply bg-gradient-to-br from-blue-50 to-indigo-100 border-l-4 border-blue-500;
+}
+
+.metric-value {
+  @apply text-3xl font-bold text-blue-600;
+}
+
+/* Research interface */
+.research-source {
+  @apply border-2 border-dashed border-gray-300 hover:border-blue-500 transition-colors;
+}
+
+.research-source.selected {
+  @apply border-blue-500 bg-blue-50;
+}
