@@ -112,3 +112,5 @@ grafana_data/
 # Keys directory - keep structure but ignore actual keys
 keys/*
 !keys/.gitkeep
+.env
+keys/private_key.pem
