@@ -1,0 +1,90 @@
+/* 🎨 FIX PARA COLORES MCP TOOLS */
+
+/* Mejorar contraste general */
+.mcp-tools-container {
+  color: #1f2937 !important; /* Texto oscuro */
+  background-color: #ffffff !important; /* Fondo blanco */
+}
+
+/* Select dropdown mejorado */
+select, .select-dropdown {
+  color: #1f2937 !important; /* Texto oscuro */
+  background-color: #ffffff !important; /* Fondo blanco */
+  border: 2px solid #d1d5db !important; /* Borde gris */
+  padding: 8px 12px !important;
+}
+
+/* Option elements */
+option {
+  color: #1f2937 !important; /* Texto oscuro */
+  background-color: #ffffff !important; /* Fondo blanco */
+}
+
+/* Tool details card */
+.tool-details-card {
+  color: #374151 !important; /* Texto gris oscuro */
+  background-color: #f9fafb !important; /* Fondo gris muy claro */
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Execution result */
+.execution-result {
+  color: #065f46 !important; /* Verde oscuro */
+  background-color: #ecfdf5 !important; /* Verde muy claro */
+  border: 1px solid #a7f3d0 !important;
+}
+
+/* Execution error */
+.execution-error {
+  color: #991b1b !important; /* Rojo oscuro */
+  background-color: #fef2f2 !important; /* Rojo muy claro */
+  border: 1px solid #fca5a5 !important;
+}
+
+/* Button styling */
+.execute-button {
+  color: #ffffff !important; /* Texto blanco */
+  background-color: #3b82f6 !important; /* Azul */
+  border: none !important;
+}
+
+.execute-button:hover {
+  background-color: #2563eb !important; /* Azul más oscuro */
+}
+
+.execute-button:disabled {
+  background-color: #9ca3af !important; /* Gris */
+  color: #ffffff !important;
+}
+
+/* Summary section */
+.tools-summary {
+  color: #374151 !important; /* Gris oscuro */
+  background-color: #ffffff !important; /* Fondo blanco */
+  border-top: 2px solid #e5e7eb !important;
+}
+
+/* Headers */
+h2, h3, h4 {
+  color: #111827 !important; /* Negro */
+}
+
+/* General text */
+p, div, span {
+  color: #374151 !important; /* Gris oscuro por defecto */
+}
+
+/* Labels */
+label {
+  color: #374151 !important; /* Gris oscuro */
+  font-weight: 500 !important;
+}
+
+/* Pre/Code blocks */
+pre {
+  color: #111827 !important; /* Negro */
+  background-color: #f3f4f6 !important; /* Gris claro */
+  border: 1px solid #d1d5db !important;
+  padding: 12px !important;
+  border-radius: 6px !important;
+}

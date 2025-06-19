@@ -1,24 +1,85 @@
-[
-  {
-    "adapter_id": "firecrawl_adapter_json_config",
-    "adapter_name": "Firecrawl (from JSON)",
-    "adapter_class": "FirecrawlAdapter",
-    "config": { "apiKeyEnvVar": "FIRECRAWL_API_KEY_FROM_JSON" },
-    "enabled": true
-  },
-  {
-    "adapter_id": "dummy_json_adapter",
-    "adapter_name": "Dummy JSON Test Adapter",
-    "adapter_class": "DummyJsonAdapter", 
-    "config": { "message": "Loaded from JSON config" },
-    "enabled": true
-  },
-  {
-    "adapter_id": "disabled_json_adapter",
-    "adapter_name": "Disabled JSON Test Adapter",
-    "adapter_class": "DummyJsonAdapter",
-    "config": { "message": "This should not be loaded" },
-    "enabled": false
+{
+  "adapters": [
+    {
+      "name": "firecrawl",
+      "type": "web_scraping",
+      "enabled": true,
+      "description": "Web scraping service using Firecrawl API",
+      "capabilities": ["scrape", "crawl", "extract"],
+      "config": {
+        "api_key_env": "FIRECRAWL_API_KEY",
+        "base_url": "https://api.firecrawl.dev/v1"
+      }
+    },
+    {
+      "name": "telegram",
+      "type": "messaging",
+      "enabled": true,
+      "description": "Telegram bot integration",
+      "capabilities": ["send_message", "receive_message", "bot_commands"],
+      "config": {
+        "token_env": "TELEGRAM_BOT_TOKEN",
+        "bot_username": "MagnusMcbot"
+      }
+    },
+    {
+      "name": "notion",
+      "type": "productivity",
+      "enabled": true,
+      "description": "Notion workspace integration",
+      "capabilities": ["read_pages", "write_pages", "search", "database"],
+      "config": {
+        "token_env": "NOTION_TOKEN",
+        "workspace": "fmfg@agentius.ai's Workspace"
+      }
+    },
+    {
+      "name": "github",
+      "type": "development", 
+      "enabled": true,
+      "description": "GitHub repository operations",
+      "capabilities": ["read_repos", "write_files", "commits", "issues"],
+      "config": {
+        "token_env": "GITHUB_TOKEN",
+        "default_repo": "supermcp"
+      }
+    },
+    {
+      "name": "memory_analyzer",
+      "type": "ai_memory",
+      "enabled": true,
+      "description": "Sam's semantic memory system",
+      "capabilities": ["store_memory", "search_memory", "analyze_concepts"],
+      "config": {
+        "supabase_url": "https://bvhhkmdlfpcebecmxshd.supabase.co",
+        "embedding_model": "text-embedding-3-large"
+      }
+    },
+    {
+      "name": "python_orchestration",
+      "type": "orchestration",
+      "enabled": true,
+      "description": "Python-based task orchestration",
+      "capabilities": ["orchestrate_tasks", "manage_workflows", "execute_tools"],
+      "config": {
+        "base_url": "http://localhost:8000"
+      }
+    },
+    {
+      "name": "ollama",
+      "type": "local_llm",
+      "enabled": true,
+      "description": "Local LLM models via Ollama",
+      "capabilities": ["qwen2.5:14b", "qwen2.5-coder:7b", "deepseek-coder:6.7b", "llama3.1:8b", "mistral:7b"],
+      "config": {
+        "base_url": "http://localhost:11434"
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-06-19",
+    "total_adapters": 7,
+    "enabled_adapters": 7
   }
-]
-
+}
