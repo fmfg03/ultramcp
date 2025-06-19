@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  mcp-database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: mcp_system
+      POSTGRES_USER: mcp_user
+      POSTGRES_PASSWORD: mcp_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcp_user -d mcp_system"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-backend:
+    image: mcp-backend:latest
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://mcp_user:mcp_password@mcp-database:5432/mcp_system
+      REDIS_URL: redis://mcp-redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      mcp-database:
+        condition: service_healthy
+      mcp-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-studio:
+    image: mcp-studio:latest
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "8123:8123"
+      - "8124:8124"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-devtool:
+    image: mcp-devtool:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - mcp-backend
+      - mcp-studio
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:

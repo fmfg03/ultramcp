@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'mcp-backend',
-      script: './src/server-secure.cjs',
+      script: './server-secure.cjs',
       instances: process.env.NODE_ENV === 'production' ? 'max' : 1,
       exec_mode: process.env.NODE_ENV === 'production' ? 'cluster' : 'fork',
       env: {
