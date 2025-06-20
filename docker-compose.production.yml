@@ -1,266 +1,296 @@
-# Docker Enterprise Configuration for MCP System
-# Production-ready containerization with orchestration
-
 version: '3.8'
 
 services:
-  # Main MCP Backend Service
-  mcp-backend:
+  # PostgreSQL con pgvector para búsqueda vectorial
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: mcp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mcp_enterprise
+      POSTGRES_USER: mcp_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mcp_secure_password_2024}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/backups:/backups
+    ports:
+      - "5432:5432"
+    networks:
+      - mcp_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcp_user -d mcp_enterprise"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: >
+      postgres
+      -c shared_preload_libraries=vector
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+
+  # Redis para caching y sesiones
+  redis:
+    image: redis:7-alpine
+    container_name: mcp_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD:-redis_secure_password_2024}
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    networks:
+      - mcp_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Backend MCP Principal
+  mcp_backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.production
-    container_name: mcp-backend-prod
+      context: .
+      dockerfile: Dockerfile.backend.production
+    container_name: mcp_backend
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - PORT=3000
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - NOTION_TOKEN=${NOTION_TOKEN}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - REDIS_URL=redis://redis:6379
-      - OLLAMA_URL=http://ollama:11434
-    ports:
-      - "3000:3000"
+      - DATABASE_URL=postgresql://mcp_user:${POSTGRES_PASSWORD:-mcp_secure_password_2024}@postgres:5432/mcp_enterprise
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379
+      - JWT_SECRET=${JWT_SECRET:-jwt_super_secure_secret_2024}
+      - API_RATE_LIMIT=100
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - LOG_LEVEL=info
+      - METRICS_ENABLED=true
+      - PROMETHEUS_PORT=9090
     volumes:
       - ./logs:/app/logs
       - ./uploads:/app/uploads
-    depends_on:
-      - redis
-      - postgres
+      - ./config:/app/config
+    ports:
+      - "3000:3000"
+      - "9090:9090"  # Métricas Prometheus
     networks:
-      - mcp-network
+      - mcp_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
 
-  # Frontend Services
-  sam-chat:
+  # Frontend Observatory
+  mcp_frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.production
-    container_name: sam-chat-prod
+      context: .
+      dockerfile: Dockerfile.frontend.production
+    container_name: mcp_frontend
     restart: unless-stopped
     environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://mcp-backend:3000
-    ports:
-      - "5173:80"
-    depends_on:
-      - mcp-backend
-    networks:
-      - mcp-network
-
-  mcp-observatory:
-    build:
-      context: ./mcp-observatory-enterprise
-      dockerfile: Dockerfile.production
-    container_name: mcp-observatory-prod
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - VITE_API_URL=http://mcp-backend:3000
-    ports:
-      - "5174:80"
-    depends_on:
-      - mcp-backend
-    networks:
-      - mcp-network
-
-  # LangGraph System
-  langgraph-system:
-    build:
-      context: ./langgraph_system
-      dockerfile: Dockerfile.python
-    container_name: langgraph-system-prod
-    restart: unless-stopped
-    environment:
-      - PYTHON_ENV=production
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - REDIS_URL=redis://redis:6379
-    ports:
-      - "8000:8000"
+      - REACT_APP_API_URL=https://${DOMAIN:-localhost}/api
+      - REACT_APP_WS_URL=wss://${DOMAIN:-localhost}/ws
+      - REACT_APP_VERSION=${VERSION:-1.0.0}
     volumes:
-      - ./langgraph_data:/app/data
-    depends_on:
-      - redis
-      - postgres
-    networks:
-      - mcp-network
-
-  # Infrastructure Services
-  redis:
-    image: redis:7-alpine
-    container_name: mcp-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - mcp-network
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
-
-  postgres:
-    image: postgres:15-alpine
-    container_name: mcp-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_DB=mcp_system
-      - POSTGRES_USER=mcp_user
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - mcp-network
-
-  # Ollama for Local LLM
-  ollama:
-    image: ollama/ollama:latest
-    container_name: mcp-ollama
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - mcp-network
-    environment:
-      - OLLAMA_ORIGINS=*
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: mcp-nginx
-    restart: unless-stopped
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/ssl:/etc/nginx/ssl
-      - ./logs/nginx:/var/log/nginx
-    depends_on:
-      - mcp-backend
-      - sam-chat
-      - mcp-observatory
     networks:
-      - mcp-network
+      - mcp_network
+    depends_on:
+      - mcp_backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Monitoring and Logging
+  # Prometheus para métricas
   prometheus:
     image: prom/prometheus:latest
-    container_name: mcp-prometheus
+    container_name: mcp_prometheus
     restart: unless-stopped
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    networks:
-      - mcp-network
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus
+    ports:
+      - "9091:9090"
+    networks:
+      - mcp_network
+    depends_on:
+      - mcp_backend
 
+  # Grafana para dashboards
   grafana:
     image: grafana/grafana:latest
-    container_name: mcp-grafana
+    container_name: mcp_grafana
     restart: unless-stopped
-    ports:
-      - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-grafana_admin_2024}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SERVER_ROOT_URL=https://${DOMAIN:-localhost}/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3001:3000"
+    networks:
+      - mcp_network
     depends_on:
       - prometheus
-    networks:
-      - mcp-network
 
-  # Log Management
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: mcp-elasticsearch
+  # Webhook Receiver
+  mcp_webhooks:
+    build:
+      context: .
+      dockerfile: Dockerfile.webhooks
+    container_name: mcp_webhooks
     restart: unless-stopped
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379
+      - GITHUB_WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
+      - WEBHOOK_PORT=8080
+    volumes:
+      - ./logs:/app/logs
     ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
+      - "8080:8080"
     networks:
-      - mcp-network
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.11.0
-    container_name: mcp-logstash
-    restart: unless-stopped
-    volumes:
-      - ./monitoring/logstash/pipeline:/usr/share/logstash/pipeline
-      - ./logs:/usr/share/logstash/logs
+      - mcp_network
     depends_on:
-      - elasticsearch
-    networks:
-      - mcp-network
+      redis:
+        condition: service_healthy
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.0
-    container_name: mcp-kibana
+  # Notification Protocol Server
+  mcp_notifications:
+    build:
+      context: .
+      dockerfile: Dockerfile.notifications
+    container_name: mcp_notifications
     restart: unless-stopped
-    ports:
-      - "5601:5601"
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379
+      - WEBSOCKET_PORT=8765
+      - HTTP_PORT=8766
+      - SYSTEM_ID=manus
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "8765:8765"  # WebSocket
+      - "8766:8766"  # HTTP
     networks:
-      - mcp-network
+      - mcp_network
+    depends_on:
+      redis:
+        condition: service_healthy
 
-# Networks
-networks:
-  mcp-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+  # Memory Analyzer Service
+  mcp_memory:
+    build:
+      context: .
+      dockerfile: Dockerfile.memory
+    container_name: mcp_memory
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://mcp_user:${POSTGRES_PASSWORD:-mcp_secure_password_2024}@postgres:5432/mcp_enterprise
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_password_2024}@redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MEMORY_SERVICE_PORT=8767
+    volumes:
+      - ./logs:/app/logs
+      - ./memory_data:/app/data
+    ports:
+      - "8767:8767"
+    networks:
+      - mcp_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
-# Volumes
+  # Nginx Reverse Proxy con SSL
+  nginx:
+    image: nginx:alpine
+    container_name: mcp_nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled
+      - ./ssl:/etc/nginx/ssl
+      - ./logs/nginx:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - mcp_network
+    depends_on:
+      - mcp_backend
+      - mcp_frontend
+      - grafana
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Certbot para SSL automático
+  certbot:
+    image: certbot/certbot
+    container_name: mcp_certbot
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./ssl/www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${SSL_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
+    depends_on:
+      - nginx
+
 volumes:
-  redis_data:
-    driver: local
   postgres_data:
     driver: local
-  ollama_data:
+  redis_data:
     driver: local
   prometheus_data:
     driver: local
   grafana_data:
     driver: local
-  elasticsearch_data:
-    driver: local
+
+networks:
+  mcp_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 

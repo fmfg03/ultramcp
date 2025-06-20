@@ -1,0 +1,153 @@
+# Reglas de alertas para MCP Enterprise
+groups:
+  - name: mcp_backend_alerts
+    rules:
+      # Alta latencia en API
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="mcp-backend"}[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          service: mcp-backend
+        annotations:
+          summary: "Alta latencia en API MCP Backend"
+          description: "El percentil 95 de latencia es {{ $value }}s en los últimos 5 minutos"
+
+      # Alto rate de errores
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{job="mcp-backend",status=~"5.."}[5m]) / rate(http_requests_total{job="mcp-backend"}[5m]) > 0.1
+        for: 1m
+        labels:
+          severity: critical
+          service: mcp-backend
+        annotations:
+          summary: "Alto rate de errores en MCP Backend"
+          description: "Rate de errores 5xx es {{ $value | humanizePercentage }} en los últimos 5 minutos"
+
+      # Servicio caído
+      - alert: ServiceDown
+        expr: up{job="mcp-backend"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: mcp-backend
+        annotations:
+          summary: "MCP Backend está caído"
+          description: "El servicio MCP Backend no está respondiendo"
+
+  - name: database_alerts
+    rules:
+      # PostgreSQL caído
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: postgresql
+        annotations:
+          summary: "PostgreSQL está caído"
+          description: "La base de datos PostgreSQL no está respondiendo"
+
+      # Muchas conexiones activas
+      - alert: PostgreSQLTooManyConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 2m
+        labels:
+          severity: warning
+          service: postgresql
+        annotations:
+          summary: "Demasiadas conexiones a PostgreSQL"
+          description: "PostgreSQL tiene {{ $value | humanizePercentage }} de conexiones activas"
+
+      # Redis caído
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis está caído"
+          description: "El servicio Redis no está respondiendo"
+
+      # Memoria Redis alta
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 2m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Uso alto de memoria en Redis"
+          description: "Redis está usando {{ $value | humanizePercentage }} de memoria"
+
+  - name: system_alerts
+    rules:
+      # CPU alto
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Uso alto de CPU"
+          description: "CPU usage es {{ $value }}% en {{ $labels.instance }}"
+
+      # Memoria alta
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Uso alto de memoria"
+          description: "Memoria usage es {{ $value }}% en {{ $labels.instance }}"
+
+      # Disco lleno
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Espacio en disco bajo"
+          description: "Disco {{ $labels.mountpoint }} está {{ $value }}% lleno en {{ $labels.instance }}"
+
+  - name: application_alerts
+    rules:
+      # Muchas tareas fallidas
+      - alert: HighTaskFailureRate
+        expr: rate(mcp_tasks_failed_total[5m]) / rate(mcp_tasks_total[5m]) > 0.2
+        for: 2m
+        labels:
+          severity: warning
+          service: mcp-tasks
+        annotations:
+          summary: "Alto rate de tareas fallidas"
+          description: "{{ $value | humanizePercentage }} de tareas están fallando"
+
+      # Webhook processing lento
+      - alert: SlowWebhookProcessing
+        expr: histogram_quantile(0.95, rate(webhook_processing_duration_seconds_bucket[5m])) > 30
+        for: 2m
+        labels:
+          severity: warning
+          service: mcp-webhooks
+        annotations:
+          summary: "Procesamiento lento de webhooks"
+          description: "Webhooks tardan {{ $value }}s en procesarse (p95)"
+
+      # Memoria semántica no disponible
+      - alert: SemanticMemoryDown
+        expr: up{job="mcp-memory"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: mcp-memory
+        annotations:
+          summary: "Servicio de memoria semántica caído"
+          description: "El servicio de memoria semántica no está respondiendo"
+
