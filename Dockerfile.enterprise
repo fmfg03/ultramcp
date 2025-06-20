@@ -1,0 +1,84 @@
+# Docker Enterprise Configuration - MCP System
+# Configuración completa de Docker para entorno enterprise
+
+# ================================
+# DOCKERFILE PRINCIPAL
+# ================================
+
+# Multi-stage build para optimización
+FROM node:18-alpine AS frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci --only=production
+COPY frontend/ ./
+RUN npm run build
+
+FROM python:3.11-slim AS backend-builder
+WORKDIR /app/backend
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/ ./
+
+# Imagen final optimizada
+FROM python:3.11-slim AS production
+
+# Metadatos
+LABEL maintainer="MCP Enterprise Team"
+LABEL version="2.0.0"
+LABEL description="MCP System Enterprise Docker Image"
+
+# Variables de entorno
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV NODE_ENV=production
+ENV MCP_ENV=production
+
+# Crear usuario no-root para seguridad
+RUN groupadd -r mcpuser && useradd -r -g mcpuser mcpuser
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    nginx \
+    supervisor \
+    redis-server \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Crear directorios
+RUN mkdir -p /app/frontend /app/backend /app/logs /app/data \
+    && chown -R mcpuser:mcpuser /app
+
+# Copiar aplicaciones
+COPY --from=frontend-builder --chown=mcpuser:mcpuser /app/frontend/dist /app/frontend/
+COPY --from=backend-builder --chown=mcpuser:mcpuser /app/backend /app/backend/
+
+# Configurar nginx
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Configurar supervisor
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Exponer puertos
+EXPOSE 80 443 3000 5000 8123
+
+# Configurar volúmenes
+VOLUME ["/app/data", "/app/logs"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Cambiar a usuario no-root
+USER mcpuser
+
+# Comando de inicio
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
