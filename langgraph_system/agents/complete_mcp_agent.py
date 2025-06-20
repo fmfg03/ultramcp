@@ -1,373 +1,518 @@
-"""
-Agente MCP Completo con LangGraph
+# Complete MCP Agent with LangGraph Integration
+# Advanced agent with full MCP capabilities and structured reasoning
 
-Integra todos los nodos y servicios en un agente LangGraph completo
-que se expone automáticamente como herramienta MCP.
-"""
+from typing import Dict, List, Any, Optional, Union
+from langgraph import StateGraph, END
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from langchain_core.tools import BaseTool
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+import asyncio
+import json
+import logging
+from datetime import datetime
+from dataclasses import dataclass, field
 
-import sys
-import os
-from typing import Dict, Any, List, Optional, TypedDict
-import time
+@dataclass
+class MCPAgentState:
+    """State management for MCP Agent"""
+    messages: List[BaseMessage] = field(default_factory=list)
+    current_task: Optional[str] = None
+    tools_available: List[str] = field(default_factory=list)
+    execution_context: Dict[str, Any] = field(default_factory=dict)
+    reasoning_chain: List[Dict] = field(default_factory=list)
+    error_count: int = 0
+    max_retries: int = 3
+    confidence_score: float = 0.0
+    memory_context: Dict[str, Any] = field(default_factory=dict)
+    performance_metrics: Dict[str, Any] = field(default_factory=dict)
 
-# Agregar el directorio del proyecto al path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-from langgraph.graph import StateGraph, START, END
-from langgraph.graph import Graph
-
-# Importar schemas
-from langgraph_system.schemas.mcp_schemas import (
-    MCPAgentInput, MCPAgentOutput, MCPAgentState,
-    TaskComplexity, ModelType, ContradictionInfo
-)
-
-# Importar nodos
-from langgraph_system.nodes.reasoning_reward_nodes import (
-    enhanced_reasoning_node, enhanced_reward_node, contradiction_analysis_node
-)
-from langgraph_system.nodes.llm_langwatch_nodes import (
-    local_llm_execution_node, adaptive_model_selection_node,
-    intelligent_retry_node, model_health_check_node
-)
-
-# Importar servicios
-try:
-    from backend.src.utils.logger import logger
-    from backend.src.services.memoryService import saveStep, getContext
-except ImportError:
-    import logging
-    logger = logging.getLogger(__name__)
+class CompleteMCPAgent:
+    """
+    Complete MCP Agent with advanced reasoning, tool integration,
+    and LangGraph-based execution flow
+    """
     
-    async def saveStep(session_id, step_data):
-        return {'success': True}
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or {}
+        self.llm = self._initialize_llm()
+        self.tools = {}
+        self.graph = self._build_execution_graph()
+        self.logger = logging.getLogger(__name__)
+        self.memory_analyzer = None  # Will be connected to Sam's Memory Analyzer
+        
+    def _initialize_llm(self) -> Union[ChatOpenAI, ChatAnthropic]:
+        """Initialize the language model"""
+        provider = self.config.get('llm_provider', 'openai')
+        
+        if provider == 'openai':
+            return ChatOpenAI(
+                model=self.config.get('model', 'gpt-4'),
+                temperature=self.config.get('temperature', 0.1),
+                max_tokens=self.config.get('max_tokens', 4000)
+            )
+        elif provider == 'anthropic':
+            return ChatAnthropic(
+                model=self.config.get('model', 'claude-3-sonnet-20240229'),
+                temperature=self.config.get('temperature', 0.1),
+                max_tokens=self.config.get('max_tokens', 4000)
+            )
+        else:
+            raise ValueError(f"Unsupported LLM provider: {provider}")
     
-    async def getContext(session_id):
-        return {'success': True, 'context': {'previous_attempts': []}}
-
-# ============================================================================
-# Nodos de Control de Flujo
-# ============================================================================
-
-async def initialization_node(state: MCPAgentState) -> Dict[str, Any]:
-    """Nodo de inicialización del agente MCP"""
-    try:
-        request = state['request']
-        session_id = state.get('session_id', f"mcp_{hash(request) % 10000}")
+    def _build_execution_graph(self) -> StateGraph:
+        """Build the LangGraph execution flow"""
+        graph = StateGraph(MCPAgentState)
         
-        logger.info(f"🚀 Iniciando agente MCP para sesión {session_id}")
+        # Add nodes
+        graph.add_node("analyzer", self._analyze_task)
+        graph.add_node("planner", self._plan_execution)
+        graph.add_node("executor", self._execute_plan)
+        graph.add_node("validator", self._validate_results)
+        graph.add_node("optimizer", self._optimize_approach)
+        graph.add_node("memory_updater", self._update_memory)
+        graph.add_node("error_handler", self._handle_errors)
         
-        # Inicializar contexto
-        context_result = await getContext(session_id)
-        historical_context = context_result.get('context', {}) if context_result.get('success') else {}
+        # Define edges
+        graph.add_edge("analyzer", "planner")
+        graph.add_edge("planner", "executor")
+        graph.add_edge("executor", "validator")
         
-        # Guardar paso de inicialización
-        init_step = {
-            'type': 'initialization',
-            'timestamp': time.time(),
-            'request': request,
-            'session_id': session_id
-        }
-        
-        await saveStep(session_id, init_step)
-        
-        return {
-            'session_id': session_id,
-            'context': historical_context,
-            'previous_attempts': historical_context.get('previous_attempts', []),
-            'initialization_timestamp': time.time(),
-            'status': 'initialized'
-        }
-    
-    except Exception as e:
-        logger.error(f"❌ Error en initialization_node: {str(e)}")
-        return {
-            'session_id': f"error_{hash(str(e)) % 10000}",
-            'context': {},
-            'previous_attempts': [],
-            'initialization_timestamp': time.time(),
-            'status': 'error',
-            'error': str(e)
-        }
-
-async def finalization_node(state: MCPAgentState) -> Dict[str, Any]:
-    """Nodo de finalización del agente MCP"""
-    try:
-        session_id = state.get('session_id')
-        final_result = state.get('result', state.get('response', ''))
-        final_score = state.get('score', 0)
-        
-        logger.info(f"🏁 Finalizando agente MCP para sesión {session_id}")
-        
-        # Preparar resultado final
-        final_output = {
-            'success': True,
-            'result': final_result,
-            'score': final_score,
-            'session_id': session_id,
-            'metadata': {
-                'finalization_timestamp': time.time(),
-                'total_attempts': len(state.get('previous_attempts', [])) + 1,
-                'final_model_used': state.get('model_used', 'unknown'),
-                'langwatch_tracking': state.get('langwatch_metadata', {}),
-                'contradiction_applied': state.get('contradiction_applied', False)
+        # Conditional edges
+        graph.add_conditional_edges(
+            "validator",
+            self._should_retry,
+            {
+                "retry": "error_handler",
+                "optimize": "optimizer", 
+                "complete": "memory_updater"
             }
-        }
+        )
         
-        # Guardar paso final
-        final_step = {
-            'type': 'finalization',
-            'timestamp': time.time(),
-            'final_result': final_result,
-            'final_score': final_score,
-            'session_completed': True
-        }
+        graph.add_edge("error_handler", "planner")
+        graph.add_edge("optimizer", "executor")
+        graph.add_edge("memory_updater", END)
         
-        await saveStep(session_id, final_step)
+        # Set entry point
+        graph.set_entry_point("analyzer")
         
-        logger.info(f"✅ Sesión {session_id} completada con score {final_score:.2f}")
-        
-        return final_output
+        return graph.compile()
     
-    except Exception as e:
-        logger.error(f"❌ Error en finalization_node: {str(e)}")
-        return {
-            'success': False,
-            'result': f"Error en finalización: {str(e)}",
-            'score': 0.0,
-            'session_id': state.get('session_id', 'error_session'),
-            'metadata': {'error': str(e)}
-        }
-
-# ============================================================================
-# Funciones de Decisión (Conditional Edges)
-# ============================================================================
-
-def should_retry_decision(state: MCPAgentState) -> str:
-    """Decide si continuar con retry o finalizar"""
-    should_retry = state.get('should_retry', False)
-    max_attempts_reached = state.get('metadata', {}).get('retry_analysis', {}).get('max_attempts_reached', False)
-    
-    if should_retry and not max_attempts_reached:
-        return "retry"
-    else:
-        return "finalize"
-
-def model_selection_decision(state: MCPAgentState) -> str:
-    """Decide si usar selección adaptativa o modelo específico"""
-    model_type = state.get('model_type', ModelType.AUTO)
-    
-    if model_type == ModelType.AUTO:
-        return "adaptive_selection"
-    else:
-        return "direct_execution"
-
-def health_check_decision(state: MCPAgentState) -> str:
-    """Decide si el sistema está saludable para continuar"""
-    system_healthy = state.get('system_healthy', True)
-    available_models = state.get('available_models', [])
-    
-    if system_healthy and available_models:
-        return "continue"
-    else:
-        return "error"
-
-# ============================================================================
-# Construcción del Grafo
-# ============================================================================
-
-def create_mcp_agent_graph() -> StateGraph:
-    """Crea el grafo completo del agente MCP"""
-    
-    # Crear el grafo con el estado tipado
-    workflow = StateGraph(
-        MCPAgentState,
-        input=MCPAgentInput,
-        output=MCPAgentOutput
-    )
-    
-    # Agregar nodos
-    workflow.add_node("initialize", initialization_node)
-    workflow.add_node("health_check", model_health_check_node)
-    workflow.add_node("reasoning", enhanced_reasoning_node)
-    workflow.add_node("adaptive_selection", adaptive_model_selection_node)
-    workflow.add_node("execute_llm", local_llm_execution_node)
-    workflow.add_node("evaluate", enhanced_reward_node)
-    workflow.add_node("contradiction_analysis", contradiction_analysis_node)
-    workflow.add_node("retry_analysis", intelligent_retry_node)
-    workflow.add_node("finalize", finalization_node)
-    
-    # Flujo principal
-    workflow.add_edge(START, "initialize")
-    workflow.add_edge("initialize", "health_check")
-    
-    # Decisión de salud del sistema
-    workflow.add_conditional_edges(
-        "health_check",
-        health_check_decision,
-        {
-            "continue": "reasoning",
-            "error": "finalize"
-        }
-    )
-    
-    workflow.add_edge("reasoning", "adaptive_selection")
-    workflow.add_edge("adaptive_selection", "execute_llm")
-    workflow.add_edge("execute_llm", "evaluate")
-    workflow.add_edge("evaluate", "contradiction_analysis")
-    workflow.add_edge("contradiction_analysis", "retry_analysis")
-    
-    # Decisión de retry
-    workflow.add_conditional_edges(
-        "retry_analysis",
-        should_retry_decision,
-        {
-            "retry": "adaptive_selection",  # Volver a selección de modelo
-            "finalize": "finalize"
-        }
-    )
-    
-    workflow.add_edge("finalize", END)
-    
-    return workflow
-
-# ============================================================================
-# Agente MCP Principal
-# ============================================================================
-
-class MCPAgent:
-    """Agente MCP completo con LangGraph"""
-    
-    def __init__(self):
-        self.graph = create_mcp_agent_graph()
-        self.compiled_graph = None
-        self._compile_graph()
-    
-    def _compile_graph(self):
-        """Compila el grafo para ejecución"""
+    async def _analyze_task(self, state: MCPAgentState) -> MCPAgentState:
+        """Analyze the incoming task and context"""
         try:
-            self.compiled_graph = self.graph.compile()
-            logger.info("✅ Grafo MCP compilado exitosamente")
+            # Extract task from messages
+            if state.messages:
+                latest_message = state.messages[-1]
+                if isinstance(latest_message, HumanMessage):
+                    state.current_task = latest_message.content
+            
+            # Analyze task complexity and requirements
+            analysis_prompt = f"""
+            Analyze this task and provide structured analysis:
+            Task: {state.current_task}
+            
+            Provide analysis in JSON format:
+            {{
+                "task_type": "code|research|analysis|creative|other",
+                "complexity": "low|medium|high",
+                "required_tools": ["tool1", "tool2"],
+                "estimated_steps": 3,
+                "confidence_assessment": 0.8,
+                "potential_challenges": ["challenge1", "challenge2"]
+            }}
+            """
+            
+            response = await self.llm.ainvoke([SystemMessage(content=analysis_prompt)])
+            analysis = json.loads(response.content)
+            
+            # Update state
+            state.execution_context.update(analysis)
+            state.tools_available = list(self.tools.keys())
+            state.confidence_score = analysis.get('confidence_assessment', 0.5)
+            
+            # Add to reasoning chain
+            state.reasoning_chain.append({
+                "step": "analysis",
+                "timestamp": datetime.now().isoformat(),
+                "analysis": analysis,
+                "confidence": state.confidence_score
+            })
+            
+            self.logger.info(f"Task analyzed: {analysis['task_type']} complexity: {analysis['complexity']}")
+            
         except Exception as e:
-            logger.error(f"❌ Error compilando grafo MCP: {str(e)}")
-            raise
+            self.logger.error(f"Error in task analysis: {e}")
+            state.error_count += 1
+            
+        return state
     
-    async def execute(self, request: str, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Ejecuta el agente MCP completo"""
+    async def _plan_execution(self, state: MCPAgentState) -> MCPAgentState:
+        """Create detailed execution plan"""
         try:
-            # Preparar input
-            input_data = {
-                'request': request,
-                'options': options or {},
-                'session_id': options.get('session_id') if options else None
-            }
+            analysis = state.execution_context
             
-            logger.info(f"🎯 Ejecutando agente MCP: {request[:100]}...")
+            planning_prompt = f"""
+            Create a detailed execution plan for this task:
+            Task: {state.current_task}
+            Analysis: {json.dumps(analysis, indent=2)}
+            Available Tools: {state.tools_available}
             
-            # Ejecutar grafo
-            result = await self.compiled_graph.ainvoke(input_data)
+            Provide plan in JSON format:
+            {{
+                "steps": [
+                    {{
+                        "id": 1,
+                        "action": "specific action to take",
+                        "tool": "tool_name or null",
+                        "expected_output": "what we expect",
+                        "success_criteria": "how to validate success"
+                    }}
+                ],
+                "fallback_strategies": ["strategy1", "strategy2"],
+                "quality_checks": ["check1", "check2"]
+            }}
+            """
             
-            logger.info(f"✅ Agente MCP completado: {result.get('success', False)}")
+            response = await self.llm.ainvoke([SystemMessage(content=planning_prompt)])
+            plan = json.loads(response.content)
             
-            return result
-        
+            # Update state
+            state.execution_context['execution_plan'] = plan
+            
+            # Add to reasoning chain
+            state.reasoning_chain.append({
+                "step": "planning",
+                "timestamp": datetime.now().isoformat(),
+                "plan": plan,
+                "step_count": len(plan['steps'])
+            })
+            
+            self.logger.info(f"Execution plan created with {len(plan['steps'])} steps")
+            
         except Exception as e:
-            logger.error(f"❌ Error ejecutando agente MCP: {str(e)}")
+            self.logger.error(f"Error in execution planning: {e}")
+            state.error_count += 1
+            
+        return state
+    
+    async def _execute_plan(self, state: MCPAgentState) -> MCPAgentState:
+        """Execute the planned steps"""
+        try:
+            plan = state.execution_context.get('execution_plan', {})
+            steps = plan.get('steps', [])
+            results = []
+            
+            for step in steps:
+                step_result = await self._execute_step(step, state)
+                results.append(step_result)
+                
+                # Check if step failed
+                if not step_result.get('success', False):
+                    self.logger.warning(f"Step {step['id']} failed: {step_result.get('error')}")
+                    break
+            
+            # Update state with results
+            state.execution_context['execution_results'] = results
+            
+            # Calculate overall success
+            successful_steps = sum(1 for r in results if r.get('success', False))
+            success_rate = successful_steps / len(steps) if steps else 0
+            state.confidence_score = success_rate
+            
+            # Add to reasoning chain
+            state.reasoning_chain.append({
+                "step": "execution",
+                "timestamp": datetime.now().isoformat(),
+                "results": results,
+                "success_rate": success_rate
+            })
+            
+            self.logger.info(f"Execution completed: {successful_steps}/{len(steps)} steps successful")
+            
+        except Exception as e:
+            self.logger.error(f"Error in execution: {e}")
+            state.error_count += 1
+            
+        return state
+    
+    async def _execute_step(self, step: Dict, state: MCPAgentState) -> Dict:
+        """Execute individual step"""
+        try:
+            tool_name = step.get('tool')
+            action = step.get('action')
+            
+            if tool_name and tool_name in self.tools:
+                # Use tool
+                tool = self.tools[tool_name]
+                result = await tool.ainvoke(action)
+                
+                return {
+                    "step_id": step['id'],
+                    "success": True,
+                    "result": result,
+                    "tool_used": tool_name
+                }
+            else:
+                # Use LLM for reasoning/analysis
+                response = await self.llm.ainvoke([
+                    SystemMessage(content=f"Execute this action: {action}")
+                ])
+                
+                return {
+                    "step_id": step['id'],
+                    "success": True,
+                    "result": response.content,
+                    "tool_used": "llm"
+                }
+                
+        except Exception as e:
             return {
-                'success': False,
-                'result': f"Error interno del agente: {str(e)}",
-                'score': 0.0,
-                'metadata': {'error': str(e)}
+                "step_id": step['id'],
+                "success": False,
+                "error": str(e),
+                "tool_used": step.get('tool', 'unknown')
             }
     
-    async def stream_execute(self, request: str, options: Optional[Dict[str, Any]] = None):
-        """Ejecuta el agente MCP con streaming"""
+    async def _validate_results(self, state: MCPAgentState) -> MCPAgentState:
+        """Validate execution results"""
         try:
-            input_data = {
-                'request': request,
-                'options': options or {},
-                'session_id': options.get('session_id') if options else None
-            }
+            results = state.execution_context.get('execution_results', [])
+            plan = state.execution_context.get('execution_plan', {})
             
-            logger.info(f"🌊 Streaming agente MCP: {request[:100]}...")
+            validation_prompt = f"""
+            Validate these execution results against the original task:
+            Task: {state.current_task}
+            Results: {json.dumps(results, indent=2)}
+            Quality Checks: {plan.get('quality_checks', [])}
             
-            async for chunk in self.compiled_graph.astream(input_data):
-                yield chunk
-        
+            Provide validation in JSON format:
+            {{
+                "overall_success": true/false,
+                "quality_score": 0.8,
+                "issues_found": ["issue1", "issue2"],
+                "recommendations": ["rec1", "rec2"],
+                "needs_retry": true/false,
+                "needs_optimization": true/false
+            }}
+            """
+            
+            response = await self.llm.ainvoke([SystemMessage(content=validation_prompt)])
+            validation = json.loads(response.content)
+            
+            # Update state
+            state.execution_context['validation'] = validation
+            state.confidence_score = validation.get('quality_score', state.confidence_score)
+            
+            # Add to reasoning chain
+            state.reasoning_chain.append({
+                "step": "validation",
+                "timestamp": datetime.now().isoformat(),
+                "validation": validation
+            })
+            
+            self.logger.info(f"Validation completed: success={validation['overall_success']}")
+            
         except Exception as e:
-            logger.error(f"❌ Error en streaming MCP: {str(e)}")
-            yield {
-                'error': str(e),
-                'success': False
-            }
+            self.logger.error(f"Error in validation: {e}")
+            state.error_count += 1
+            
+        return state
     
-    def get_graph_visualization(self) -> str:
-        """Obtiene visualización del grafo"""
-        try:
-            # Esto requeriría graphviz o similar para visualización completa
-            nodes = list(self.graph.nodes.keys())
-            edges = [(edge.source, edge.target) for edge in self.graph.edges]
-            
-            viz = "Grafo MCP Agent:\n"
-            viz += f"Nodos: {', '.join(nodes)}\n"
-            viz += f"Conexiones: {len(edges)} edges\n"
-            
-            for source, target in edges:
-                viz += f"  {source} → {target}\n"
-            
-            return viz
+    def _should_retry(self, state: MCPAgentState) -> str:
+        """Determine next action based on validation"""
+        validation = state.execution_context.get('validation', {})
         
+        if state.error_count >= state.max_retries:
+            return "complete"
+        
+        if validation.get('needs_retry', False):
+            return "retry"
+        elif validation.get('needs_optimization', False):
+            return "optimize"
+        else:
+            return "complete"
+    
+    async def _handle_errors(self, state: MCPAgentState) -> MCPAgentState:
+        """Handle errors and prepare for retry"""
+        try:
+            validation = state.execution_context.get('validation', {})
+            issues = validation.get('issues_found', [])
+            
+            error_analysis_prompt = f"""
+            Analyze these issues and provide error handling strategy:
+            Issues: {issues}
+            Error Count: {state.error_count}
+            Max Retries: {state.max_retries}
+            
+            Provide strategy in JSON format:
+            {{
+                "root_cause": "description",
+                "corrective_actions": ["action1", "action2"],
+                "plan_modifications": {{"key": "value"}},
+                "confidence_adjustment": -0.1
+            }}
+            """
+            
+            response = await self.llm.ainvoke([SystemMessage(content=error_analysis_prompt)])
+            error_strategy = json.loads(response.content)
+            
+            # Apply corrections
+            state.execution_context.update(error_strategy.get('plan_modifications', {}))
+            state.confidence_score += error_strategy.get('confidence_adjustment', 0)
+            state.confidence_score = max(0, min(1, state.confidence_score))
+            
+            # Add to reasoning chain
+            state.reasoning_chain.append({
+                "step": "error_handling",
+                "timestamp": datetime.now().isoformat(),
+                "strategy": error_strategy
+            })
+            
+            self.logger.info(f"Error handling applied: {error_strategy['root_cause']}")
+            
         except Exception as e:
-            return f"Error generando visualización: {str(e)}"
+            self.logger.error(f"Error in error handling: {e}")
+            
+        return state
+    
+    async def _optimize_approach(self, state: MCPAgentState) -> MCPAgentState:
+        """Optimize the approach based on results"""
+        try:
+            validation = state.execution_context.get('validation', {})
+            recommendations = validation.get('recommendations', [])
+            
+            optimization_prompt = f"""
+            Optimize the execution approach:
+            Current Results: {state.execution_context.get('execution_results', [])}
+            Recommendations: {recommendations}
+            
+            Provide optimizations in JSON format:
+            {{
+                "optimized_steps": [
+                    {{
+                        "id": 1,
+                        "action": "optimized action",
+                        "tool": "tool_name",
+                        "optimization_reason": "why this is better"
+                    }}
+                ],
+                "expected_improvement": 0.2
+            }}
+            """
+            
+            response = await self.llm.ainvoke([SystemMessage(content=optimization_prompt)])
+            optimization = json.loads(response.content)
+            
+            # Update execution plan
+            state.execution_context['execution_plan']['steps'] = optimization['optimized_steps']
+            
+            # Add to reasoning chain
+            state.reasoning_chain.append({
+                "step": "optimization",
+                "timestamp": datetime.now().isoformat(),
+                "optimization": optimization
+            })
+            
+            self.logger.info("Approach optimized for better results")
+            
+        except Exception as e:
+            self.logger.error(f"Error in optimization: {e}")
+            
+        return state
+    
+    async def _update_memory(self, state: MCPAgentState) -> MCPAgentState:
+        """Update memory with learned experiences"""
+        try:
+            # Prepare memory entry
+            memory_entry = {
+                "task": state.current_task,
+                "approach": state.execution_context.get('execution_plan'),
+                "results": state.execution_context.get('execution_results'),
+                "validation": state.execution_context.get('validation'),
+                "reasoning_chain": state.reasoning_chain,
+                "final_confidence": state.confidence_score,
+                "timestamp": datetime.now().isoformat(),
+                "performance_metrics": {
+                    "steps_executed": len(state.execution_context.get('execution_results', [])),
+                    "error_count": state.error_count,
+                    "success_rate": state.confidence_score
+                }
+            }
+            
+            # Store in memory (would connect to Sam's Memory Analyzer)
+            state.memory_context['latest_experience'] = memory_entry
+            
+            # Add final reasoning step
+            state.reasoning_chain.append({
+                "step": "memory_update",
+                "timestamp": datetime.now().isoformat(),
+                "memory_stored": True
+            })
+            
+            self.logger.info("Memory updated with execution experience")
+            
+        except Exception as e:
+            self.logger.error(f"Error updating memory: {e}")
+            
+        return state
+    
+    def add_tool(self, name: str, tool: BaseTool):
+        """Add a tool to the agent's toolkit"""
+        self.tools[name] = tool
+        self.logger.info(f"Tool added: {name}")
+    
+    async def execute_task(self, task: str, context: Dict = None) -> Dict:
+        """Main execution method"""
+        try:
+            # Initialize state
+            initial_state = MCPAgentState(
+                messages=[HumanMessage(content=task)],
+                execution_context=context or {}
+            )
+            
+            # Run the graph
+            final_state = await self.graph.ainvoke(initial_state)
+            
+            # Prepare response
+            return {
+                "success": final_state.confidence_score > 0.5,
+                "confidence": final_state.confidence_score,
+                "results": final_state.execution_context.get('execution_results'),
+                "reasoning": final_state.reasoning_chain,
+                "memory": final_state.memory_context
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error in task execution: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "confidence": 0.0
+            }
 
-# ============================================================================
-# Instancia Global del Agente
-# ============================================================================
-
-# Crear instancia global del agente MCP
-mcp_agent = None
-
-def get_mcp_agent() -> MCPAgent:
-    """Obtiene la instancia global del agente MCP"""
-    global mcp_agent
-    if mcp_agent is None:
-        mcp_agent = MCPAgent()
-    return mcp_agent
-
-# ============================================================================
-# Funciones de Conveniencia
-# ============================================================================
-
-async def execute_mcp_task(request: str, **options) -> Dict[str, Any]:
-    """Función de conveniencia para ejecutar tareas MCP"""
-    agent = get_mcp_agent()
-    return await agent.execute(request, options)
-
-async def stream_mcp_task(request: str, **options):
-    """Función de conveniencia para streaming de tareas MCP"""
-    agent = get_mcp_agent()
-    async for chunk in agent.stream_execute(request, options):
-        yield chunk
-
-def get_mcp_graph_info() -> Dict[str, Any]:
-    """Obtiene información del grafo MCP"""
-    agent = get_mcp_agent()
-    return {
-        'visualization': agent.get_graph_visualization(),
-        'nodes': list(agent.graph.nodes.keys()),
-        'compiled': agent.compiled_graph is not None
-    }
-
-# ============================================================================
-# Exportar
-# ============================================================================
-
-__all__ = [
-    'MCPAgent',
-    'get_mcp_agent',
-    'execute_mcp_task',
-    'stream_mcp_task',
-    'get_mcp_graph_info',
-    'create_mcp_agent_graph'
-]
+# Example usage and configuration
+if __name__ == "__main__":
+    # Initialize agent
+    agent = CompleteMCPAgent({
+        'llm_provider': 'openai',
+        'model': 'gpt-4',
+        'temperature': 0.1
+    })
+    
+    # Add tools (examples)
+    # agent.add_tool("code_interpreter", CodeInterpreterTool())
+    # agent.add_tool("github_tool", GitHubTool())
+    # agent.add_tool("search_tool", SearchTool())
+    
+    # Execute task
+    async def main():
+        result = await agent.execute_task(
+            "Create a simple web application with user authentication",
+            {"project_type": "web_app", "framework": "react"}
+        )
+        print(json.dumps(result, indent=2))
+    
+    # Run example
+    # asyncio.run(main())
 
