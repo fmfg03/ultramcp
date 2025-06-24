@@ -1,0 +1,1 @@
+scripts/deployment/quick_production_setup.sh

@@ -125,3 +125,100 @@ sam_manus_api_reference/venv/
 # Local requirements overrides
 requirements-local.txt
 requirements-dev.txt
+
+# =============================================================================
+# SECURITY: Never commit these files
+# =============================================================================
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.test
+.env.backup*
+*.env
+!.env.example
+
+# Voice system environment
+voice_system/.env
+voice_system/config/.env
+
+# API Keys and secrets
+config/secrets.json
+secrets/
+keys/
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+database/
+
+# Logs (may contain sensitive data)
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+*/venv/
+*/ENV/
+
+# Node modules
+node_modules/
+*/node_modules/
+
+# Audio files (testing artifacts)
+*.mp3
+*.wav
+*.m4a
+voice_system/*.mp3
+voice_system/*.wav
+
+# Backup files
+backup_*/
+*.backup
+*.bak
+*.orig
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

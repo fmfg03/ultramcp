@@ -1,0 +1,16 @@
+openai-whisper
+openai
+python-dotenv
+langwatch
+fastapi
+uvicorn[standard]
+python-multipart
+aiofiles
+pydantic
+asyncio-mqtt
+scipy
+numpy
+streamlit
+requests
+httpx
+torch
