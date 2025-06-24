@@ -114,3 +114,14 @@ keys/*
 !keys/.gitkeep
 .env
 keys/private_key.pem
+
+# Avoid multiple requirements conflicts
+sam_manus_api_server/venv/
+langgraph_system/venv/
+sam_manus_api_reference/venv/
+*/venv/
+*/__pycache__/
+
+# Local requirements overrides
+requirements-local.txt
+requirements-dev.txt
