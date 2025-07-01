@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chain-of-Debate Control Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: #1a1a1a;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #00ff88;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            background: #00ff88;
+            color: #000;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            border-color: #00ff88;
+            transform: translateY(-2px);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-label {
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #2a2a2a;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .refresh-btn {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            background: #555;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .task-item:hover {
+            border-color: #666;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-id {
+            color: #00ff88;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .task-domain {
+            color: #888;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .task-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #ff6b35; color: #000; }
+        .status-in-progress { background: #4ecdc4; color: #000; }
+        .status-completed { background: #00ff88; color: #000; }
+        .status-human-intervention { background: #ffd23f; color: #000; }
+        .status-failed { background: #ff4757; color: #fff; }
+        
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .action-btn {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 255, 136, 0.3);
+        }
+        
+        .action-btn.secondary {
+            background: #333;
+            color: #fff;
+        }
+        
+        .action-btn.secondary:hover {
+            background: #555;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .chart-placeholder {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            border-top: 1px solid #333;
+            margin-top: 3rem;
+        }
+        
+        .footer a {
+            color: #00ff88;
+            text-decoration: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 Chain-of-Debate Control Center</h1>
+        <div class="status-badge">OPERATIONAL</div>
+    </div>
+    
+    <div class="container">
+        <!-- System Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ data.active_debates }}</div>
+                <div class="metric-label">Active Debates</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ data.pending_reviews }}</div>
+                <div class="metric-label">Pending Reviews</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ "%.1f"|format(data.system_metrics.consensus_rate) }}%</div>
+                <div class="metric-label">Consensus Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${{ "%.2f"|format(data.system_metrics.total_revenue) }}</div>
+                <div class="metric-label">Total Revenue</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ data.system_metrics.total_debates }}</div>
+                <div class="metric-label">Total Debates</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ "%.1f"|format(data.system_metrics.avg_quality_score * 100) }}%</div>
+                <div class="metric-label">Avg Quality</div>
+            </div>
+        </div>
+        
+        <!-- Recent Tasks -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Tasks</h2>
+                <button class="refresh-btn" onclick="window.location.reload()">Refresh</button>
+            </div>
+            <div class="section-content">
+                {% if data.recent_tasks %}
+                    <ul class="task-list">
+                        {% for task in data.recent_tasks %}
+                        <li class="task-item">
+                            <div class="task-info">
+                                <div class="task-id">{{ task.task_id }}</div>
+                                <div class="task-domain">{{ task.domain.value if task.domain else 'unknown' }}</div>
+                            </div>
+                            <div class="task-status status-{{ task.status.value.replace('_', '-') if task.status else 'unknown' }}">
+                                {{ task.status.value.replace('_', ' ').title() if task.status else 'Unknown' }}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No recent tasks to display</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="/api/v1/human/pending" class="action-btn">
+                📋 Review Pending Tasks
+            </a>
+            <a href="/api/v1/metrics" class="action-btn secondary">
+                📈 View Detailed Metrics
+            </a>
+            <a href="/api/v1/replay/dashboard" class="action-btn secondary">
+                🔄 Auditoría Evolutiva
+            </a>
+        </div>
+        
+        <!-- Performance Charts -->
+        <div class="stats-row">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Quality Trends</h2>
+                </div>
+                <div class="section-content">
+                    <div class="chart-placeholder">
+                        Quality trend chart would be here
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">System Load</h2>
+                </div>
+                <div class="section-content">
+                    <div class="chart-placeholder">
+                        System load chart would be here
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Chain-of-Debate Dinámico v2.0 | SuperMCP Enterprise | 
+           <a href="https://github.com/supermcp/chain-of-debate">Documentation</a>
+        </p>
+    </div>
+    
+    <script>
+        // Auto-refresh every 30 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 30000);
+        
+        // Add loading states to buttons
+        document.querySelectorAll('.action-btn, .refresh-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.add('loading');
+            });
+        });
+        
+        // Simple notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ff4757' : '#00ff88'};
+                color: ${type === 'error' ? '#fff' : '#000'};
+                padding: 1rem 1.5rem;
+                border-radius: 6px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Check for system status updates
+        function checkSystemStatus() {
+            fetch('/api/v1/metrics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.active_debates > 10) {
+                        showNotification('High system load detected', 'warning');
+                    }
+                })
+                .catch(error => {
+                    console.error('Status check failed:', error);
+                });
+        }
+        
+        // Check status every minute
+        setInterval(checkSystemStatus, 60000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  backend-test:
+    build: ../../apps/backend
+    environment:
+      - NODE_ENV=test
+    ports:
+      - "3000:3000"
+    command: npm test
+
+  voice-system-test:
+    build: ../../services/voice-system
+    environment:
+      - ENVIRONMENT=test
+    ports:
+      - "8001:8001"
+    command: python -m pytest
+
+  chain-of-debate-test:
+    build: ../../services/chain-of-debate
+    environment:
+      - FLASK_ENV=testing
+    ports:
+      - "5555:5555"
+    command: python -m pytest

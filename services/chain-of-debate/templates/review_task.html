@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Review - Chain-of-Debate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: #1a1a1a;
+            padding: 1rem 2rem;
+            border-bottom: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            color: #00ff88;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .timer {
+            background: #ff6b35;
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .task-info {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .task-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .meta-item {
+            padding: 0.8rem;
+            background: #2a2a2a;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        
+        .meta-label {
+            color: #888;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+        
+        .meta-value {
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .task-id {
+            color: #00ff88;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        
+        .original-request {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            color: #00ff88;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.5rem;
+        }
+        
+        .request-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .model-responses {
+            margin-bottom: 2rem;
+        }
+        
+        .response-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .model-response {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .model-response:hover {
+            border-color: #555;
+        }
+        
+        .response-header {
+            background: #2a2a2a;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .model-name {
+            color: #00ff88;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .model-role {
+            color: #888;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        
+        .confidence-badge {
+            background: #00ff88;
+            color: #000;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .response-content {
+            padding: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .action-panel {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+            position: sticky;
+            bottom: 2rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+        
+        .btn-approve {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .btn-approve:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-modify {
+            background: #ffd23f;
+            color: #000;
+        }
+        
+        .btn-modify:hover {
+            background: #ffcd1f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-reject {
+            background: #ff4757;
+            color: #fff;
+        }
+        
+        .btn-reject:hover {
+            background: #ff3838;
+            transform: translateY(-2px);
+        }
+        
+        .modification-area {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        
+        .modification-textarea {
+            width: 100%;
+            min-height: 150px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 1rem;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+        
+        .modification-textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        
+        .cost-info {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cost-item:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: #00ff88;
+            border-top: 1px solid #444;
+            padding-top: 0.5rem;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+            z-index: 101;
+        }
+        
+        .back-button:hover {
+            background: #555;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .success-message {
+            background: #00ff88;
+            color: #000;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .error-message {
+            background: #ff4757;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .task-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .back-button {
+                position: relative;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← Dashboard</a>
+    
+    <div class="header">
+        <h1>👤 Human Review Required</h1>
+        <div class="timer" id="timer">
+            Time: {{ data.time_remaining }}s
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="success-message" class="success-message"></div>
+        <div id="error-message" class="error-message"></div>
+        
+        <!-- Task Information -->
+        <div class="task-info">
+            <div class="task-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Task ID</div>
+                    <div class="meta-value task-id">{{ data.task.task_id }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Domain</div>
+                    <div class="meta-value">{{ data.task.domain.value if data.task.domain else 'unknown' }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Priority</div>
+                    <div class="meta-value">{{ data.task.priority }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Created</div>
+                    <div class="meta-value">{{ data.task.created_at.strftime('%H:%M') if data.task.created_at else 'unknown' }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Original Request -->
+        <div class="original-request">
+            <h2 class="section-title">Original Request</h2>
+            <div class="request-content">{{ data.task.input_content if data.task.input_content else 'No content available' }}</div>
+        </div>
+        
+        <!-- Model Responses -->
+        <div class="model-responses">
+            <h2 class="section-title">AI Model Responses</h2>
+            <div class="response-grid">
+                {% for model_name, output in data.model_outputs.items() %}
+                <div class="model-response">
+                    <div class="response-header">
+                        <div>
+                            <div class="model-name">
+                                🤖 {{ model_name }}
+                            </div>
+                            <div class="model-role">
+                                {{ output.role if output.role else 'General Analysis' }}
+                            </div>
+                        </div>
+                        <div class="confidence-badge">
+                            {{ "%.0f"|format((output.avg_confidence if output.avg_confidence else 0.8) * 100) }}%
+                        </div>
+                    </div>
+                    <div class="response-content">
+                        {% if output.responses %}
+                            {{ output.responses[-1].content if output.responses else 'No response content' }}
+                        {% else %}
+                            No response available
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Action Panel -->
+        <div class="action-panel">
+            <h2 class="section-title">Review Decision</h2>
+            
+            <div class="action-buttons">
+                <button class="action-btn btn-approve" onclick="handleAction('approve')">
+                    ✅ Approve Result
+                </button>
+                <button class="action-btn btn-modify" onclick="showModification()">
+                    ✏️ Modify Result
+                </button>
+                <button class="action-btn btn-reject" onclick="handleAction('reject')">
+                    ❌ Reject & Retry
+                </button>
+            </div>
+            
+            <div class="modification-area" id="modification-area">
+                <textarea 
+                    class="modification-textarea" 
+                    id="modified-result"
+                    placeholder="Enter your improved version of the result here..."
+                ></textarea>
+                <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                    <button class="action-btn btn-approve" onclick="handleAction('modify')">
+                        💾 Save Modification
+                    </button>
+                    <button class="action-btn" style="background: #666; color: #fff;" onclick="hideModification()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+            
+            <div class="cost-info">
+                <h3 style="margin-bottom: 0.8rem; color: #00ff88;">Cost Impact</h3>
+                <div class="cost-item">
+                    <span>Approve (no cost):</span>
+                    <span>$0.00</span>
+                </div>
+                <div class="cost-item">
+                    <span>Modify result:</span>
+                    <span>$1.00</span>
+                </div>
+                <div class="cost-item">
+                    <span>Reject & retry:</span>
+                    <span>$2.00</span>
+                </div>
+                <div class="cost-item">
+                    <span>Current intervention cost:</span>
+                    <span>${{ "%.2f"|format(data.intervention_cost) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let timeRemaining = {{ data.time_remaining }};
+        const taskId = '{{ data.task.task_id }}';
+        
+        // Timer countdown
+        function updateTimer() {
+            const timerElement = document.getElementById('timer');
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 60) {
+                timerElement.style.background = '#ff4757';
+                timerElement.style.color = '#fff';
+            }
+            
+            if (timeRemaining <= 0) {
+                showMessage('Time expired - task will auto-fallback', 'error');
+                return;
+            }
+            
+            timeRemaining--;
+            setTimeout(updateTimer, 1000);
+        }
+        
+        // Start timer
+        updateTimer();
+        
+        // Show modification area
+        function showModification() {
+            document.getElementById('modification-area').style.display = 'block';
+            
+            // Pre-fill with the best response
+            const responses = {{ data.model_outputs | tojson }};
+            let bestResponse = '';
+            let bestConfidence = 0;
+            
+            for (const [model, output] of Object.entries(responses)) {
+                const confidence = output.avg_confidence || 0.8;
+                if (confidence > bestConfidence && output.responses && output.responses.length > 0) {
+                    bestConfidence = confidence;
+                    bestResponse = output.responses[output.responses.length - 1].content;
+                }
+            }
+            
+            document.getElementById('modified-result').value = bestResponse;
+        }
+        
+        // Hide modification area
+        function hideModification() {
+            document.getElementById('modification-area').style.display = 'none';
+        }
+        
+        // Handle action
+        async function handleAction(action) {
+            const buttons = document.querySelectorAll('.action-btn');
+            buttons.forEach(btn => btn.classList.add('loading'));
+            
+            let requestData = { action: action };
+            
+            if (action === 'modify') {
+                const modifiedResult = document.getElementById('modified-result').value;
+                if (!modifiedResult.trim()) {
+                    showMessage('Please enter a modified result', 'error');
+                    buttons.forEach(btn => btn.classList.remove('loading'));
+                    return;
+                }
+                requestData.modified_result = modifiedResult;
+            }
+            
+            try {
+                const response = await fetch(`/api/v1/human/intervene/${taskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage(`Action "${action}" completed successfully! Final cost: $${result.final_cost}`, 'success');
+                    
+                    // Redirect to dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showMessage(`Error: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showMessage(`Network error: ${error.message}`, 'error');
+            }
+            
+            buttons.forEach(btn => btn.classList.remove('loading'));
+        }
+        
+        // Show message
+        function showMessage(message, type) {
+            const successEl = document.getElementById('success-message');
+            const errorEl = document.getElementById('error-message');
+            
+            if (type === 'success') {
+                successEl.textContent = message;
+                successEl.style.display = 'block';
+                errorEl.style.display = 'none';
+            } else {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            }
+            
+            // Scroll to top to show message
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        handleAction('approve');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        showModification();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        handleAction('reject');
+                        break;
+                }
+            }
+        });
+        
+        // Auto-save modification text
+        const modTextarea = document.getElementById('modified-result');
+        if (modTextarea) {
+            modTextarea.addEventListener('input', function() {
+                localStorage.setItem(`modification_${taskId}`, this.value);
+            });
+            
+            // Restore saved text
+            const saved = localStorage.getItem(`modification_${taskId}`);
+            if (saved) {
+                modTextarea.value = saved;
+            }
+        }
+    </script>
+</body>
+</html>

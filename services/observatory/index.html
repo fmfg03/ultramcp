@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Observatory</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #1a1a1a; 
+            color: #fff; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .status { 
+            background: #2a2a2a; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0; 
+        }
+        .working { color: #00ff00; }
+        .error { color: #ff4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔭 MCP Observatory</h1>
+        <div class="status">
+            <h3>Sistema Status:</h3>
+            <p class="working">✅ Observatory funcionando correctamente</p>
+            <p class="working">✅ MIME types corregidos</p>
+            <p class="working">✅ Puerto 5174 operativo</p>
+        </div>
+        
+        <div class="status">
+            <h3>Información del Sistema:</h3>
+            <p>🕒 Tiempo actual: <span id="time"></span></p>
+            <p>🌐 Puerto: 5174</p>
+            <p>🔧 Servidor: HTTP Custom</p>
+        </div>
+    </div>
+    
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        setInterval(() => {
+            document.getElementById('time').textContent = new Date().toLocaleString();
+        }, 1000);
+    </script>
+</body>
+</html>
