@@ -28,8 +28,14 @@ make chat TEXT="Explain quantum computing"
 # Local AI chat (5 models available, fully offline)
 make local-chat TEXT="Explain quantum computing"
 
-# Advanced multi-LLM debate (uses 20% orchestration)
-make debate TOPIC="Should we invest in AI research?"
+# Enhanced Chain-of-Debate Protocol
+make cod-local TOPIC="Should we invest in AI research?"      # 100% local debate
+make cod-hybrid TOPIC="Architecture decision for X"         # Mix local + API
+make cod-privacy TOPIC="Sensitive business decision"        # Privacy-first mode
+make cod-cost-optimized TOPIC="Budget allocation strategy"   # Minimize API costs
+
+# Quick development decisions (local only)
+make dev-decision DECISION="React vs Vue for this component?"
 
 # Web research with AI analysis
 make research URL="https://anthropic.com"
@@ -38,16 +44,26 @@ make research URL="https://anthropic.com"
 make analyze FILE="data/research/report.json"
 ```
 
-### Local LLM Operations (Offline AI)
+### Enhanced Local LLM Operations (Offline AI)
 ```bash
-# List available local models (5 models, 17+ GB total)
+# List available local models (5 models: Qwen 2.5 14B, Llama 3.1 8B, etc.)
 make local-models
 
-# Use specific local models for coding
+# Direct local model chat (zero cost, maximum privacy)
 make local-chat TEXT="Write a Python function to sort data"
 
 # Check local LLM system status
 make local-status
+
+# Download additional models
+make local-pull MODEL="llama3.2"
+
+# Remove unused models
+make local-remove MODEL="old-model"
+
+# Test local model performance
+make test-cod-performance
+```
 
 # Download new models
 make local-pull MODEL="codellama:7b"
@@ -69,7 +85,8 @@ make web-monitor URL="https://api.example.com"
 
 ### 1. Use Terminal Commands for Speed
 - **80% of tasks**: Use `make` commands directly in terminal
-- **20% of complex workflows**: Use CoD Protocol for multi-LLM coordination
+- **20% of complex workflows**: Use enhanced CoD Protocol for multi-LLM coordination
+- **Local-first approach**: Prefer `make cod-local` and `make local-chat` for privacy and zero cost
 - **Always prefer**: Terminal commands over complex orchestration
 
 ### 2. Efficient File Management
@@ -84,14 +101,19 @@ make logs-search QUERY="debate"
 make logs-tail
 ```
 
-### 3. Development Workflow
+### 3. Enhanced Development Workflow
 ```bash
 # Start development environment
 make docker-dev
 
-# Make changes to scripts...
-# Test immediately
-make chat TEXT="test my changes"
+# Test with local models (zero cost)
+make local-chat TEXT="test my changes"
+
+# Quick development decisions
+make dev-decision DECISION="Should I refactor this function?"
+
+# Local-only debates for architecture decisions
+make cod-local TOPIC="Microservices vs monolith for this feature"
 
 # Check system health
 make health-check
@@ -102,8 +124,17 @@ make health-check
 # Check service status
 make status
 
+# Check local model availability
+make local-status
+
 # View container logs
 make docker-logs
+
+# Test local model performance
+make test-cod-performance
+
+# Check fallback systems
+make fallback-status
 
 # Interactive container access
 docker exec -it ultramcp-terminal bash
@@ -115,9 +146,12 @@ docker exec -it ultramcp-cod-service bash
 Set these environment variables in `.env`:
 
 ```bash
-# Required for AI operations
+# Optional for API-based AI operations (local models work without these)
 OPENAI_API_KEY=sk-your-key-here
 ANTHROPIC_API_KEY=claude-your-key-here
+
+# Note: Local models (make local-chat, make cod-local) work completely offline
+# and require no API keys - perfect for privacy and zero cost operation
 
 # Optional for enhanced features
 POSTGRES_PASSWORD=your-secure-password
@@ -127,16 +161,18 @@ REDIS_PASSWORD=your-redis-password
 ## Data Flow Architecture
 
 ### Terminal-First Approach (80%)
-1. User runs `make chat` or `make web-scrape`
+1. User runs `make local-chat` or `make web-scrape`
 2. Script executes directly with minimal overhead
-3. Results saved to `data/` directory
-4. Logs written to `logs/combined.log`
+3. Local models process requests offline (zero cost, maximum privacy)
+4. Results saved to `data/` directory
+5. Logs written to `logs/combined.log`
 
-### Advanced Orchestration (20%)
-1. User runs `make debate` or `make research`
-2. Script calls CoD Protocol service (port 8001)
-3. Multi-LLM coordination for complex analysis
-4. Structured results with confidence scores
+### Enhanced Local CoD Protocol (Hybrid 20%)
+1. User runs `make cod-local` (100% local) or `make cod-hybrid` (mixed)
+2. Enhanced orchestrator coordinates multiple local models
+3. Intelligent role assignment (CFO, CTO, Analyst, etc.)
+4. Local models debate with API models when needed
+5. Structured results with privacy scores and cost analysis
 
 ## File Structure for Claude Code
 
@@ -144,14 +180,19 @@ When working with Claude Code, focus on these key files:
 
 ### Scripts Directory (`/scripts/`)
 - `common.sh` - Shared utilities and logging
-- `simple-chat.sh` - Direct AI chat (80% use case)
-- `cod-debate.sh` - Multi-LLM debate (20% use case)
+- `simple-chat.sh` - Direct AI chat via API
+- `local-llm-chat.sh` - Local model chat (offline, zero cost)
+- `enhanced-cod-terminal.py` - Enhanced CoD Protocol with local models
+- `cod-debate.sh` - Original multi-LLM debate
 - `playwright-scrape.sh` - Web automation
 - `web-research.sh` - Research pipeline
 - `analyze-data.sh` - Data analysis with AI
+- `implement-local-cod.py` - Local model setup script
 
 ### Data Directory (`/data/`)
-- `debates/` - CoD Protocol results
+- `local_cod_debates/` - Enhanced CoD Protocol results with local models
+- `local_llm/` - Local model chat results
+- `debates/` - Original CoD Protocol results
 - `scrapes/` - Web scraping results  
 - `research/` - Research reports
 - `analysis/` - Data analysis results

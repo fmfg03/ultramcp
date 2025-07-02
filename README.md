@@ -1,22 +1,26 @@
-# 🚀 SuperMCP - Next-Generation AI Orchestration Platform
+# 🚀 UltraMCP - World's First Hybrid Local+API Multi-LLM Platform
 
 [![GitHub Stars](https://img.shields.io/github/stars/fmfg03/ultramcp?style=for-the-badge)](https://github.com/fmfg03/ultramcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge)](https://www.python.org/downloads/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg?style=for-the-badge)](https://nodejs.org/)
+[![Local LLMs](https://img.shields.io/badge/Local_LLMs-5_Models-orange.svg?style=for-the-badge)](https://ollama.ai/)
+[![Terminal First](https://img.shields.io/badge/Terminal_First-80%25-brightgreen.svg?style=for-the-badge)](https://claude.ai/code)
 
-> **SuperMCP** is a comprehensive, enterprise-grade AI orchestration platform that combines Model Context Protocol (MCP) with advanced multi-LLM coordination, voice processing, and intelligent automation capabilities.
+> **UltraMCP** is the world's first hybrid local+API multi-LLM orchestration platform featuring revolutionary terminal-first architecture (80%) with advanced Chain-of-Debate Protocol, local model integration, and enterprise-grade automation capabilities.
 
-## 🌟 What is SuperMCP?
+## 🌟 What is UltraMCP?
 
-SuperMCP revolutionizes AI system orchestration by providing:
+UltraMCP revolutionizes AI system orchestration with the world's first hybrid architecture:
 
-- **🎭 Chain-of-Debate Protocol**: Multi-LLM consensus systems with adversarial validation
+- **🎭 Enhanced Chain-of-Debate Protocol**: Revolutionary local+API multi-LLM debates with 5 local models
+- **🤖 Local LLM Integration**: Qwen 2.5 14B, Llama 3.1 8B, Qwen Coder 7B, Mistral 7B, DeepSeek Coder 6.7B
+- **⚡ Terminal-First Architecture**: 80% terminal commands + 20% advanced orchestration for maximum productivity
+- **🔒 Privacy-First Debates**: 100% local processing option for sensitive enterprise decisions
+- **💰 Zero-Cost Local Operations**: Unlimited local model usage with API flexibility when needed
+- **🚀 Claude Code Optimized**: Purpose-built for Claude Code integration and developer productivity
 - **🗣️ Voice System Integration**: Full-duplex voice AI with real-time processing
-- **🔗 MCP Enterprise Support**: Advanced Model Context Protocol implementation
-- **📊 Observatory & Monitoring**: Real-time system observability and analytics
-- **🏗️ Modular Architecture**: Clean, scalable microservices design
-- **🚀 Production Ready**: Enterprise-grade security, monitoring, and deployment
+- **📊 Enterprise Monitoring**: Real-time system observability and analytics
 
 ## 🏛️ Architecture Overview
 
@@ -126,10 +130,11 @@ supermcp/
 Node.js 18+
 Python 3.8+
 Docker & Docker Compose
+Ollama (for local models)
 Redis
 PostgreSQL
 
-# Optional
+# Optional for Enhanced Features
 Kubernetes (for production)
 Nginx (for reverse proxy)
 ```
@@ -141,22 +146,19 @@ Nginx (for reverse proxy)
 git clone https://github.com/fmfg03/ultramcp.git
 cd ultramcp
 
-# 2. Install dependencies
-npm install
-pip install -r requirements.txt
+# 2. Quick setup (recommended)
+make setup
 
-# 3. Set up environment
+# 3. Set up environment (if not using make)
 cp .env.example .env
-# Edit .env with your API keys and configuration
+# Edit .env with your API keys
 
-# 4. Start development environment
-npm run dev
+# 4. Start hybrid system
+make start
 
-# 5. Access the applications
-# Frontend: http://localhost:3000
-# Backend API: http://localhost:3001
-# Observatory: http://localhost:3002
-# CoD Protocol Dashboard: http://localhost:8080
+# 5. Quick test
+make chat TEXT="Hello from UltraMCP!"
+make cod-local TOPIC="Should we use local AI models?"
 ```
 
 ### Docker Deployment
@@ -172,14 +174,45 @@ docker-compose -f docker-compose.prod.yml up -d
 docker-compose -f docker-compose.enterprise.yml up -d
 ```
 
-## 📋 Available Scripts
+## 📋 Terminal-First Commands (Claude Code Optimized)
 
-### Development
+### Core System (80% Usage)
 ```bash
-npm run dev              # Start development environment
-npm run dev:backend      # Start backend only
-npm run dev:frontend     # Start frontend only
-npm run dev:services     # Start microservices
+make start               # Interactive startup menu
+make status              # Check all services
+make health-check        # Comprehensive health check
+make logs               # View system logs
+make backup             # Create system backup
+```
+
+### AI Operations (Local + API)
+```bash
+# Quick AI interactions
+make chat TEXT="Your question"                    # OpenAI API chat
+make local-chat TEXT="Your question"              # Local model chat
+make analyze FILE="data.csv"                      # AI data analysis
+make research URL="https://example.com"           # Web research + AI
+
+# Enhanced Chain-of-Debate Protocol
+make cod-local TOPIC="Your debate topic"          # 100% local debate
+make cod-hybrid TOPIC="Your debate topic"         # Mix local + API
+make cod-privacy TOPIC="Sensitive topic"          # Privacy-first mode
+make cod-cost-optimized TOPIC="Budget decision"   # Minimize API costs
+```
+
+### Local LLM Management
+```bash
+make local-models                                 # List 5 available models
+make local-status                                 # Check Ollama status
+make local-pull MODEL="llama3.2"                  # Download new model
+make local-remove MODEL="old-model"               # Remove model
+```
+
+### Web Automation (Playwright MCP)
+```bash
+make web-scrape URL="https://news.site.com"       # Scrape website
+make test-site URL="https://myapp.com"            # Test website
+make web-monitor URL="https://api.service.com"    # Monitor endpoint
 ```
 
 ### Production
@@ -208,19 +241,40 @@ npm run migrate:validate # Validate migration
 
 ## 🎯 Core Components
 
-### 🎭 Chain-of-Debate Protocol Usage
+### 🎭 Enhanced Chain-of-Debate Protocol Usage
 
+#### Terminal Interface (Recommended)
+```bash
+# Local-only debate (zero cost, maximum privacy)
+make cod-local TOPIC="Should we prioritize local AI models for enterprise?"
+
+# Hybrid debate (best of both worlds)
+make cod-hybrid TOPIC="Cloud migration strategy evaluation"
+
+# Privacy-first debate (sensitive topics)
+make cod-privacy TOPIC="Employee performance evaluation criteria"
+```
+
+#### Python API
 ```python
-# Simple debate
-from cod_protocol import quick_debate
+# Enhanced local+API debate
+from enhanced_orchestrator import EnhancedCoDOrchestrator, DebateMode
 
-result = await quick_debate(
-    task_content="Should we migrate to microservices?",
-    participants=["gpt-4", "claude-3-sonnet"]
+orchestrator = EnhancedCoDOrchestrator({
+    "enable_local_models": True,
+    "max_rounds": 3
+})
+
+result = await orchestrator.run_cod_session(
+    task={"content": "Should we migrate to microservices?"},
+    mode=DebateMode.HYBRID,
+    auto_select=True
 )
 
 print(f"Consensus: {result.consensus}")
-print(f"Confidence: {result.confidence_score}%")
+print(f"Local models used: {result.metadata['local_models_used']}")
+print(f"Total cost: ${result.metadata['total_cost']:.4f}")
+print(f"Privacy score: {result.metadata['privacy_score']*100:.1f}%")
 ```
 
 ```python
@@ -240,19 +294,40 @@ result = await orchestrator.run_cod_session({
 })
 ```
 
-### 🗣️ Voice System Usage
+### 🤖 Local LLM Usage
 
+#### Terminal Interface (80% Usage)
+```bash
+# Direct local model chat
+make local-chat TEXT="Explain quantum computing in simple terms"
+
+# Quick development decisions
+make dev-decision DECISION="Should we use React or Vue for this component?"
+
+# Performance testing
+make test-cod-performance
+```
+
+#### Python API (20% Usage)
 ```python
-# Voice API
-from voice_system import VoiceAPI
+# Local model management
+from local_models import local_model_manager
 
-voice_api = VoiceAPI()
-await voice_api.start_conversation(
-    config={
-        "language": "en-US",
-        "voice_model": "neural-enhanced",
-        "real_time": True
-    }
+# Get available models
+models = await local_model_manager.get_available_models()
+print(f"Available: {models}")
+
+# Select best model for task
+best_model = await local_model_manager.select_best_model_for_task(
+    task_type="coding",
+    requirements={"fast_response": True}
+)
+
+# Generate response
+model = await local_model_manager.get_model(best_model)
+response = await model.generate_response(
+    "Write a Python function to calculate fibonacci numbers",
+    context={"role": "CTO", "round": 1}
 )
 ```
 
@@ -276,7 +351,7 @@ const issues = await github.listIssues({
 ### Environment Variables
 
 ```bash
-# Core API Keys
+# Core API Keys (Optional - local models work without these)
 OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
 GOOGLE_API_KEY=your-google-key
@@ -324,16 +399,37 @@ performance:
 
 ## 📊 Monitoring & Observability
 
-### System Health
+### System Health (Terminal-First)
 ```bash
-# Check system status
-curl http://localhost:3001/api/health
+# Check all services
+make status
 
-# View metrics
-curl http://localhost:3001/api/metrics
+# Comprehensive health check
+make health-check
 
-# Observatory dashboard
-open http://localhost:3002
+# View live logs
+make logs-tail
+
+# Search logs
+make logs-search QUERY="error"
+
+# Check fallback systems
+make fallback-status
+
+# Service discovery status
+make service-discovery
+```
+
+### Local Model Performance
+```bash
+# Check Ollama status
+make local-status
+
+# List available models with specs
+make local-models
+
+# Test local model performance
+make test-cod-performance
 ```
 
 ### Performance Monitoring
@@ -345,13 +441,25 @@ open http://localhost:3002
 
 ## 🚀 Deployment
 
-### Development
+### Development (Terminal-First)
 ```bash
-# Local development
-npm run dev
+# Start development environment
+make docker-dev
 
-# With hot reload
-npm run dev:watch
+# Check system status
+make status
+
+# Test everything works
+make claude-test
+```
+
+### Hybrid System
+```bash
+# Optimized hybrid stack
+make docker-hybrid
+
+# Interactive startup menu
+make start
 ```
 
 ### Staging
@@ -380,13 +488,13 @@ kubectl get pods -n supermcp
 
 ## 📚 Documentation
 
-- [🏗️ Architecture Guide](docs/architecture/) - System architecture and design patterns
-- [🚀 Deployment Guide](docs/deployment/) - Deployment strategies and configurations
+- [🤖 Claude Code Integration](CLAUDE.md) - Optimized workflows for maximum productivity
+- [🌟 Enhanced CoD Setup](ENHANCED_COD_SETUP.md) - Complete local+API setup guide
+- [🤖 Local LLM Guide](LOCAL_LLM_GUIDE.md) - Comprehensive local model documentation
+- [🏗️ Architecture Guide](docs/architecture/) - Hybrid system architecture
+- [🎭 CoD Protocol Guide](services/cod-protocol/README.md) - Enhanced Chain-of-Debate documentation
 - [📖 API Documentation](docs/api/) - Complete API reference
 - [🔧 Development Guide](docs/development/) - Development setup and guidelines
-- [🎭 CoD Protocol Guide](services/cod-protocol/README.md) - Chain-of-Debate detailed documentation
-- [🗣️ Voice System Guide](services/voice-system/) - Voice processing documentation
-- [📊 Observatory Guide](services/observatory/) - Monitoring and observability
 
 ## 🧪 Testing
 
@@ -460,8 +568,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**🚀 SuperMCP - Elevating AI Orchestration to Enterprise Level**
+**🚀 UltraMCP - World's First Hybrid Local+API Multi-LLM Platform**
 
-[Documentation](https://github.com/fmfg03/ultramcp/wiki) • [Issues](https://github.com/fmfg03/ultramcp/issues) • [Discussions](https://github.com/fmfg03/ultramcp/discussions)
+*80% Terminal-First • 20% Advanced Orchestration • 100% Privacy When Needed*
+
+[Documentation](CLAUDE.md) • [Local LLM Guide](LOCAL_LLM_GUIDE.md) • [Issues](https://github.com/fmfg03/ultramcp/issues) • [Discussions](https://github.com/fmfg03/ultramcp/discussions)
 
 </div>
