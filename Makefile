@@ -24,8 +24,17 @@ help:
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
 	@echo "  make test-site URL='...'       - Test website with Playwright"
-	@echo "  make health-check              - System health check"
-	@echo "  make backup                    - Backup system state"
+	@echo "  make health-check              - Comprehensive system health check"
+	@echo "  make backup                    - Create system backup"
+	@echo ""
+	@echo "Risk Mitigation & Recovery:"
+	@echo "  make backup-list               - List available backups"
+	@echo "  make rollback SNAPSHOT='...'   - Create rollback plan"
+	@echo "  make rollback-execute SNAPSHOT='...' - Execute rollback"
+	@echo "  make rollback-dry-run SNAPSHOT='...' - Test rollback"
+	@echo "  make fallback-status           - Check fallback systems"
+	@echo "  make service-discovery         - Service registry status"
+	@echo "  make register-services         - Register core services"
 	@echo ""
 	@echo "Docker Operations:"
 	@echo "  make docker-up                 - Start all Docker services"
@@ -123,8 +132,36 @@ health-check:
 	@./scripts/health-check.sh
 
 backup:
-	@echo "💾 Creating backup..."
-	@./scripts/backup-system.sh
+	@echo "💾 Creating system backup..."
+	@python3 scripts/rollback-manager.py --backup "Manual backup $(shell date '+%Y-%m-%d %H:%M')"
+
+backup-list:
+	@echo "📋 Available backups:"
+	@python3 scripts/rollback-manager.py --list-backups
+
+rollback:
+	@echo "🔄 Creating rollback plan for: $(SNAPSHOT)"
+	@python3 scripts/rollback-manager.py --plan "$(SNAPSHOT)"
+
+rollback-execute:
+	@echo "⚠️  Executing rollback to: $(SNAPSHOT)"
+	@python3 scripts/rollback-manager.py --rollback "$(SNAPSHOT)"
+
+rollback-dry-run:
+	@echo "🧪 Dry run rollback to: $(SNAPSHOT)"
+	@python3 scripts/rollback-manager.py --rollback "$(SNAPSHOT)" --dry-run
+
+fallback-status:
+	@echo "🛡️ Fallback systems status:"
+	@python3 scripts/fallback-manager.py --health
+
+service-discovery:
+	@echo "🔍 Service discovery status:"
+	@python3 scripts/service-discovery.py --status
+
+register-services:
+	@echo "📝 Registering core services..."
+	@python3 scripts/service-discovery.py --register-core
 
 # =============================================================================
 # DEVELOPMENT

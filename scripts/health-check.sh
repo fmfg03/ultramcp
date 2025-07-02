@@ -5,10 +5,10 @@ source "$(dirname "$0")/common.sh"
 
 TASK_ID=$(generate_task_id)
 
-log_info "health-check" "Starting system health check: $TASK_ID"
+log_info "health-check" "Starting comprehensive system health check: $TASK_ID"
 
-echo "🏥 UltraMCP Health Check"
-echo "======================="
+echo "🏥 UltraMCP Comprehensive Health Check"
+echo "======================================"
 
 # Check basic requirements
 echo "🔧 Checking requirements..."
@@ -162,6 +162,64 @@ done
 
 if [ "$all_dirs_ok" = false ]; then
     echo "    💡 Fix with: make setup"
+fi
+
+# Check fallback systems
+echo ""
+echo "🛡️ Checking fallback systems..."
+
+# Check Redis fallback
+if python3 scripts/fallback-manager.py --health >/dev/null 2>&1; then
+    echo "  ✅ Fallback manager operational"
+    
+    # Get fallback status
+    fallback_status=$(python3 scripts/fallback-manager.py --health 2>/dev/null)
+    if echo "$fallback_status" | jq -e '.redis.available' >/dev/null 2>&1; then
+        redis_available=$(echo "$fallback_status" | jq -r '.redis.available')
+        if [ "$redis_available" = "true" ]; then
+            echo "  ✅ Redis: Available"
+        else
+            echo "  ⚠️  Redis: Using in-memory fallback"
+        fi
+    fi
+    
+    if echo "$fallback_status" | jq -e '.postgres.available' >/dev/null 2>&1; then
+        postgres_available=$(echo "$fallback_status" | jq -r '.postgres.available')
+        if [ "$postgres_available" = "true" ]; then
+            echo "  ✅ PostgreSQL: Available"
+        else
+            echo "  ⚠️  PostgreSQL: Using local file fallback"
+        fi
+    fi
+else
+    echo "  ❌ Fallback manager not responding"
+fi
+
+# Check database fallback
+if python3 scripts/database-fallback.py --status >/dev/null 2>&1; then
+    db_status=$(python3 scripts/database-fallback.py --status 2>/dev/null)
+    db_mode=$(echo "$db_status" | jq -r '.database_mode' 2>/dev/null || echo "unknown")
+    echo "  📊 Database mode: $db_mode"
+else
+    echo "  ⚠️  Database fallback system not available"
+fi
+
+# Check service discovery
+if python3 scripts/service-discovery.py --status >/dev/null 2>&1; then
+    service_status=$(python3 scripts/service-discovery.py --status 2>/dev/null)
+    healthy_services=$(echo "$service_status" | jq -r '.services.healthy' 2>/dev/null || echo "0")
+    total_services=$(echo "$service_status" | jq -r '.services.total' 2>/dev/null || echo "0")
+    echo "  🔍 Service discovery: $healthy_services/$total_services services healthy"
+else
+    echo "  ⚠️  Service discovery not available"
+fi
+
+# Check backup system
+if python3 scripts/rollback-manager.py --list-backups >/dev/null 2>&1; then
+    backup_count=$(python3 scripts/rollback-manager.py --list-backups 2>/dev/null | grep -c "  " || echo "0")
+    echo "  💾 Backup system: $backup_count snapshots available"
+else
+    echo "  ⚠️  Backup system not available"
 fi
 
 # Test basic functionality

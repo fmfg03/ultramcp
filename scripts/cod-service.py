@@ -13,6 +13,13 @@ from pathlib import Path
 from typing import Dict, List, Optional
 import os
 
+# Import fallback manager
+try:
+    from fallback_manager import fallback_manager
+except ImportError:
+    # Fallback to None if not available
+    fallback_manager = None
+
 try:
     import uvicorn
     from fastapi import FastAPI, HTTPException

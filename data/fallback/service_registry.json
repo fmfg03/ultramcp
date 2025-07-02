@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "updated_at": "2025-07-02T13:34:29.438762",
+  "services": [
+    {
+      "name": "cod-protocol",
+      "endpoint": "http://localhost:8001",
+      "health_check": "http://localhost:8001/health",
+      "port": 8001,
+      "protocol": "http",
+      "timeout": 5,
+      "retry_count": 3,
+      "tags": [
+        "core",
+        "orchestration"
+      ],
+      "metadata": {
+        "description": "Chain-of-Debate Protocol Service"
+      }
+    },
+    {
+      "name": "postgres",
+      "endpoint": "postgresql://localhost:5432/ultramcp",
+      "health_check": "http://localhost:5432",
+      "port": 5432,
+      "protocol": "postgresql",
+      "timeout": 5,
+      "retry_count": 3,
+      "tags": [
+        "database",
+        "core"
+      ],
+      "metadata": {
+        "description": "PostgreSQL Database"
+      }
+    },
+    {
+      "name": "redis",
+      "endpoint": "redis://localhost:6379",
+      "health_check": "http://localhost:6379",
+      "port": 6379,
+      "protocol": "redis",
+      "timeout": 5,
+      "retry_count": 3,
+      "tags": [
+        "cache",
+        "core"
+      ],
+      "metadata": {
+        "description": "Redis Cache"
+      }
+    },
+    {
+      "name": "web-dashboard",
+      "endpoint": "http://localhost:3000",
+      "health_check": "http://localhost:3000/health",
+      "port": 3000,
+      "protocol": "http",
+      "timeout": 5,
+      "retry_count": 3,
+      "tags": [
+        "web",
+        "optional"
+      ],
+      "metadata": {
+        "description": "Web Dashboard"
+      }
+    }
+  ]
+}
