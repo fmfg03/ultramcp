@@ -32,6 +32,15 @@ help:
 	@echo "  make local-remove MODEL='...'  - Remove local model"
 	@echo "  make local-status              - Check local LLM system status"
 	@echo ""
+	@echo "🔍 Code Intelligence (Blockoli):"
+	@echo "  make index-project PROJECT='...' NAME='...' - Index project for semantic search"
+	@echo "  make code-search QUERY='...' PROJECT='...'  - Semantic code search"
+	@echo "  make code-debate TOPIC='...' PROJECT='...'  - Code-intelligent AI debate"
+	@echo "  make architecture-analysis FOCUS='...' PROJECT='...' - Architecture analysis"
+	@echo "  make pattern-analysis PATTERN='...' PROJECT='...'    - Code pattern analysis"
+	@echo "  make intelligent-code-review FILE='...' PROJECT='...' - AI code review"
+	@echo "  make setup-code-intelligence   - Setup and test code intelligence"
+	@echo ""
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
 	@echo "  make test-site URL='...'       - Test website with Playwright"
@@ -363,3 +372,272 @@ claude-debate:
 test-cod-performance:
 	@echo "📊 Testing CoD performance with local models..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="Test performance and response quality" --mode=local_only --rounds=1
+
+# =============================================================================
+# SECURITY COMMANDS - ASTERISK MCP INTEGRATION
+# =============================================================================
+
+# Run comprehensive security scan
+security-scan:
+	@echo "🛡️ Running comprehensive security scan..."
+	@python3 services/asterisk-mcp/asterisk_security_client.py --scan-type=codebase --path=.
+
+# Secure code review with multi-layer analysis
+secure-code-review FILE:
+	@echo "🔍 Secure code review pipeline for $(FILE)..."
+	@echo "1. Security vulnerability scanning..."
+	@python3 services/asterisk-mcp/asterisk_security_client.py --scan-type=snippet --file="$(FILE)"
+	@echo "2. AI-powered security analysis..."
+	@python3 services/cod-protocol/security_enhanced_cod.py --mode=secure_code_review --file="$(FILE)"
+	@echo "3. Generating security report..."
+
+# Security-focused CoD Protocol debates
+security-debate TOPIC:
+	@echo "🔒 Security-focused debate: $(TOPIC)..."
+	@python3 services/cod-protocol/security_enhanced_cod.py --mode=security_first --topic="$(TOPIC)" \
+		--participants="asterisk:security,deepclaude:analyst,local:qwen2.5:14b,local:deepseek-coder:6.7b"
+
+# Vulnerability analysis debate
+vulnerability-analysis FILE:
+	@echo "🔍 Vulnerability analysis debate for $(FILE)..."
+	@python3 services/cod-protocol/security_enhanced_cod.py --mode=vulnerability_analysis --file="$(FILE)"
+
+# Threat modeling session
+threat-modeling SCOPE:
+	@echo "🎯 Threat modeling session for $(SCOPE)..."
+	@python3 services/cod-protocol/security_enhanced_cod.py --mode=threat_modeling --scope="$(SCOPE)"
+
+# Compliance analysis
+compliance-check STANDARD:
+	@echo "📋 Compliance check for $(STANDARD)..."
+	@python3 services/cod-protocol/security_enhanced_cod.py --mode=compliance_review --standard="$(STANDARD)"
+
+# Secure development workflow
+secure-dev-workflow:
+	@echo "🛡️ Secure Development Workflow..."
+	@echo "1. Running security scan..."
+	@make security-scan
+	@echo "2. Security posture assessment..."
+	@make security-debate TOPIC="Overall codebase security posture"
+	@echo "3. Generating security report..."
+	@make generate-security-report
+
+# Real-time security monitoring
+security-monitor:
+	@echo "👁️ Starting real-time security monitoring..."
+	@python3 scripts/security-monitor.py --watch=. --continuous=true
+
+# Security health check
+security-health-check:
+	@echo "🏥 Security health check..."
+	@python3 services/asterisk-mcp/asterisk_security_client.py --health-check --path=.
+
+# Generate comprehensive security report
+generate-security-report:
+	@echo "📊 Generating security report..."
+	@python3 scripts/generate-security-report.py --output=data/security_reports/
+
+# Security incident response
+security-incident-response INCIDENT:
+	@echo "🚨 Security incident response for: $(INCIDENT)..."
+	@python3 services/cod-protocol/security_enhanced_cod.py --mode=incident_response --incident="$(INCIDENT)"
+
+# =============================================================================
+# SECURE AI DEVELOPMENT COMMANDS
+# =============================================================================
+
+# Secure code generation with AI
+secure-code-gen REQUIREMENT:
+	@echo "🤖 Secure code generation: $(REQUIREMENT)..."
+	@echo "1. Generating code with security considerations..."
+	@make local-chat TEXT="Generate secure code for: $(REQUIREMENT). Include security best practices, input validation, and error handling."
+	@echo "2. Security scanning generated code..."
+	@make security-scan
+	@echo "3. Security review if needed..."
+
+# AI-powered security training
+security-training TOPIC:
+	@echo "🎓 AI-powered security training: $(TOPIC)..."
+	@make cod-local TOPIC="Security training session: $(TOPIC). Provide comprehensive security education with practical examples."
+
+# Secure architecture review
+secure-architecture-review COMPONENT:
+	@echo "🏗️ Secure architecture review for $(COMPONENT)..."
+	@make security-debate TOPIC="Architecture security review for $(COMPONENT)"
+
+# =============================================================================
+# ENTERPRISE SECURITY COMMANDS
+# =============================================================================
+
+# SOC2 compliance assessment
+soc2-compliance:
+	@echo "📋 SOC2 compliance assessment..."
+	@make compliance-check STANDARD="SOC2"
+
+# GDPR compliance assessment  
+gdpr-compliance:
+	@echo "🇪🇺 GDPR compliance assessment..."
+	@make compliance-check STANDARD="GDPR"
+
+# ISO27001 compliance assessment
+iso27001-compliance:
+	@echo "🌐 ISO27001 compliance assessment..."
+	@make compliance-check STANDARD="ISO27001"
+
+# HIPAA compliance assessment
+hipaa-compliance:
+	@echo "🏥 HIPAA compliance assessment..."
+	@make compliance-check STANDARD="HIPAA"
+
+# PCI DSS compliance assessment
+pci-compliance:
+	@echo "💳 PCI DSS compliance assessment..."
+	@make compliance-check STANDARD="PCI_DSS"
+
+# Comprehensive compliance audit
+compliance-audit:
+	@echo "📋 Comprehensive compliance audit..."
+	@make soc2-compliance
+	@make gdpr-compliance
+	@make iso27001-compliance
+	@echo "Compliance audit complete. Check data/compliance_reports/"
+
+# =============================================================================
+# SECURITY MONITORING & ALERTING
+# =============================================================================
+
+# Security dashboard (Claudia integration)
+security-dashboard:
+	@echo "📊 Opening security dashboard..."
+	@echo "Security dashboard available at: http://localhost:3000/security"
+	@echo "Use Claudia interface for visual security management"
+
+# Security metrics collection
+security-metrics:
+	@echo "📈 Collecting security metrics..."
+	@python3 scripts/collect-security-metrics.py
+
+# Security alerting setup
+security-alerts:
+	@echo "🚨 Setting up security alerts..."
+	@python3 scripts/setup-security-alerts.py
+
+# Security backup and recovery
+security-backup:
+	@echo "💾 Security backup..."
+	@python3 scripts/security-backup.py
+
+# =============================================================================
+# BLOCKOLI CODE INTELLIGENCE COMMANDS
+# =============================================================================
+
+# Index project for semantic search
+index-project:
+	@echo "🔍 Indexing project $(PROJECT) as $(NAME)..."
+	@python3 services/blockoli-mcp/blockoli_client.py index "$(PROJECT)" "$(NAME)"
+
+# Semantic code search
+code-search:
+	@echo "🔍 Semantic search: $(QUERY) in $(PROJECT)"
+	@python3 services/blockoli-mcp/blockoli_client.py search "$(QUERY)" "$(PROJECT)"
+
+# Code-intelligent debates
+code-debate:
+	@echo "🧠 Code-intelligent debate: $(TOPIC)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="$(TOPIC)" --project="$(PROJECT)" --mode=basic
+
+# Architecture analysis with AI
+architecture-analysis:
+	@echo "🏗️ Architecture analysis: $(FOCUS) in $(PROJECT)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Architecture analysis: $(FOCUS)" --project="$(PROJECT)" --mode=architecture_focused
+
+# Security analysis with code context
+code-security-analysis:
+	@echo "🛡️ Security analysis: $(TOPIC) in $(PROJECT)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Security analysis: $(TOPIC)" --project="$(PROJECT)" --mode=security_focused
+
+# Code pattern analysis
+pattern-analysis:
+	@echo "🔍 Pattern analysis: $(PATTERN) in $(PROJECT)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Pattern analysis: $(PATTERN)" --project="$(PROJECT)" --mode=pattern_analysis
+
+# Intelligent code review
+intelligent-code-review:
+	@echo "🧠 Intelligent code review for $(FILE)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Code review for $(FILE)" --project="$(PROJECT)" --query="$(FILE)" --mode=deep_analysis
+
+# Code similarity analysis
+similarity-analysis:
+	@echo "🔗 Similarity analysis: $(FUNCTION) in $(PROJECT)"
+	@python3 services/blockoli-mcp/blockoli_client.py search "$(FUNCTION)" "$(PROJECT)"
+
+# Refactoring analysis with code intelligence
+refactoring-analysis:
+	@echo "🔄 Refactoring analysis: $(TOPIC) in $(PROJECT)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Refactoring analysis: $(TOPIC)" --project="$(PROJECT)" --mode=refactoring_focused
+
+# Deep code context analysis
+deep-code-analysis:
+	@echo "🔬 Deep code analysis: $(TOPIC) in $(PROJECT)"
+	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="$(TOPIC)" --project="$(PROJECT)" --mode=deep_analysis
+
+# Blockoli health check
+blockoli-health:
+	@echo "🏥 Blockoli service health check..."
+	@python3 services/blockoli-mcp/blockoli_client.py health
+
+# List indexed projects
+list-indexed-projects:
+	@echo "📋 Listing indexed projects..."
+	@curl -s http://localhost:8080/projects 2>/dev/null | jq . || echo "Blockoli service not available"
+
+# Project statistics
+project-stats:
+	@echo "📊 Project statistics for $(PROJECT)..."
+	@curl -s http://localhost:8080/projects/$(PROJECT)/stats 2>/dev/null | jq . || echo "Project not found or Blockoli service not available"
+
+# =============================================================================
+# ENHANCED AI DEVELOPMENT WITH CODE INTELLIGENCE
+# =============================================================================
+
+# Combined security + code intelligence
+secure-code-intelligence:
+	@echo "🛡️ Secure code intelligence analysis..."
+	@echo "1. Running security scan..."
+	@make security-scan
+	@echo "2. Code intelligence security analysis..."
+	@make code-security-analysis TOPIC="$(TOPIC)" PROJECT="$(PROJECT)"
+	@echo "3. Combined analysis complete"
+
+# Development workflow with code intelligence
+dev-workflow-intelligent:
+	@echo "🚀 Intelligent development workflow..."
+	@echo "1. Indexing current project..."
+	@make index-project PROJECT="." NAME="current_project"
+	@echo "2. Running code health check..."
+	@make health-check
+	@echo "3. Code pattern analysis..."
+	@make pattern-analysis PATTERN="$(PATTERN)" PROJECT="current_project"
+	@echo "4. Development workflow complete"
+
+# AI-powered code review workflow
+ai-code-review-workflow:
+	@echo "🤖 AI-powered code review workflow..."
+	@echo "1. Security scan..."
+	@make security-scan
+	@echo "2. Intelligent code review..."
+	@make intelligent-code-review FILE="$(FILE)" PROJECT="$(PROJECT)"
+	@echo "3. Pattern analysis..."
+	@make pattern-analysis PATTERN="code quality" PROJECT="$(PROJECT)"
+	@echo "4. AI code review complete"
+
+# Complete code intelligence setup
+setup-code-intelligence:
+	@echo "🔧 Setting up code intelligence..."
+	@echo "1. Checking Blockoli service..."
+	@make blockoli-health
+	@echo "2. Indexing current project..."
+	@make index-project PROJECT="." NAME="ultramcp"
+	@echo "3. Testing code search..."
+	@make code-search QUERY="authentication" PROJECT="ultramcp"
+	@echo "✅ Code intelligence setup complete"
