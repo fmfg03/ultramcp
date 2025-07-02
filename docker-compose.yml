@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  # Core Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: ultramcp-postgres
+    environment:
+      POSTGRES_DB: ultramcp
+      POSTGRES_USER: ultramcp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ultramcp_secure_2024}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - ultramcp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ultramcp"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: ultramcp-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_secure_2024}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ultramcp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # CoD Protocol Service (20% advanced orchestration)
+  cod-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cod-service
+    container_name: ultramcp-cod-service
+    environment:
+      - COD_SERVICE_PORT=8001
+      - POSTGRES_URL=postgresql://ultramcp:${POSTGRES_PASSWORD:-ultramcp_secure_2024}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_2024}@redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key_here}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-your_anthropic_key_here}
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Terminal Command Interface (80% terminal-first)
+  ultramcp-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: terminal
+    container_name: ultramcp-terminal
+    environment:
+      - POSTGRES_URL=postgresql://ultramcp:${POSTGRES_PASSWORD:-ultramcp_secure_2024}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure_2024}@redis:6379/0
+      - COD_SERVICE_URL=http://cod-service:8001
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_openai_key_here}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-your_anthropic_key_here}
+    depends_on:
+      - postgres
+      - redis
+      - cod-service
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./scripts:/app/scripts
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./Makefile:/app/Makefile
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker operations
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+  # Web Interface (Optional - for monitoring)
+  web-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-dashboard
+    container_name: ultramcp-web-dashboard
+    environment:
+      - COD_SERVICE_URL=http://cod-service:8001
+      - POSTGRES_URL=postgresql://ultramcp:${POSTGRES_PASSWORD:-ultramcp_secure_2024}@postgres:5432/ultramcp
+    ports:
+      - "3000:3000"
+    depends_on:
+      - cod-service
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+
+networks:
+  ultramcp-network:
+    driver: bridge
+    name: ultramcp-network
+
+volumes:
+  postgres_data:
+    name: ultramcp-postgres-data
+  redis_data:
+    name: ultramcp-redis-data
+
+# Development override file usage:
+# docker-compose -f docker-compose.yml -f docker-compose.dev.yml up

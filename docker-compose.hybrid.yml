@@ -1,0 +1,135 @@
+# UltraMCP Hybrid Implementation - Optimized for Terminal-First Approach
+version: '3.8'
+
+services:
+  # Core database (minimal footprint)
+  ultramcp-postgres:
+    image: postgres:15-alpine
+    container_name: ultramcp-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ultramcp}
+      POSTGRES_USER: ${POSTGRES_USER:-ultramcp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ultramcp_secure}
+    volumes:
+      - postgres_hybrid_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - ultramcp-hybrid
+    restart: unless-stopped
+
+  # Lightweight Redis
+  ultramcp-redis:
+    image: redis:7-alpine
+    container_name: ultramcp-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redis_secure}
+    volumes:
+      - redis_hybrid_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - ultramcp-hybrid
+    restart: unless-stopped
+
+  # CoD Protocol Service (20% advanced orchestration)
+  ultramcp-cod-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cod-service
+    container_name: ultramcp-cod-service
+    environment:
+      - COD_SERVICE_PORT=8001
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-ultramcp}:${POSTGRES_PASSWORD:-ultramcp_secure}@ultramcp-postgres:5432/${POSTGRES_DB:-ultramcp}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure}@ultramcp-redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONPATH=/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - ultramcp-postgres
+      - ultramcp-redis
+    networks:
+      - ultramcp-hybrid
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # Terminal Interface (80% terminal-first)
+  ultramcp-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+      target: terminal
+    container_name: ultramcp-terminal
+    environment:
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-ultramcp}:${POSTGRES_PASSWORD:-ultramcp_secure}@ultramcp-postgres:5432/${POSTGRES_DB:-ultramcp}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-redis_secure}@ultramcp-redis:6379/0
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONPATH=/app
+    depends_on:
+      - ultramcp-postgres
+      - ultramcp-redis
+      - ultramcp-cod-service
+    networks:
+      - ultramcp-hybrid
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./Makefile:/app/Makefile:ro
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker operations
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    command: >
+      bash -c "
+        echo '🚀 UltraMCP Hybrid Terminal Interface Ready!' &&
+        echo '📋 Available commands: make help' &&
+        echo '🔧 Interactive mode: docker exec -it ultramcp-terminal bash' &&
+        tail -f /dev/null
+      "
+
+  # Optional: Lightweight monitoring dashboard
+  ultramcp-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-dashboard
+    container_name: ultramcp-dashboard
+    environment:
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-ultramcp}:${POSTGRES_PASSWORD:-ultramcp_secure}@ultramcp-postgres:5432/${POSTGRES_DB:-ultramcp}
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ultramcp-cod-service
+    networks:
+      - ultramcp-hybrid
+    volumes:
+      - ./logs:/app/logs:ro
+      - ./data:/app/data:ro
+    restart: unless-stopped
+
+networks:
+  ultramcp-hybrid:
+    driver: bridge
+    name: ultramcp-hybrid-network
+
+volumes:
+  postgres_hybrid_data:
+    name: ultramcp-postgres-hybrid
+  redis_hybrid_data:
+    name: ultramcp-redis-hybrid
+
+# Usage:
+# docker-compose -f docker-compose.hybrid.yml up -d
+# docker exec -it ultramcp-terminal bash
+# make help

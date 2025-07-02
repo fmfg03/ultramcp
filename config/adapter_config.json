@@ -1,85 +1,568 @@
 {
   "adapters": [
     {
-      "name": "firecrawl",
-      "type": "web_scraping",
+      "name": "playwright-mcp",
+      "type": "web_automation",
       "enabled": true,
-      "description": "Web scraping service using Firecrawl API",
-      "capabilities": ["scrape", "crawl", "extract"],
+      "description": "Advanced web automation using Playwright-MCP with intelligent Chain-of-Debate strategy selection",
+      "capabilities": [
+        "navigate",
+        "interact", 
+        "extract",
+        "screenshot",
+        "wait_for_elements",
+        "form_automation",
+        "data_scraping",
+        "performance_monitoring"
+      ],
       "config": {
-        "api_key_env": "FIRECRAWL_API_KEY",
-        "base_url": "https://api.firecrawl.dev/v1"
+        "server_command": ["npx", "playwright-mcp"],
+        "timeout": 30000,
+        "headless": true,
+        "retry_attempts": 3,
+        "max_concurrent_sessions": 5,
+        "browser_config": {
+          "chromium": {
+            "args": [
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+              "--disable-background-timer-throttling"
+            ]
+          }
+        },
+        "cod_integration": {
+          "enabled": true,
+          "debate_rounds": 3,
+          "expert_timeout": 120,
+          "consensus_threshold": 0.8
+        }
+      },
+      "tools": [
+        {
+          "id": "navigate",
+          "name": "Web Navigation",
+          "description": "Navigate to URLs with intelligent waiting strategies",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "Target URL to navigate to"
+              },
+              "waitFor": {
+                "type": "string",
+                "enum": ["load", "networkidle", "domcontentloaded"],
+                "default": "networkidle",
+                "description": "Wait condition after navigation"
+              },
+              "timeout": {
+                "type": "number",
+                "default": 30000,
+                "description": "Navigation timeout in milliseconds"
+              }
+            },
+            "required": ["url"]
+          }
+        },
+        {
+          "id": "click",
+          "name": "Element Click",
+          "description": "Click on page elements with smart element detection",
+          "parameters": {
+            "type": "object", 
+            "properties": {
+              "selector": {
+                "type": "string",
+                "description": "CSS selector, XPath, or text content to click"
+              },
+              "options": {
+                "type": "object",
+                "properties": {
+                  "timeout": {"type": "number", "default": 10000},
+                  "force": {"type": "boolean", "default": false},
+                  "trial": {"type": "boolean", "default": false}
+                }
+              }
+            },
+            "required": ["selector"]
+          }
+        },
+        {
+          "id": "type",
+          "name": "Text Input",
+          "description": "Type text into input fields with smart field detection",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "selector": {
+                "type": "string", 
+                "description": "CSS selector for the input field"
+              },
+              "text": {
+                "type": "string",
+                "description": "Text to type into the field"
+              },
+              "clear": {
+                "type": "boolean",
+                "default": true,
+                "description": "Clear field before typing"
+              },
+              "delay": {
+                "type": "number",
+                "default": 0,
+                "description": "Delay between keystrokes in milliseconds"
+              }
+            },
+            "required": ["selector", "text"]
+          }
+        },
+        {
+          "id": "screenshot",
+          "name": "Screenshot Capture",
+          "description": "Capture screenshots of page or specific elements",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "selector": {
+                "type": "string",
+                "description": "Optional CSS selector for element screenshot"
+              },
+              "fullPage": {
+                "type": "boolean",
+                "default": false,
+                "description": "Capture full page screenshot"
+              },
+              "quality": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "default": 90,
+                "description": "Screenshot quality (0-100)"
+              },
+              "format": {
+                "type": "string",
+                "enum": ["png", "jpeg"],
+                "default": "png",
+                "description": "Screenshot format"
+              }
+            }
+          }
+        },
+        {
+          "id": "extract",
+          "name": "Data Extraction",
+          "description": "Extract structured data from pages using JSON schema",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "object",
+                "description": "JSON schema describing the data structure to extract"
+              },
+              "selector": {
+                "type": "string",
+                "description": "Optional CSS selector to limit extraction scope"
+              },
+              "format": {
+                "type": "string",
+                "enum": ["json", "csv", "xml"],
+                "default": "json",
+                "description": "Output format for extracted data"
+              }
+            },
+            "required": ["schema"]
+          }
+        },
+        {
+          "id": "wait_for",
+          "name": "Element Waiting",
+          "description": "Wait for elements to appear, disappear, or change state",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "selector": {
+                "type": "string",
+                "description": "CSS selector to wait for"
+              },
+              "state": {
+                "type": "string",
+                "enum": ["visible", "hidden", "attached", "detached"],
+                "default": "visible",
+                "description": "Element state to wait for"
+              },
+              "timeout": {
+                "type": "number",
+                "default": 30000,
+                "description": "Wait timeout in milliseconds"
+              }
+            },
+            "required": ["selector"]
+          }
+        },
+        {
+          "id": "scroll",
+          "name": "Page Scrolling",
+          "description": "Scroll page or specific elements",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "selector": {
+                "type": "string",
+                "description": "Optional selector for element to scroll"
+              },
+              "x": {
+                "type": "number",
+                "default": 0,
+                "description": "Horizontal scroll position"
+              },
+              "y": {
+                "type": "number",
+                "default": 0,
+                "description": "Vertical scroll position"
+              },
+              "behavior": {
+                "type": "string",
+                "enum": ["auto", "smooth"],
+                "default": "auto",
+                "description": "Scroll behavior"
+              }
+            }
+          }
+        },
+        {
+          "id": "hover",
+          "name": "Element Hover",
+          "description": "Hover over page elements to trigger interactions",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "selector": {
+                "type": "string",
+                "description": "CSS selector for element to hover"
+              },
+              "timeout": {
+                "type": "number",
+                "default": 10000,
+                "description": "Hover timeout in milliseconds"
+              }
+            },
+            "required": ["selector"]
+          }
+        }
+      ],
+      "metadata": {
+        "version": "1.0.0",
+        "author": "UltraMCP Team",
+        "created_at": "2024-07-02T00:00:00Z",
+        "updated_at": "2024-07-02T00:00:00Z",
+        "documentation_url": "https://github.com/ultramcp/playwright-mcp-integration",
+        "support_contact": "support@ultramcp.com"
       }
     },
     {
-      "name": "telegram",
-      "type": "messaging",
+      "name": "stagehand",
+      "type": "web_automation",
       "enabled": true,
-      "description": "Telegram bot integration",
-      "capabilities": ["send_message", "receive_message", "bot_commands"],
+      "description": "Cloud-based browser automation via Browserbase with natural language processing",
+      "capabilities": [
+        "natural_language_actions",
+        "cloud_browser_sessions",
+        "smart_element_detection",
+        "automated_reasoning"
+      ],
       "config": {
-        "token_env": "TELEGRAM_BOT_TOKEN",
-        "bot_username": "MagnusMcbot"
+        "browserbase_api_key": "${BROWSERBASE_API_KEY}",
+        "browserbase_project_id": "${BROWSERBASE_PROJECT_ID}",
+        "default_timeout": 30000,
+        "headless": true
+      }
+    },
+    {
+      "name": "github",
+      "type": "development",
+      "enabled": true,
+      "description": "GitHub repository management and automation",
+      "capabilities": [
+        "repository_operations",
+        "issue_management", 
+        "pull_request_automation",
+        "code_analysis"
+      ],
+      "config": {
+        "github_token": "${GITHUB_TOKEN}",
+        "default_org": "${GITHUB_ORG}",
+        "rate_limit_delay": 1000
       }
     },
     {
       "name": "notion",
       "type": "productivity",
       "enabled": true,
-      "description": "Notion workspace integration",
-      "capabilities": ["read_pages", "write_pages", "search", "database"],
+      "description": "Notion workspace automation and data management",
+      "capabilities": [
+        "database_operations",
+        "page_creation",
+        "content_management",
+        "workflow_automation"
+      ],
       "config": {
-        "token_env": "NOTION_TOKEN",
-        "workspace": "fmfg@agentius.ai's Workspace"
+        "notion_api_key": "${NOTION_API_KEY}",
+        "default_database_id": "${NOTION_DATABASE_ID}",
+        "page_size": 100
       }
     },
     {
-      "name": "github",
-      "type": "development", 
+      "name": "telegram",
+      "type": "messaging",
       "enabled": true,
-      "description": "GitHub repository operations",
-      "capabilities": ["read_repos", "write_files", "commits", "issues"],
+      "description": "Telegram bot integration for notifications and interactions",
+      "capabilities": [
+        "message_sending",
+        "file_sharing",
+        "group_management",
+        "webhook_handling"
+      ],
       "config": {
-        "token_env": "GITHUB_TOKEN",
-        "default_repo": "supermcp"
+        "bot_token": "${TELEGRAM_BOT_TOKEN}",
+        "default_chat_id": "${TELEGRAM_CHAT_ID}",
+        "parse_mode": "HTML"
       }
     },
     {
-      "name": "memory_analyzer",
-      "type": "ai_memory",
+      "name": "email",
+      "type": "messaging",
       "enabled": true,
-      "description": "Sam's semantic memory system",
-      "capabilities": ["store_memory", "search_memory", "analyze_concepts"],
+      "description": "Email automation and management",
+      "capabilities": [
+        "email_sending",
+        "template_processing",
+        "attachment_handling",
+        "inbox_monitoring"
+      ],
       "config": {
-        "supabase_url": "https://bvhhkmdlfpcebecmxshd.supabase.co",
-        "embedding_model": "text-embedding-3-large"
+        "smtp_host": "${SMTP_HOST}",
+        "smtp_port": "${SMTP_PORT}",
+        "smtp_user": "${SMTP_USER}",
+        "smtp_password": "${SMTP_PASSWORD}",
+        "default_from": "${EMAIL_FROM}"
       }
     },
     {
-      "name": "python_orchestration",
-      "type": "orchestration",
+      "name": "firecrawl",
+      "type": "web_scraping",
       "enabled": true,
-      "description": "Python-based task orchestration",
-      "capabilities": ["orchestrate_tasks", "manage_workflows", "execute_tools"],
+      "description": "Advanced web scraping and content extraction",
+      "capabilities": [
+        "intelligent_scraping",
+        "content_extraction",
+        "pdf_processing",
+        "structured_data_output"
+      ],
       "config": {
-        "base_url": "http://localhost:8000"
+        "api_key": "${FIRECRAWL_API_KEY}",
+        "timeout": 60000,
+        "wait_for": 5000
       }
     },
     {
-      "name": "ollama",
-      "type": "local_llm",
+      "name": "jupyter",
+      "type": "analysis",
       "enabled": true,
-      "description": "Local LLM models via Ollama",
-      "capabilities": ["qwen2.5:14b", "qwen2.5-coder:7b", "deepseek-coder:6.7b", "llama3.1:8b", "mistral:7b"],
+      "description": "Jupyter notebook execution and data analysis",
+      "capabilities": [
+        "notebook_execution",
+        "data_analysis",
+        "visualization_generation",
+        "code_generation"
+      ],
       "config": {
-        "base_url": "http://localhost:11434"
+        "jupyter_server_url": "${JUPYTER_SERVER_URL}",
+        "kernel_timeout": 300000,
+        "default_kernel": "python3"
+      }
+    },
+    {
+      "name": "claude-tool-agent",
+      "type": "ai_agent",
+      "enabled": true,
+      "description": "Claude-powered intelligent tool agent for complex reasoning",
+      "capabilities": [
+        "intelligent_reasoning",
+        "tool_coordination",
+        "complex_problem_solving",
+        "decision_making"
+      ],
+      "config": {
+        "anthropic_api_key": "${ANTHROPIC_API_KEY}",
+        "model": "claude-3-sonnet-20240229",
+        "max_tokens": 4096
+      }
+    },
+    {
+      "name": "claude-web-search",
+      "type": "search",
+      "enabled": true,
+      "description": "Claude-enhanced web search with intelligent result processing",
+      "capabilities": [
+        "intelligent_search",
+        "result_analysis",
+        "content_summarization",
+        "fact_checking"
+      ],
+      "config": {
+        "search_api_key": "${SERPER_API_KEY}",
+        "anthropic_api_key": "${ANTHROPIC_API_KEY}",
+        "max_results": 10
+      }
+    },
+    {
+      "name": "embedding-search",
+      "type": "search",
+      "enabled": true,
+      "description": "Vector-based semantic search and document retrieval",
+      "capabilities": [
+        "semantic_search",
+        "document_indexing",
+        "similarity_matching",
+        "content_retrieval"
+      ],
+      "config": {
+        "embedding_model": "text-embedding-ada-002",
+        "vector_dimension": 1536,
+        "similarity_threshold": 0.8
+      }
+    },
+    {
+      "name": "chroma",
+      "type": "vector_database",
+      "enabled": true,
+      "description": "ChromaDB vector database operations for embeddings",
+      "capabilities": [
+        "vector_storage",
+        "similarity_search",
+        "metadata_filtering",
+        "collection_management"
+      ],
+      "config": {
+        "chroma_host": "${CHROMA_HOST}",
+        "chroma_port": "${CHROMA_PORT}",
+        "default_collection": "ultramcp_documents"
+      }
+    },
+    {
+      "name": "getzep",
+      "type": "memory",
+      "enabled": true,
+      "description": "Zep memory management for conversational AI",
+      "capabilities": [
+        "conversation_memory",
+        "session_management",
+        "fact_extraction",
+        "memory_search"
+      ],
+      "config": {
+        "zep_api_url": "${ZEP_API_URL}",
+        "zep_api_key": "${ZEP_API_KEY}",
+        "session_timeout": 3600
+      }
+    },
+    {
+      "name": "google-ai",
+      "type": "ai_service",
+      "enabled": true,
+      "description": "Google AI services integration (Gemini, PaLM)",
+      "capabilities": [
+        "text_generation",
+        "code_generation",
+        "multimodal_processing",
+        "reasoning"
+      ],
+      "config": {
+        "google_api_key": "${GOOGLE_AI_API_KEY}",
+        "default_model": "gemini-pro",
+        "safety_settings": "default"
+      }
+    },
+    {
+      "name": "scheduler",
+      "type": "automation",
+      "enabled": true,
+      "description": "Task scheduling and workflow automation",
+      "capabilities": [
+        "cron_scheduling",
+        "workflow_triggers",
+        "task_management",
+        "automation_monitoring"
+      ],
+      "config": {
+        "timezone": "UTC",
+        "max_concurrent_tasks": 10,
+        "task_timeout": 3600
+      }
+    },
+    {
+      "name": "python",
+      "type": "execution",
+      "enabled": true,
+      "description": "Python code execution and analysis",
+      "capabilities": [
+        "code_execution",
+        "data_processing",
+        "package_management",
+        "environment_isolation"
+      ],
+      "config": {
+        "python_version": "3.10",
+        "virtual_env": true,
+        "timeout": 300,
+        "allowed_packages": ["pandas", "numpy", "matplotlib", "requests"]
+      }
+    },
+    {
+      "name": "cli",
+      "type": "system",
+      "enabled": false,
+      "description": "Command-line interface execution (disabled for security)",
+      "capabilities": [
+        "command_execution",
+        "system_operations",
+        "file_management",
+        "process_control"
+      ],
+      "config": {
+        "allowed_commands": [],
+        "working_directory": "/tmp",
+        "timeout": 30
       }
     }
   ],
-  "metadata": {
-    "version": "1.0.0",
-    "created": "2025-06-19",
-    "total_adapters": 7,
-    "enabled_adapters": 7
+  "global_config": {
+    "adapter_timeout": 60000,
+    "max_concurrent_adapters": 10,
+    "retry_attempts": 3,
+    "error_handling": "graceful",
+    "logging": {
+      "level": "info",
+      "include_performance_metrics": true,
+      "langwatch_integration": true
+    },
+    "security": {
+      "sandbox_mode": true,
+      "resource_limits": {
+        "memory": "1GB",
+        "cpu": "2 cores",
+        "disk": "500MB"
+      },
+      "network_restrictions": {
+        "allowed_domains": ["*.ultramcp.com", "api.openai.com", "api.anthropic.com"],
+        "blocked_ports": [22, 23, 3389]
+      }
+    },
+    "monitoring": {
+      "health_check_interval": 30,
+      "performance_tracking": true,
+      "error_alerting": true,
+      "observatory_integration": true
+    }
   }
 }
