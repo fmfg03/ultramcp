@@ -1,0 +1,465 @@
+{
+  "mcpServers": {
+    "ultramcp-cod": {
+      "name": "UltraMCP Chain-of-Debate Protocol",
+      "description": "Revolutionary hybrid local+API multi-LLM debate system",
+      "command": "make",
+      "args": ["cod-mcp-server"],
+      "cwd": "/root/ultramcp",
+      "env": {
+        "ULTRAMCP_MODE": "mcp",
+        "ULTRAMCP_PRIVACY_FIRST": "true",
+        "ULTRAMCP_COST_OPTIMIZATION": "true"
+      },
+      "scope": "project",
+      "capabilities": {
+        "tools": [
+          {
+            "name": "cod_debate",
+            "description": "Start a multi-LLM Chain-of-Debate session",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "topic": {
+                  "type": "string",
+                  "description": "The debate topic or decision to analyze"
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": ["local", "hybrid", "privacy", "cost_optimized"],
+                  "description": "Debate mode: local (100% local models), hybrid (mixed), privacy (local-only for sensitive topics), cost_optimized (minimize API costs)"
+                },
+                "participants": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Specific models to include in the debate"
+                },
+                "max_rounds": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10,
+                  "default": 3,
+                  "description": "Maximum number of debate rounds"
+                },
+                "confidence_threshold": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0.75,
+                  "description": "Minimum confidence required for consensus"
+                }
+              },
+              "required": ["topic"]
+            }
+          },
+          {
+            "name": "get_local_models",
+            "description": "List available local LLM models",
+            "inputSchema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          {
+            "name": "local_chat",
+            "description": "Chat with local LLM models (zero cost, maximum privacy)",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Message to send to the local model"
+                },
+                "model": {
+                  "type": "string",
+                  "enum": ["qwen2.5:14b", "llama3.1:8b", "qwen-coder:7b", "mistral:7b", "deepseek-coder:6.7b"],
+                  "description": "Specific local model to use (auto-selected if not specified)"
+                },
+                "privacy_mode": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Ensure 100% local processing"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "cost_analysis",
+            "description": "Analyze costs for local vs API usage",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "time_range": {
+                  "type": "string",
+                  "enum": ["hour", "day", "week", "month"],
+                  "default": "day",
+                  "description": "Time range for cost analysis"
+                },
+                "include_projections": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Include future cost projections"
+                }
+              }
+            }
+          },
+          {
+            "name": "optimize_costs",
+            "description": "Apply cost optimization strategies",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "strategy": {
+                  "type": "string",
+                  "enum": ["prefer_local", "batch_requests", "cache_results", "smart_routing"],
+                  "description": "Optimization strategy to apply"
+                },
+                "target_savings": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "Target savings percentage"
+                }
+              },
+              "required": ["strategy"]
+            }
+          }
+        ],
+        "resources": [
+          {
+            "name": "debate_results",
+            "description": "Access to Chain-of-Debate session results",
+            "mimeType": "application/json"
+          },
+          {
+            "name": "cost_analytics",
+            "description": "Real-time cost analytics and optimization data",
+            "mimeType": "application/json"
+          },
+          {
+            "name": "model_performance",
+            "description": "Local model performance metrics",
+            "mimeType": "application/json"
+          }
+        ]
+      }
+    },
+    "ultramcp-local": {
+      "name": "UltraMCP Local Models",
+      "description": "Direct interface to 5 local LLM models - zero cost, maximum privacy",
+      "command": "make",
+      "args": ["local-mcp-server"],
+      "cwd": "/root/ultramcp",
+      "env": {
+        "OLLAMA_HOST": "localhost:11434",
+        "ULTRAMCP_LOCAL_ONLY": "true",
+        "ULTRAMCP_PRIVACY_MODE": "true"
+      },
+      "scope": "project",
+      "capabilities": {
+        "tools": [
+          {
+            "name": "qwen_25_14b",
+            "description": "Strategic Analyst - Complex reasoning and strategic analysis",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Strategic question or analysis request"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": ["CFO", "CEO", "Strategic Analyst"],
+                  "default": "Strategic Analyst",
+                  "description": "Role perspective for the analysis"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "llama_31_8b",
+            "description": "Balanced Reasoner - High-quality general analysis",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "General question or reasoning task"
+                },
+                "temperature": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0.7,
+                  "description": "Creativity level"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "qwen_coder_7b",
+            "description": "Technical Specialist - Code analysis and technical evaluation",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Technical question or code analysis request"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "Programming language context"
+                },
+                "task_type": {
+                  "type": "string",
+                  "enum": ["code_review", "architecture", "debugging", "optimization"],
+                  "description": "Type of technical task"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "mistral_7b",
+            "description": "Rapid Analyst - Quick analysis and practical perspectives",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Question requiring quick analysis"
+                },
+                "priority": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "urgent"],
+                  "default": "medium",
+                  "description": "Response priority level"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "deepseek_coder_67b",
+            "description": "System Architect - Advanced technical evaluation and system design",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "System design or architecture question"
+                },
+                "scope": {
+                  "type": "string",
+                  "enum": ["component", "service", "system", "platform"],
+                  "description": "Architectural scope"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "auto_select_model",
+            "description": "Automatically select the best local model for the task",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Your question or task"
+                },
+                "task_type": {
+                  "type": "string",
+                  "enum": ["coding", "analysis", "strategy", "creative", "rapid"],
+                  "description": "Type of task to optimize model selection"
+                },
+                "privacy_required": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Require 100% local processing"
+                }
+              },
+              "required": ["message"]
+            }
+          }
+        ]
+      }
+    },
+    "ultramcp-hybrid": {
+      "name": "UltraMCP Hybrid Decision Engine",
+      "description": "Intelligent cost and privacy optimization with local+API model coordination",
+      "command": "make",
+      "args": ["hybrid-mcp-server"],
+      "cwd": "/root/ultramcp",
+      "env": {
+        "ULTRAMCP_HYBRID_MODE": "true",
+        "ULTRAMCP_COST_OPTIMIZATION": "true",
+        "ULTRAMCP_PRIVACY_SCORING": "true"
+      },
+      "scope": "project",
+      "capabilities": {
+        "tools": [
+          {
+            "name": "smart_routing",
+            "description": "Intelligently route queries between local and API models based on cost, privacy, and quality requirements",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Your question or task"
+                },
+                "cost_budget": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Maximum cost willing to spend (USD)"
+                },
+                "privacy_requirement": {
+                  "type": "string",
+                  "enum": ["low", "medium", "high", "maximum"],
+                  "default": "medium",
+                  "description": "Privacy requirement level"
+                },
+                "quality_threshold": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "default": 0.8,
+                  "description": "Minimum acceptable quality score"
+                },
+                "prefer_local": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Prefer local models when quality is equivalent"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          {
+            "name": "cost_optimize_session",
+            "description": "Optimize an entire conversation session for cost while maintaining quality",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "session_type": {
+                  "type": "string",
+                  "enum": ["research", "coding", "analysis", "creative", "mixed"],
+                  "description": "Type of session to optimize"
+                },
+                "budget_limit": {
+                  "type": "number",
+                  "description": "Total budget limit for the session"
+                },
+                "time_limit": {
+                  "type": "integer",
+                  "description": "Time limit in minutes"
+                }
+              },
+              "required": ["session_type"]
+            }
+          },
+          {
+            "name": "privacy_audit",
+            "description": "Audit conversation for privacy compliance and data handling",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "conversation_id": {
+                  "type": "string",
+                  "description": "ID of conversation to audit"
+                },
+                "compliance_standard": {
+                  "type": "string",
+                  "enum": ["gdpr", "hipaa", "sox", "internal"],
+                  "description": "Compliance standard to check against"
+                }
+              },
+              "required": ["conversation_id"]
+            }
+          }
+        ],
+        "resources": [
+          {
+            "name": "optimization_history",
+            "description": "History of optimization decisions and their outcomes",
+            "mimeType": "application/json"
+          },
+          {
+            "name": "privacy_audit_log",
+            "description": "Privacy compliance audit trail",
+            "mimeType": "application/json"
+          }
+        ]
+      }
+    }
+  },
+  "defaultServer": "ultramcp-hybrid",
+  "globalSettings": {
+    "autoStart": true,
+    "logLevel": "info",
+    "maxConcurrentServers": 3,
+    "healthCheckInterval": 30,
+    "costTracking": true,
+    "privacyMode": true,
+    "localModelPreference": true
+  },
+  "integrationSettings": {
+    "claudia": {
+      "customAgentTypes": [
+        "cod-debate",
+        "local-llm",
+        "hybrid-decision",
+        "privacy-guardian",
+        "cost-optimizer"
+      ],
+      "visualComponents": [
+        "DebateVisualization",
+        "LocalModelManager", 
+        "CostAnalyticsDashboard"
+      ],
+      "realTimeUpdates": true,
+      "costDashboard": true,
+      "privacyDashboard": true,
+      "performanceMonitoring": true
+    }
+  },
+  "security": {
+    "sandboxMode": true,
+    "allowedCommands": [
+      "cod-local",
+      "cod-hybrid", 
+      "cod-privacy",
+      "cod-cost-optimized",
+      "local-chat",
+      "local-models",
+      "local-status",
+      "health-check",
+      "cost-analysis"
+    ],
+    "restrictedPaths": [
+      "/etc",
+      "/usr/bin",
+      "/root/.ssh"
+    ],
+    "maxMemoryUsage": "32GB",
+    "maxProcessTime": 300
+  },
+  "monitoring": {
+    "enableMetrics": true,
+    "trackCosts": true,
+    "trackPrivacy": true,
+    "trackPerformance": true,
+    "alertThresholds": {
+      "costPerHour": 1.0,
+      "privacyScore": 80,
+      "responseTime": 60
+    }
+  }
+}

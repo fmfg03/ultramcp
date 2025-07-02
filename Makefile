@@ -22,6 +22,10 @@ help:
 	@echo "  make research URL='...'        - Web research with Playwright"
 	@echo "  make analyze FILE='...'        - Analyze document/data"
 	@echo ""
+	@echo "🎛️ Control Tower UI:"
+	@echo "  make control-tower             - Launch full Control Tower UI"
+	@echo "  make control-tower-status      - Check Control Tower status"
+	@echo ""
 	@echo "Local LLM Operations:"
 	@echo "  make local-models              - List available local models (5 models ready)"
 	@echo "  make local-pull MODEL='...'    - Download new local model"
@@ -297,6 +301,32 @@ claude-setup:
 claude-test:
 	@echo "🧪 Testing Claude Code integration..."
 	@make health-check
+
+# =============================================================================
+# CONTROL TOWER UI
+# =============================================================================
+
+control-tower:
+	@echo "🎛️ Starting UltraMCP Control Tower..."
+	@./scripts/launch-control-tower.sh
+
+control-tower-backend:
+	@echo "🔧 Starting Control Tower WebSocket Server..."
+	@cd services/control-tower && npm install --silent && npm start
+
+control-tower-frontend:
+	@echo "🎨 Starting Control Tower UI..."
+	@cd apps/frontend && npm run dev -- --port 5173
+
+control-tower-build:
+	@echo "🏗️ Building Control Tower UI..."
+	@cd services/control-tower && npm install --silent
+	@cd apps/frontend && npm run build
+
+control-tower-status:
+	@echo "📊 Control Tower Status:"
+	@curl -s http://localhost:8001/api/status 2>/dev/null | jq . || echo "❌ Control Tower backend not running"
+	@curl -s http://localhost:5173 >/dev/null 2>&1 && echo "✅ Frontend running on http://localhost:5173" || echo "❌ Frontend not running"
 	@make chat TEXT="Hello from UltraMCP Hybrid System!"
 # =============================================================================
 # ENHANCED COD PROTOCOL WITH LOCAL LLMS

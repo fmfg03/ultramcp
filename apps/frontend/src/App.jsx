@@ -1,120 +1,139 @@
 import React, { useState, useEffect } from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
+import { Dashboard, Build, Psychology, Assessment } from '@mui/icons-material';
+
 import MCPToolSelector from './components/code/MCPToolSelector';
 import SimpleOrchestrationTest from './components/SimpleOrchestrationTest';
-// Import other components as needed
+import UltraMCPControlTower from './components/UltraMCPControlTower';
+
+// Material-UI theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+    background: {
+      default: '#f5f5f5',
+    },
+  },
+  typography: {
+    h4: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 500,
+    },
+  },
+});
 
 function App() {
   const [message, setMessage] = useState('');
-  const [currentView, setCurrentView] = useState('orchestration'); // 'orchestration' or 'tools'
+  const [currentView, setCurrentView] = useState('control-tower'); // 'control-tower', 'orchestration', 'tools'
 
-  // Example: Fetch backend status on load
+  // Fetch backend status on load
   useEffect(() => {
-    fetch('/api/health') // Use the new health endpoint
+    fetch('/api/health')
       .then(res => res.json())
-      .then(data => setMessage(`Backend connected. Status: ${data.status}`))
-      .catch(err => setMessage('Error connecting to backend.'));
+      .then(data => setMessage(`Connected - ${data.status}`))
+      .catch(err => setMessage('Backend disconnected'));
   }, []);
 
-  return (
-    <div className="App" style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-      {/* Navigation */}
-      <nav style={{ 
-        backgroundColor: 'white', 
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        borderBottom: '1px solid #e5e7eb'
-      }}>
-        <div style={{ 
-          maxWidth: '1200px', 
-          margin: '0 auto', 
-          padding: '0 16px'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            height: '64px',
-            alignItems: 'center'
-          }}>
-            <div>
-              <h1 style={{ 
-                fontSize: '20px', 
-                fontWeight: '600', 
-                color: '#1f2937',
-                margin: 0
-              }}>
-                MCP Broker
-              </h1>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button
-                onClick={() => setCurrentView('orchestration')}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  border: 'none',
-                  cursor: 'pointer',
-                  backgroundColor: currentView === 'orchestration' ? '#dbeafe' : 'transparent',
-                  color: currentView === 'orchestration' ? '#1d4ed8' : '#6b7280'
-                }}
-              >
-                Orquestación
-              </button>
-              <button
-                onClick={() => setCurrentView('tools')}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  border: 'none',
-                  cursor: 'pointer',
-                  backgroundColor: currentView === 'tools' ? '#dbeafe' : 'transparent',
-                  color: currentView === 'tools' ? '#1d4ed8' : '#6b7280'
-                }}
-              >
-                Herramientas MCP
-              </button>
-              <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                Status: {message}
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
 
-      {/* Main Content */}
-      <main style={{ padding: '24px 0' }}>
-        {currentView === 'orchestration' ? (
-          <SimpleOrchestrationTest />
-        ) : (
-          <div style={{ 
-            maxWidth: '1200px', 
-            margin: '0 auto', 
-            padding: '0 16px'
-          }}>
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '8px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              padding: '24px'
-            }}>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 'bold', 
-                color: '#1f2937',
-                marginBottom: '16px'
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
+        {/* Navigation */}
+        <AppBar position="static" elevation={1}>
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              🚀 UltraMCP Hybrid System
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                color="inherit"
+                startIcon={<Dashboard />}
+                onClick={() => handleViewChange('control-tower')}
+                variant={currentView === 'control-tower' ? 'outlined' : 'text'}
+                sx={{ 
+                  backgroundColor: currentView === 'control-tower' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: currentView === 'control-tower' ? '1px solid rgba(255,255,255,0.3)' : 'none'
+                }}
+              >
+                Control Tower
+              </Button>
+              
+              <Button
+                color="inherit"
+                startIcon={<Psychology />}
+                onClick={() => handleViewChange('orchestration')}
+                variant={currentView === 'orchestration' ? 'outlined' : 'text'}
+                sx={{ 
+                  backgroundColor: currentView === 'orchestration' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: currentView === 'orchestration' ? '1px solid rgba(255,255,255,0.3)' : 'none'
+                }}
+              >
+                Orchestration
+              </Button>
+              
+              <Button
+                color="inherit"
+                startIcon={<Build />}
+                onClick={() => handleViewChange('tools')}
+                variant={currentView === 'tools' ? 'outlined' : 'text'}
+                sx={{ 
+                  backgroundColor: currentView === 'tools' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: currentView === 'tools' ? '1px solid rgba(255,255,255,0.3)' : 'none'
+                }}
+              >
+                MCP Tools
+              </Button>
+            </Box>
+            
+            <Typography variant="caption" sx={{ ml: 2, opacity: 0.8 }}>
+              {message}
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        {/* Main Content */}
+        <Box component="main" sx={{ flexGrow: 1 }}>
+          {currentView === 'control-tower' && <UltraMCPControlTower />}
+          
+          {currentView === 'orchestration' && (
+            <Container maxWidth="xl" sx={{ py: 3 }}>
+              <SimpleOrchestrationTest />
+            </Container>
+          )}
+          
+          {currentView === 'tools' && (
+            <Container maxWidth="xl" sx={{ py: 3 }}>
+              <Box sx={{
+                backgroundColor: 'white',
+                borderRadius: 2,
+                boxShadow: 1,
+                p: 3
               }}>
-                Herramientas MCP
-              </h2>
-              <MCPToolSelector />
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+                <Typography variant="h4" component="h2" gutterBottom>
+                  MCP Tools Integration
+                </Typography>
+                <MCPToolSelector />
+              </Box>
+            </Container>
+          )}
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
 }
 
 export default App;
-
