@@ -1,0 +1,13 @@
+{
+  "task_id": "terminal_debate_1751464612",
+  "topic": "Should we prioritize local AI models over cloud APIs for enterprise applications?",
+  "mode": "local_only",
+  "consensus": "Placeholder consensus for: Should we prioritize local AI models over cloud APIs for enterprise applications?",
+  "confidence_score": 75.0,
+  "metadata": {
+    "total_cost": 0.02,
+    "local_models_used": 2,
+    "api_models_used": 1,
+    "privacy_score": 0.67
+  }
+}

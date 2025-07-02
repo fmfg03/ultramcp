@@ -22,8 +22,11 @@ make docker-logs    # View container logs
 
 ### AI Operations (80% Terminal-First)
 ```bash
-# Quick AI chat (bypasses complex orchestration)
+# Quick AI chat (OpenAI API)
 make chat TEXT="Explain quantum computing"
+
+# Local AI chat (5 models available, fully offline)
+make local-chat TEXT="Explain quantum computing"
 
 # Advanced multi-LLM debate (uses 20% orchestration)
 make debate TOPIC="Should we invest in AI research?"
@@ -33,6 +36,21 @@ make research URL="https://anthropic.com"
 
 # Data analysis with AI insights  
 make analyze FILE="data/research/report.json"
+```
+
+### Local LLM Operations (Offline AI)
+```bash
+# List available local models (5 models, 17+ GB total)
+make local-models
+
+# Use specific local models for coding
+make local-chat TEXT="Write a Python function to sort data"
+
+# Check local LLM system status
+make local-status
+
+# Download new models
+make local-pull MODEL="codellama:7b"
 ```
 
 ### Web Automation (Playwright MCP)

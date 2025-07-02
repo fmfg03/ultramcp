@@ -16,10 +16,17 @@ help:
 	@echo "  make clean          - Clean up processes and logs"
 	@echo ""
 	@echo "AI Operations:"
-	@echo "  make chat TEXT='...'           - Simple LLM chat"
+	@echo "  make chat TEXT='...'           - Simple LLM chat (OpenAI API)"
+	@echo "  make local-chat TEXT='...'     - Local LLM chat (Ollama models)"
 	@echo "  make debate TOPIC='...'        - Start CoD Protocol debate"
 	@echo "  make research URL='...'        - Web research with Playwright"
 	@echo "  make analyze FILE='...'        - Analyze document/data"
+	@echo ""
+	@echo "Local LLM Operations:"
+	@echo "  make local-models              - List available local models (5 models ready)"
+	@echo "  make local-pull MODEL='...'    - Download new local model"
+	@echo "  make local-remove MODEL='...'  - Remove local model"
+	@echo "  make local-status              - Check local LLM system status"
 	@echo ""
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
@@ -106,6 +113,30 @@ research:
 analyze:
 	@echo "🧠 Analyzing: $(FILE)"
 	@./scripts/analyze-data.sh "$(FILE)"
+
+# =============================================================================
+# LOCAL LLM OPERATIONS
+# =============================================================================
+
+local-chat:
+	@echo "🤖 Starting local LLM chat..."
+	@./scripts/local-llm-chat.sh "$(TEXT)"
+
+local-models:
+	@echo "📋 Available local models:"
+	@ollama list
+
+local-pull:
+	@echo "📥 Downloading model: $(MODEL)"
+	@ollama pull "$(MODEL)"
+
+local-remove:
+	@echo "🗑️ Removing model: $(MODEL)"
+	@ollama rm "$(MODEL)"
+
+local-status:
+	@echo "🔍 Local LLM system status:"
+	@ollama ps
 
 # =============================================================================
 # WEB OPERATIONS (via Playwright MCP)
@@ -267,3 +298,38 @@ claude-test:
 	@echo "🧪 Testing Claude Code integration..."
 	@make health-check
 	@make chat TEXT="Hello from UltraMCP Hybrid System!"
+# =============================================================================
+# ENHANCED COD PROTOCOL WITH LOCAL LLMS
+# =============================================================================
+
+# Local model CoD debates
+cod-local:
+	@echo "🎭 Starting LOCAL-ONLY CoD debate..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=local_only
+
+cod-hybrid:
+	@echo "🎭 Starting HYBRID CoD debate..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=hybrid
+
+cod-privacy:
+	@echo "🔒 Starting PRIVACY-FIRST debate..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=privacy_first
+
+cod-cost-optimized:
+	@echo "💰 Starting COST-OPTIMIZED debate..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=cost_optimized
+
+# Quick local debates for development
+dev-decision:
+	@echo "🚀 Quick development decision..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="$(DECISION)" --mode=local_only --rounds=2
+
+# Claude Code integration
+claude-debate:
+	@echo "🤖 Claude Code CoD integration..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=hybrid --verbose
+
+# Model performance testing
+test-cod-performance:
+	@echo "📊 Testing CoD performance with local models..."
+	@python3 scripts/enhanced-cod-terminal.py --topic="Test performance and response quality" --mode=local_only --rounds=1
