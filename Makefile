@@ -45,6 +45,7 @@ help:
 	@echo "  make web-scrape URL='...'      - Scrape website"
 	@echo "  make test-site URL='...'       - Test website with Playwright"
 	@echo "  make health-check              - Comprehensive system health check"
+	@echo "  make verify-integration        - Verify all services are integrated (no loose components)"
 	@echo "  make backup                    - Create system backup"
 	@echo ""
 	@echo "Risk Mitigation & Recovery:"
@@ -174,6 +175,10 @@ web-monitor:
 health-check:
 	@echo "🏥 Running health check..."
 	@./scripts/health-check.sh
+
+verify-integration:
+	@echo "🔍 Verifying complete service integration..."
+	@./scripts/verify-integration.sh
 
 backup:
 	@echo "💾 Creating system backup..."

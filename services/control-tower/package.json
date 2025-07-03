@@ -1,16 +1,17 @@
 {
   "name": "ultramcp-control-tower",
   "version": "1.0.0",
-  "description": "UltraMCP Control Tower WebSocket Server",
-  "main": "websocket-server.js",
+  "description": "UltraMCP Control Tower Service - Central coordination and monitoring",
+  "main": "control_tower_service.js",
   "scripts": {
-    "start": "node websocket-server.js",
-    "dev": "nodemon websocket-server.js",
+    "start": "node control_tower_service.js",
+    "dev": "nodemon control_tower_service.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "socket.io": "^4.7.2",
+    "ws": "^8.14.2",
+    "axios": "^1.6.0",
     "cors": "^2.8.5"
   },
   "devDependencies": {
@@ -18,9 +19,10 @@
   },
   "keywords": [
     "ultramcp",
-    "websocket",
     "control-tower",
-    "ai-orchestration"
+    "ai-orchestration",
+    "microservices",
+    "coordination"
   ],
   "author": "UltraMCP Team",
   "license": "MIT"
