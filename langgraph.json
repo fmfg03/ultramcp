@@ -63,6 +63,101 @@
       }
     }
   },
+  "tools": {
+    "sam_executor_agent": {
+      "type": "mcp_endpoint",
+      "endpoint": "/mcp/sam",
+      "description": "Sam es un agente especializado capaz de ejecutar tareas complejas de forma autónoma. Capacidades principales: Investigación avanzada usando Perplexity API, Generación y análisis de código con LLMs locales (Mistral, Llama, DeepSeek, Qwen), Procesamiento de datos y análisis, Ejecución autónoma con fallback automático entre modelos, Contexto completo del proyecto MCP. Sam prioriza modelos locales sobre APIs externas para máxima eficiencia y privacidad.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_type": {
+            "type": "string",
+            "enum": ["research", "coding", "analysis", "creative", "reasoning", "batch"],
+            "description": "Tipo de tarea a ejecutar"
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Instrucción detallada para Sam"
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "temperature": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "default": 0.7,
+                "description": "Temperatura para generación (creatividad vs precisión)"
+              },
+              "max_tokens": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 16384,
+                "description": "Máximo número de tokens a generar"
+              },
+              "priority": {
+                "type": "string",
+                "enum": ["low", "medium", "high", "critical"],
+                "default": "medium",
+                "description": "Prioridad de la tarea"
+              },
+              "autonomy_level": {
+                "type": "string",
+                "enum": ["supervised", "semi_autonomous", "fully_autonomous"],
+                "default": "semi_autonomous",
+                "description": "Nivel de autonomía para la ejecución"
+              },
+              "preferred_models": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Lista de modelos preferidos en orden de prioridad"
+              }
+            }
+          }
+        },
+        "required": ["task_type", "prompt"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error", "escalated", "in_progress"],
+            "description": "Estado de la ejecución"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "Resultado principal de la tarea"
+              },
+              "model_used": {
+                "type": "string",
+                "description": "Modelo que ejecutó la tarea"
+              },
+              "execution_time": {
+                "type": "number",
+                "description": "Tiempo de ejecución en segundos"
+              },
+              "confidence_score": {
+                "type": "number",
+                "description": "Puntuación de confianza en el resultado"
+              }
+            },
+            "required": ["content"]
+          },
+          "task_id": {
+            "type": "string",
+            "description": "ID único de la tarea ejecutada"
+          }
+        },
+        "required": ["status", "task_id"]
+      },
+      "preferred_models": ["mistral-local", "llama-local", "deepseek-local", "auto"]
+    }
+  },
   "env": ".env",
   "dependencies": [
     "langgraph>=0.4.8",

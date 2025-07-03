@@ -20,6 +20,8 @@ const PythonAdapter = require("./adapters/pythonAdapter");
 const SchedulerAdapter = require("./adapters/schedulerAdapter");
 const EmailAdapter = require("./adapters/emailAdapter");
 const NotionAdapter = require("./adapters/notionAdapter"); // Import NotionAdapter
+const TelegramAdapter = require("./adapters/TelegramAdapter"); // Import TelegramAdapter
+const SupabaseAdapter = require("../../../src/adapters/supabaseAdapter"); // Import SupabaseAdapter
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -39,7 +41,9 @@ const adaptersToRegister = [
   new PythonAdapter(),
   new SchedulerAdapter(orchestrationService),
   new EmailAdapter(),
-  new NotionAdapter() // Add NotionAdapter instance
+  new NotionAdapter(), // Add NotionAdapter instance
+  new TelegramAdapter(), // Add TelegramAdapter instance
+  new SupabaseAdapter() // Add SupabaseAdapter instance
 ];
 
 async function initializeAndRegisterAdapters() {
