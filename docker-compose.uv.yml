@@ -1,0 +1,226 @@
+# SuperMCP Docker Compose with UV Integration
+# Optimized for fast, reproducible deployments
+
+version: '3.8'
+
+services:
+  # Main orchestration service with UV-optimized Python
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend.uv
+      args:
+        - PYTHON_VERSION=3.11
+    container_name: supermcp-orchestrator
+    restart: unless-stopped
+    ports:
+      - "3000:3000"      # API Gateway
+      - "8000:8000"      # Python FastAPI services
+      - "5000:5000"      # CoD Protocol
+    environment:
+      - NODE_ENV=production
+      - PYTHON_ENV=production
+      - ENABLE_UV=true
+      - UV_CACHE_DIR=/app/.uv-cache
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - uv-cache:/app/.uv-cache
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - supermcp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # CoD Protocol service with UV
+  cod-protocol:
+    build:
+      context: ./services/cod-protocol
+      dockerfile: Dockerfile.uv
+    container_name: supermcp-cod-protocol
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+    environment:
+      - PYTHON_ENV=production
+      - UV_CACHE_DIR=/app/.uv-cache
+    volumes:
+      - cod-data:/app/data
+      - uv-cache:/app/.uv-cache
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - supermcp-network
+
+  # Voice System service with UV
+  voice-system:
+    build:
+      context: ./services/voice-system
+      dockerfile: Dockerfile.uv
+    container_name: supermcp-voice-system
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHON_ENV=production
+      - UV_CACHE_DIR=/app/.uv-cache
+    volumes:
+      - voice-data:/app/data
+      - uv-cache:/app/.uv-cache
+    networks:
+      - supermcp-network
+
+  # LangGraph Studio with UV
+  langgraph-studio:
+    build:
+      context: ./services/langgraph-studio
+      dockerfile: Dockerfile.uv
+    container_name: supermcp-langgraph-studio
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      - PYTHON_ENV=production
+      - UV_CACHE_DIR=/app/.uv-cache
+    volumes:
+      - langgraph-data:/app/data
+      - uv-cache:/app/.uv-cache
+    networks:
+      - supermcp-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: supermcp-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=supermcp
+      - POSTGRES_USER=supermcp
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - supermcp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supermcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: supermcp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - supermcp-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Observatory Frontend
+  observatory:
+    build:
+      context: ./services/observatory
+      dockerfile: Dockerfile
+    container_name: supermcp-observatory
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    networks:
+      - supermcp-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: supermcp-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.uv.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - orchestrator
+      - observatory
+    networks:
+      - supermcp-network
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: supermcp-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - supermcp-network
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: supermcp-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    networks:
+      - supermcp-network
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  cod-data:
+    driver: local
+  voice-data:
+    driver: local
+  langgraph-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  uv-cache:
+    driver: local
+
+networks:
+  supermcp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
