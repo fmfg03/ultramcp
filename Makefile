@@ -8,19 +8,31 @@
 help:
 	@echo "🚀 UltraMCP Hybrid System"
 	@echo ""
+	@echo "Claude Code Integration:"
+	@echo "  make claude-init             - Initialize Claude session (RECOMMENDED)"
+	@echo "  make claude-verify           - Full system verification"
+	@echo "  make claude-start            - Quick session start"
+	@echo ""
 	@echo "Core Commands:"
-	@echo "  make setup           - Initialize system"
-	@echo "  make status          - Check all services"
-	@echo "  make logs           - View combined logs (last 100 lines)"
-	@echo "  make logs-tail      - Follow live logs"
-	@echo "  make clean          - Clean up processes and logs"
+	@echo "  make setup                   - Initialize system"
+	@echo "  make status                  - Check all services"
+	@echo "  make logs                    - View combined logs (last 100 lines)"
+	@echo "  make logs-tail               - Follow live logs"
+	@echo "  make clean                   - Clean up processes and logs"
 	@echo ""
 	@echo "AI Operations:"
 	@echo "  make chat TEXT='...'           - Simple LLM chat (OpenAI API)"
 	@echo "  make local-chat TEXT='...'     - Local LLM chat (Ollama models)"
+	@echo "  make context7-chat TEXT='...'  - AI chat with real-time docs"
 	@echo "  make debate TOPIC='...'        - Start CoD Protocol debate"
 	@echo "  make research URL='...'        - Web research with Playwright"
 	@echo "  make analyze FILE='...'        - Analyze document/data"
+	@echo ""
+	@echo "📚 Context7 Real-time Documentation:"
+	@echo "  make context7-docs LIBRARY='...'       - Get library documentation"
+	@echo "  make context7-search LIBRARY='...' QUERY='...' - Search docs"
+	@echo "  make context7-enhance PROMPT='...'     - Enhance prompt with docs"
+	@echo "  make context7-health                   - Check Context7 status"
 	@echo ""
 	@echo "🎛️ Control Tower UI:"
 	@echo "  make control-tower             - Launch full Control Tower UI"
@@ -40,6 +52,25 @@ help:
 	@echo "  make pattern-analysis PATTERN='...' PROJECT='...'    - Code pattern analysis"
 	@echo "  make intelligent-code-review FILE='...' PROJECT='...' - AI code review"
 	@echo "  make setup-code-intelligence   - Setup and test code intelligence"
+	@echo ""
+	@echo "🧠 Claude Code Memory (Advanced Semantic Analysis):"
+	@echo "  make memory-index PROJECT='...' NAME='...'   - Index project for semantic memory"
+	@echo "  make memory-search QUERY='...' PROJECT='...' - Semantic code search with memory"
+	@echo "  make memory-analyze FILE='...' PROJECT='...' - Advanced pattern analysis"
+	@echo "  make memory-learn-codebase                   - Learn entire UltraMCP codebase"
+	@echo "  make memory-debate TOPIC='...' PROJECT='...' - Memory-enhanced AI debate"
+	@echo "  make memory-explore                          - Interactive memory exploration"
+	@echo "  make memory-help                             - Full memory commands guide"
+	@echo ""
+	@echo "🚀 VoyageAI Hybrid Search (Enterprise-Grade Embeddings + Privacy-First):"
+	@echo "  make voyage-search QUERY='...' [PRIVACY='...'] [MODE='...']  - Enhanced semantic search"
+	@echo "  make voyage-code-search QUERY='...' [LANGUAGE='...']          - Code-optimized search"
+	@echo "  make voyage-privacy-search QUERY='...'                        - Local-only search"
+	@echo "  make voyage-finance-search QUERY='...'                        - Finance domain search"
+	@echo "  make voyage-healthcare-search QUERY='...'                     - Healthcare domain search"
+	@echo "  make voyage-legal-search QUERY='...'                          - Legal domain search"
+	@echo "  make voyage-health                                             - Check VoyageAI services"
+	@echo "  make voyage-help                                               - Full VoyageAI guide"
 	@echo ""
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
@@ -279,6 +310,21 @@ start:
 # CLAUDE CODE INTEGRATION
 # =============================================================================
 
+# Auto-initialization for every Claude session
+claude-init:
+	@./scripts/claude-session-init.sh
+
+# Full verification and acknowledgment
+claude-verify:
+	@echo "🔍 Running comprehensive Claude Code verification..."
+	@./scripts/claude-startup-verification.sh
+
+# Quick session start
+claude-start:
+	@echo "🚀 Starting Claude Code session..."
+	@./scripts/claude-session-init.sh
+	@make status
+
 claude-demo:
 	@echo "🤖 Running Claude Code integration demo..."
 	@./scripts/claude-code-demo.sh
@@ -286,6 +332,11 @@ claude-demo:
 claude-help:
 	@echo "💡 Claude Code Integration Help"
 	@echo "==============================="
+	@echo ""
+	@echo "Session Management:"
+	@echo "  make claude-init               - Initialize Claude session"
+	@echo "  make claude-verify             - Full system verification" 
+	@echo "  make claude-start              - Quick session start"
 	@echo ""
 	@echo "Quick Start:"
 	@echo "  make start                     - Interactive system startup"
@@ -342,6 +393,62 @@ control-tower-status:
 	@curl -s http://localhost:8001/api/status 2>/dev/null | jq . || echo "❌ Control Tower backend not running"
 	@curl -s http://localhost:5173 >/dev/null 2>&1 && echo "✅ Frontend running on http://localhost:5173" || echo "❌ Frontend not running"
 	@make chat TEXT="Hello from UltraMCP Hybrid System!"
+# =============================================================================
+# CONTEXT7 REAL-TIME DOCUMENTATION
+# =============================================================================
+
+# Get real-time documentation
+context7-docs:
+	@echo "📚 Getting real-time documentation for $(LIBRARY)..."
+	@python3 services/context7-mcp/context7_client.py get "$(LIBRARY)" --version="$(VERSION)"
+
+# Search documentation
+context7-search:
+	@echo "🔍 Searching documentation: $(QUERY) in $(LIBRARY)..."
+	@python3 services/context7-mcp/context7_client.py search "$(LIBRARY)" "$(QUERY)"
+
+# Enhance prompt with Context7
+context7-enhance:
+	@echo "✨ Enhancing prompt with Context7..."
+	@python3 services/context7-mcp/context7_client.py enhance "$(PROMPT)" --libraries $(LIBRARIES)
+
+# Detect libraries in code
+context7-detect:
+	@echo "🔍 Detecting libraries in code..."
+	@python3 services/context7-mcp/context7_client.py detect "$(CODE)"
+
+# Context7 health check
+context7-health:
+	@echo "🏥 Context7 service health check..."
+	@curl -s http://localhost:8003/health | jq . || echo "Context7 service not available"
+
+# Context7 statistics
+context7-stats:
+	@echo "📊 Context7 service statistics..."
+	@curl -s http://localhost:8003/api/stats | jq . || echo "Context7 service not available"
+
+# Test Context7 integration
+context7-test:
+	@echo "🧪 Testing Context7 integration..."
+	@./scripts/test-context7-integration.sh
+
+# Claude Code with Context7 enhancement
+claude-context7-chat:
+	@echo "🤖 Claude Code chat with Context7 enhancement..."
+	@python3 services/context7-mcp/context7_client.py enhance "$(TEXT). use context7" | make chat TEXT="$(shell cat -)"
+
+# AI chat with automatic documentation context
+context7-chat:
+	@echo "💬 AI chat with Context7 documentation context..."
+	@enhanced_prompt=$$(python3 services/context7-mcp/context7_client.py enhance "$(TEXT). use context7") && \
+	make chat TEXT="$$enhanced_prompt"
+
+# Local LLM chat with Context7
+context7-local-chat:
+	@echo "🤖 Local LLM chat with Context7 documentation..."
+	@enhanced_prompt=$$(python3 services/context7-mcp/context7_client.py enhance "$(TEXT). use context7") && \
+	make local-chat TEXT="$$enhanced_prompt"
+
 # =============================================================================
 # ENHANCED COD PROTOCOL WITH LOCAL LLMS
 # =============================================================================
@@ -646,3 +753,282 @@ setup-code-intelligence:
 	@echo "3. Testing code search..."
 	@make code-search QUERY="authentication" PROJECT="ultramcp"
 	@echo "✅ Code intelligence setup complete"
+
+# =============================================================================
+# CLAUDE CODE MEMORY - Advanced Semantic Code Analysis
+# =============================================================================
+
+# Project indexing with memory
+memory-index:
+	@echo "🧠 Indexing project for Claude Code Memory..."
+	@python3 services/claude-code-memory/claude_memory_client.py index "$(PROJECT)" "$(NAME)" $(if $(FORCE),--force)
+
+# Semantic code search
+memory-search:
+	@echo "🔍 Searching code with semantic memory..."
+	@python3 services/claude-code-memory/claude_memory_client.py search "$(QUERY)" $(if $(PROJECT),--project "$(PROJECT)") $(if $(LANGUAGE),--language "$(LANGUAGE)") --limit $(or $(LIMIT),10)
+
+# Advanced pattern analysis
+memory-analyze:
+	@echo "🔎 Analyzing code patterns with memory..."
+	@python3 services/claude-code-memory/claude_memory_client.py analyze "$(FILE)" $(if $(PROJECT),--project "$(PROJECT)")
+
+# Memory service status
+memory-status:
+	@echo "📊 Claude Code Memory Status"
+	@python3 services/claude-code-memory/claude_memory_client.py status
+
+# List memory projects
+memory-projects:
+	@echo "📁 Indexed Memory Projects"
+	@python3 services/claude-code-memory/claude_memory_client.py projects
+
+# Memory-enhanced workflows
+memory-learn-codebase:
+	@echo "🎓 Learning UltraMCP codebase with memory..."
+	@echo "1. Indexing entire project..."
+	@make memory-index PROJECT="." NAME="ultramcp" FORCE=true
+	@echo "2. Analyzing core patterns..."
+	@make memory-analyze FILE="core/orchestrator/eventBus.js" PROJECT="ultramcp"
+	@echo "3. Learning complete! Try: make memory-search QUERY='event handling' PROJECT='ultramcp'"
+
+# Smart code search workflow
+memory-find-similar:
+	@echo "🧬 Finding similar code patterns..."
+	@python3 services/claude-code-memory/claude_memory_client.py search "$(PATTERN)" --project "$(PROJECT)" --show-content --limit 5
+
+# Memory-enhanced CoD Protocol
+memory-debate:
+	@echo "🎭 Memory-enhanced CoD Protocol debate..."
+	@echo "1. Gathering relevant code context..."
+	@make memory-search QUERY="$(TOPIC)" PROJECT="$(PROJECT)" LIMIT=3
+	@echo "2. Starting intelligent debate with code context..."
+	@make debate TOPIC="$(TOPIC) (with code context)"
+
+# Quality assessment with memory
+memory-quality-check:
+	@echo "💎 Memory-enhanced quality assessment..."
+	@echo "1. Pattern analysis..."
+	@make memory-analyze FILE="$(FILE)" PROJECT="$(PROJECT)"
+	@echo "2. Finding similar implementations..."
+	@make memory-find-similar PATTERN="similar to $(FILE)" PROJECT="$(PROJECT)"
+	@echo "3. Quality recommendations generated"
+
+# Interactive memory exploration
+memory-explore:
+	@echo "🗺️ Interactive memory exploration..."
+	@echo "Available commands:"
+	@echo "  make memory-search QUERY='your search'"
+	@echo "  make memory-analyze FILE='path/to/file.py'"
+	@echo "  make memory-find-similar PATTERN='design pattern'"
+	@echo "Memory status:"
+	@make memory-status
+
+# Full memory integration test
+test-memory-integration:
+	@echo "🧪 Testing Claude Code Memory integration..."
+	@echo "1. Service health check..."
+	@make memory-status
+	@echo "2. Indexing test project..."
+	@make memory-index PROJECT="." NAME="test_project"
+	@echo "3. Search test..."
+	@make memory-search QUERY="test" PROJECT="test_project" LIMIT=3
+	@echo "4. Pattern analysis test..."
+	@make memory-analyze FILE="Makefile" PROJECT="test_project"
+	@echo "✅ Memory integration test complete"
+
+# Memory cleanup
+memory-clean:
+	@echo "🧹 Cleaning Claude Code Memory..."
+	@python3 -c "
+import asyncio
+from services.claude_code_memory.claude_memory_client import ClaudeCodeMemoryClient
+async def clean():
+    async with ClaudeCodeMemoryClient() as client:
+        await client.clear_memory(confirm=True)
+        print('Memory cleared successfully')
+asyncio.run(clean())
+"
+
+# Enhanced help for memory commands
+memory-help:
+	@echo "🧠 Claude Code Memory Commands"
+	@echo "=============================="
+	@echo ""
+	@echo "Project Management:"
+	@echo "  make memory-index PROJECT='.' NAME='my-project'    - Index project for semantic search"
+	@echo "  make memory-projects                               - List indexed projects"
+	@echo "  make memory-status                                 - Check memory service status"
+	@echo ""
+	@echo "Code Search & Analysis:"
+	@echo "  make memory-search QUERY='authentication logic'   - Semantic code search"
+	@echo "  make memory-analyze FILE='src/auth.py'            - Analyze code patterns"
+	@echo "  make memory-find-similar PATTERN='design pattern' - Find similar code"
+	@echo ""
+	@echo "Intelligent Workflows:"
+	@echo "  make memory-learn-codebase                         - Learn entire codebase"
+	@echo "  make memory-debate TOPIC='architecture decision'  - Memory-enhanced debate"
+	@echo "  make memory-quality-check FILE='src/main.py'      - Quality assessment"
+	@echo "  make memory-explore                                - Interactive exploration"
+	@echo ""
+	@echo "Testing & Maintenance:"
+	@echo "  make test-memory-integration                       - Test memory integration"
+	@echo "  make memory-clean                                  - Clear memory (destructive)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make memory-index PROJECT='/path/to/code' NAME='webapp'"
+	@echo "  make memory-search QUERY='error handling' PROJECT='webapp'"
+	@echo "  make memory-analyze FILE='controllers/auth.py' PROJECT='webapp'"
+
+# =============================================================================
+# VOYAGEAI HYBRID SEMANTIC SEARCH - Enhanced with Domain Specialization
+# =============================================================================
+
+# Enhanced semantic search with VoyageAI
+voyage-search:
+	@echo "🚀 VoyageAI Enhanced Semantic Search..."
+	@curl -X POST http://localhost:8009/memory/search/enhanced \
+		-H "Content-Type: application/json" \
+		-d '{"query": "$(QUERY)", "limit": $(or $(LIMIT),10), "privacy_level": "$(or $(PRIVACY),PUBLIC)", "domain": $(if $(DOMAIN),"$(DOMAIN)",null), "search_mode": "$(or $(MODE),AUTO)", "project_name": $(if $(PROJECT),"$(PROJECT)",null)}' | jq .
+
+# Code-optimized search with VoyageAI code embeddings
+voyage-code-search:
+	@echo "💻 VoyageAI Code-Optimized Search..."
+	@curl -X POST "http://localhost:8009/memory/search/code?query=$(QUERY)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),INTERNAL)$(if $(PROJECT),&project_name=$(PROJECT))$(if $(LANGUAGE),&language=$(LANGUAGE))" | jq .
+
+# Privacy-first search (local only)
+voyage-privacy-search:
+	@echo "🔒 Privacy-First Local Search..."
+	@curl -X POST "http://localhost:8009/memory/search/privacy-first?query=$(QUERY)&limit=$(or $(LIMIT),10)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
+
+# Domain-specialized search (finance, healthcare, legal, etc.)
+voyage-domain-search:
+	@echo "🎯 Domain-Specialized Search ($(DOMAIN))..."
+	@curl -X POST "http://localhost:8009/memory/search/domain?query=$(QUERY)&domain=$(DOMAIN)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),PUBLIC)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
+
+# Enhanced project indexing with VoyageAI
+voyage-index:
+	@echo "🗂️ Enhanced Project Indexing with VoyageAI..."
+	@curl -X POST http://localhost:8009/memory/projects/index \
+		-H "Content-Type: application/json" \
+		-d '{"project_path": "$(PROJECT)", "project_name": "$(NAME)", "domain": $(if $(DOMAIN),"$(DOMAIN)",null), "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_patterns": $(or $(PATTERNS),["*.py", "*.js", "*.ts", "*.java", "*.cpp"]), "exclude_patterns": ["node_modules", ".git", "__pycache__"]}' | jq .
+
+# VoyageAI service health check
+voyage-health:
+	@echo "🏥 VoyageAI Service Health Check..."
+	@echo "1. VoyageAI Service:"
+	@curl -s http://localhost:8010/health | jq .
+	@echo "2. Enhanced Memory Service:"
+	@curl -s http://localhost:8009/health | jq .
+	@echo "3. Available Models:"
+	@curl -s http://localhost:8010/models | jq .
+
+# Get VoyageAI service statistics
+voyage-stats:
+	@echo "📊 VoyageAI Service Statistics..."
+	@echo "1. Enhanced Search Stats:"
+	@curl -s http://localhost:8009/memory/stats/enhanced | jq .search_stats
+	@echo "2. Service Health:"
+	@curl -s http://localhost:8009/memory/stats/enhanced | jq .service_health
+	@echo "3. Cost Analysis:"
+	@curl -s http://localhost:8010/stats | jq .
+
+# List available VoyageAI models and capabilities
+voyage-models:
+	@echo "🤖 Available VoyageAI Models..."
+	@curl -s http://localhost:8009/memory/models | jq .
+
+# Domain-specific workflows
+voyage-finance-search:
+	@echo "💰 Finance Domain Search..."
+	@make voyage-domain-search DOMAIN="FINANCE" QUERY="$(QUERY)" PROJECT="$(PROJECT)" PRIVACY="$(or $(PRIVACY),PUBLIC)"
+
+voyage-healthcare-search:
+	@echo "🏥 Healthcare Domain Search..."
+	@make voyage-domain-search DOMAIN="HEALTHCARE" QUERY="$(QUERY)" PROJECT="$(PROJECT)" PRIVACY="$(or $(PRIVACY),CONFIDENTIAL)"
+
+voyage-legal-search:
+	@echo "⚖️ Legal Domain Search..."
+	@make voyage-domain-search DOMAIN="LEGAL" QUERY="$(QUERY)" PROJECT="$(PROJECT)" PRIVACY="$(or $(PRIVACY),CONFIDENTIAL)"
+
+# Advanced hybrid workflows
+voyage-hybrid-analysis:
+	@echo "🔄 Hybrid Analysis Workflow..."
+	@echo "1. Privacy-first search for sensitive content..."
+	@make voyage-privacy-search QUERY="$(QUERY)" PROJECT="$(PROJECT)" LIMIT=5
+	@echo "2. VoyageAI enhanced search for public context..."
+	@make voyage-search QUERY="$(QUERY)" PROJECT="$(PROJECT)" PRIVACY="PUBLIC" MODE="HYBRID" LIMIT=10
+	@echo "3. Code-specific analysis..."
+	@make voyage-code-search QUERY="$(QUERY)" PROJECT="$(PROJECT)" LANGUAGE="$(LANGUAGE)"
+
+# Cost optimization workflow
+voyage-cost-optimized:
+	@echo "💰 Cost-Optimized Search Workflow..."
+	@echo "1. Starting with local search..."
+	@make voyage-privacy-search QUERY="$(QUERY)" PROJECT="$(PROJECT)" LIMIT=3
+	@echo "2. Fallback to VoyageAI if needed..."
+	@if [ -z "$(FORCE_VOYAGE)" ]; then \
+		echo "   Use FORCE_VOYAGE=true to enable VoyageAI search"; \
+	else \
+		make voyage-search QUERY="$(QUERY)" PROJECT="$(PROJECT)" PRIVACY="PUBLIC" LIMIT=5; \
+	fi
+
+# Test VoyageAI integration
+test-voyage-integration:
+	@echo "🧪 Testing VoyageAI Integration..."
+	@echo "1. Service health..."
+	@make voyage-health
+	@echo "2. Model availability..."
+	@make voyage-models
+	@echo "3. Privacy-first search test..."
+	@make voyage-privacy-search QUERY="test search" PROJECT="ultramcp" LIMIT=3
+	@echo "4. Code search test..."
+	@make voyage-code-search QUERY="docker" PROJECT="ultramcp" LIMIT=3
+	@echo "5. Enhanced search test..."
+	@make voyage-search QUERY="integration" PROJECT="ultramcp" MODE="HYBRID" LIMIT=3
+	@echo "✅ VoyageAI integration test complete"
+
+# VoyageAI help
+voyage-help:
+	@echo "🚀 VoyageAI Hybrid Search Commands"
+	@echo "================================="
+	@echo ""
+	@echo "Basic Search:"
+	@echo "  make voyage-search QUERY='...' [PROJECT='...'] [PRIVACY=PUBLIC|INTERNAL|CONFIDENTIAL] [MODE=AUTO|HYBRID|LOCAL_ONLY]"
+	@echo "  make voyage-code-search QUERY='...' [PROJECT='...'] [LANGUAGE='...'] [PRIVACY=INTERNAL]"
+	@echo "  make voyage-privacy-search QUERY='...' [PROJECT='...']  # Local only, maximum privacy"
+	@echo ""
+	@echo "Domain-Specialized Search:"
+	@echo "  make voyage-domain-search QUERY='...' DOMAIN='CODE|FINANCE|HEALTHCARE|LEGAL|GENERAL'"
+	@echo "  make voyage-finance-search QUERY='...' [PROJECT='...']"
+	@echo "  make voyage-healthcare-search QUERY='...' [PROJECT='...'] # Auto-confidential"
+	@echo "  make voyage-legal-search QUERY='...' [PROJECT='...'] # Auto-confidential"
+	@echo ""
+	@echo "Project Management:"
+	@echo "  make voyage-index PROJECT='...' NAME='...' [DOMAIN='...'] [PRIVACY='...']"
+	@echo "  make voyage-health  # Check all services"
+	@echo "  make voyage-stats   # Get performance statistics"
+	@echo "  make voyage-models  # List available models"
+	@echo ""
+	@echo "Advanced Workflows:"
+	@echo "  make voyage-hybrid-analysis QUERY='...' PROJECT='...' [LANGUAGE='...']"
+	@echo "  make voyage-cost-optimized QUERY='...' [FORCE_VOYAGE=true]"
+	@echo "  make test-voyage-integration  # Test complete integration"
+	@echo ""
+	@echo "Privacy Levels:"
+	@echo "  PUBLIC      - Use VoyageAI APIs for best quality"
+	@echo "  INTERNAL    - Prefer local models, fallback to VoyageAI"
+	@echo "  CONFIDENTIAL - Local models only"
+	@echo "  RESTRICTED  - Local models only"
+	@echo ""
+	@echo "Search Modes:"
+	@echo "  AUTO        - Intelligent selection based on content"
+	@echo "  HYBRID      - VoyageAI + local fallback"
+	@echo "  VOYAGE_ONLY - VoyageAI only"
+	@echo "  LOCAL_ONLY  - Local models only"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make voyage-code-search QUERY='authentication patterns' PROJECT='webapp' LANGUAGE='python'"
+	@echo "  make voyage-finance-search QUERY='risk assessment models' PROJECT='fintech-app'"
+	@echo "  make voyage-privacy-search QUERY='user data handling' PROJECT='enterprise-app'"
+	@echo "  make voyage-search QUERY='microservices architecture' PRIVACY='PUBLIC' MODE='HYBRID'"

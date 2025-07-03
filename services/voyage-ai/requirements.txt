@@ -1,0 +1,22 @@
+# FastAPI and ASGI server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# HTTP client
+aiohttp==3.9.1
+
+# Machine Learning
+sentence-transformers==2.2.2
+transformers==4.36.2
+torch==2.1.2
+numpy==1.24.3
+
+# Data handling
+pydantic==2.5.2
+
+# Environment and utilities
+python-dotenv==1.0.0
+
+# Optional: Accelerated transformers
+# accelerate==0.25.0
+# optimum==1.16.2
