@@ -1,0 +1,12 @@
+# FastAPI and ASGI server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# HTTP client
+aiohttp==3.9.1
+
+# Data handling
+pydantic==2.5.2
+
+# Environment and utilities
+python-dotenv==1.0.0

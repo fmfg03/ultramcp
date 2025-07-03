@@ -326,6 +326,67 @@ services:
       timeout: 10s
       retries: 3
 
+  # Ref Tools MCP Service
+  ultramcp-ref-tools:
+    build:
+      context: ./services/ref-tools-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-ref-tools
+    environment:
+      - REF_SERVICE_PORT=8011
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - INTERNAL_DOCS_API_KEY=${INTERNAL_DOCS_API_KEY}
+      - INTERNAL_DOCS_URL=${INTERNAL_DOCS_URL:-https://docs.internal.company.com}
+      - TEAM_WIKI_URL=${TEAM_WIKI_URL:-https://wiki.internal.company.com}
+      - ADR_URL=${ADR_URL:-https://adr.internal.company.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8011:8011"
+    networks:
+      - ultramcp-hybrid
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./data/ref_tools:/app/ref_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Unified Documentation Intelligence Service
+  ultramcp-unified-docs:
+    build:
+      context: ./services/unified-docs
+      dockerfile: Dockerfile
+    container_name: ultramcp-unified-docs
+    environment:
+      - UNIFIED_DOCS_PORT=8012
+      - CONTEXT7_SERVICE_URL=http://ultramcp-context7:8003
+      - REF_TOOLS_SERVICE_URL=http://ultramcp-ref-tools:8011
+      - VOYAGE_SERVICE_URL=http://ultramcp-voyage-ai:8010
+      - MEMORY_SERVICE_URL=http://ultramcp-claude-memory:8009
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8012:8012"
+    depends_on:
+      - ultramcp-ref-tools
+      - ultramcp-claude-memory
+      - ultramcp-voyage-ai
+    networks:
+      - ultramcp-hybrid
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./data/unified_docs:/app/unified_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8012/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Control Tower WebSocket Service
   ultramcp-control-tower:
     build:

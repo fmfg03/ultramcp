@@ -72,6 +72,17 @@ help:
 	@echo "  make voyage-health                                             - Check VoyageAI services"
 	@echo "  make voyage-help                                               - Full VoyageAI guide"
 	@echo ""
+	@echo "🔗 Ref Tools Documentation (Internal/External Doc Intelligence):"
+	@echo "  make ref-search QUERY='...' [SOURCE='...'] [PRIVACY='...']    - Search all documentation"
+	@echo "  make ref-internal-search QUERY='...' PROJECT='...' ORG='...'  - Internal docs only"
+	@echo "  make ref-external-search QUERY='...' PROJECT='...'            - External docs only"
+	@echo "  make ref-read-url URL='...' [CODE=true]                       - Extract URL content"
+	@echo ""
+	@echo "🌟 Unified Documentation Intelligence (Complete Ecosystem):"
+	@echo "  make docs-unified-search QUERY='...' [TYPE='...'] [INTELLIGENCE='...']  - Search all sources"
+	@echo "  make docs-code-search QUERY='...' PROJECT='...'               - Code-focused search"
+	@echo "  make docs-help                                                 - Complete docs guide"
+	@echo ""
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
 	@echo "  make test-site URL='...'       - Test website with Playwright"
@@ -1032,3 +1043,64 @@ voyage-help:
 	@echo "  make voyage-finance-search QUERY='risk assessment models' PROJECT='fintech-app'"
 	@echo "  make voyage-privacy-search QUERY='user data handling' PROJECT='enterprise-app'"
 	@echo "  make voyage-search QUERY='microservices architecture' PRIVACY='PUBLIC' MODE='HYBRID'"
+
+# =============================================================================
+# REF TOOLS MCP - Complete Documentation Intelligence
+# =============================================================================
+
+# Ref Tools documentation search
+ref-search:
+	@echo "🔗 Ref Tools Documentation Search..."
+	@curl -X POST http://localhost:8011/ref/search \
+		-H "Content-Type: application/json" \
+		-d '{"query": "$(QUERY)", "source_type": "$(or $(SOURCE),AUTO)", "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_code_examples": $(or $(CODE),true), "max_results": $(or $(LIMIT),10), "organization": $(if $(ORG),"$(ORG)",null), "project_context": $(if $(PROJECT),"$(PROJECT)",null)}' | jq .
+
+# Read URL content with Ref Tools
+ref-read-url:
+	@echo "📄 Ref Tools URL Content Extraction..."
+	@curl -X POST http://localhost:8011/ref/read-url \
+		-H "Content-Type: application/json" \
+		-d '{"url": "$(URL)", "extract_code": $(or $(CODE),true)}' | jq .
+
+# Internal documentation search
+ref-internal-search:
+	@echo "🏢 Internal Documentation Search..."
+	@make ref-search QUERY="$(QUERY)" SOURCE="INTERNAL" PRIVACY="CONFIDENTIAL" PROJECT="$(PROJECT)" ORG="$(ORG)"
+
+# External documentation search
+ref-external-search:
+	@echo "🌐 External Documentation Search..."
+	@make ref-search QUERY="$(QUERY)" SOURCE="EXTERNAL" PRIVACY="PUBLIC" PROJECT="$(PROJECT)"
+
+# Unified documentation search combining all sources
+docs-unified-search:
+	@echo "🌟 Unified Documentation Intelligence Search..."
+	@curl -X POST http://localhost:8012/docs/unified-search \
+		-H "Content-Type: application/json" \
+		-d '{"query": "$(QUERY)", "documentation_type": "$(or $(TYPE),HYBRID)", "intelligence_level": "$(or $(INTELLIGENCE),ENHANCED)", "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_code": $(or $(CODE),true), "include_examples": $(or $(EXAMPLES),true), "max_results_per_source": $(or $(LIMIT),5), "project_context": $(if $(PROJECT),"$(PROJECT)",null), "organization": $(if $(ORG),"$(ORG)",null)}' | jq .
+
+# Code-focused unified search
+docs-code-search:
+	@echo "💻 Unified Code Documentation Search..."
+	@make docs-unified-search QUERY="$(QUERY)" TYPE="CODE_SNIPPETS" INTELLIGENCE="ENHANCED" PROJECT="$(PROJECT)"
+
+# Documentation intelligence help
+docs-help:
+	@echo "🌟 Complete Documentation Intelligence Commands"
+	@echo "============================================="
+	@echo ""
+	@echo "Ref Tools Commands:"
+	@echo "  make ref-search QUERY='...' [SOURCE=AUTO|INTERNAL|EXTERNAL] [PRIVACY=...] [PROJECT=...]"
+	@echo "  make ref-read-url URL='...' [CODE=true|false]"
+	@echo "  make ref-internal-search QUERY='...' PROJECT='...' ORG='...'"
+	@echo "  make ref-external-search QUERY='...' PROJECT='...'"
+	@echo ""
+	@echo "Unified Documentation Intelligence:"
+	@echo "  make docs-unified-search QUERY='...' [TYPE=HYBRID|CODE_SNIPPETS|FULL_DOCS|SEMANTIC_CODE]"
+	@echo "  make docs-code-search QUERY='...' PROJECT='...'    # Code-focused search"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make ref-external-search QUERY='FastAPI authentication' PROJECT='api-service'"
+	@echo "  make ref-internal-search QUERY='deployment guidelines' PROJECT='enterprise' ORG='company'"
+	@echo "  make docs-code-search QUERY='React hooks patterns' PROJECT='frontend-app'"
+	@echo "  make docs-unified-search QUERY='API security' TYPE='HYBRID' INTELLIGENCE='SUPREME'"
