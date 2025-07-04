@@ -1479,6 +1479,9 @@ claudia-help:
 	@echo "  - Integration with UltraMCP backend services"
 
 # Complete Claudia system startup
+# Alias for case-sensitive compatibility
+Claudia-start: claudia-start
+
 claudia-system-start:
 	@echo "[SHINE] Starting Complete Claudia System..."
 	@echo "1. Starting Claudia MCP servers..."
@@ -1757,82 +1760,6 @@ gitingest-help:
 # CONTEXTBUILDERAGENT 2.0 - Semantic Coherence Platform
 # =============================================================================
 
-# Start ContextBuilderAgent system
-context-start:
-	@echo "[BUILD] Starting ContextBuilderAgent 2.0 system..."
-	@./scripts/bootstrap_context_builder.sh start
-
-# Stop ContextBuilderAgent system
-context-stop:
-	@echo "[BUILD] Stopping ContextBuilderAgent services..."
-	@./scripts/bootstrap_context_builder.sh stop
-
-# Restart ContextBuilderAgent system
-context-restart:
-	@echo "[BUILD] Restarting ContextBuilderAgent system..."
-	@./scripts/bootstrap_context_builder.sh restart
-
-# Check ContextBuilderAgent status
-context-status:
-	@echo "[DATA] ContextBuilderAgent Services Status"
-	@echo "========================================="
-	@./scripts/bootstrap_context_builder.sh status
-
-# Validate semantic coherence
-context-validate:
-	@echo "[BUILD] Validating semantic coherence..."
-	@curl -s -X POST http://sam.chat:8025/validate_coherence | jq . || echo "ContextBuilder not running - use 'make context-start'"
-
-# Apply context mutation
-context-mutate:
-	@echo "[BUILD] Applying context mutation: $(DOMAIN).$(FIELD) -> $(VALUE)"
-	@curl -s -X POST http://sam.chat:8025/apply_mutation \
-		-H "Content-Type: application/json" \
-		-d '{"target_domain":"$(DOMAIN).$(FIELD)","new_value":"$(VALUE)","source":"makefile"}' | jq . || echo "ContextBuilder not running"
-
-# Optimize thresholds and parameters
-context-optimize:
-	@echo "[BUILD] Optimizing ContextBuilder thresholds..."
-	@curl -s -X POST http://sam.chat:8025/process_context \
-		-H "Content-Type: application/json" \
-		-d '{"context_data":{},"operation":"optimize","parameters":{"target_performance":0.85}}' | jq . || echo "ContextBuilder not running"
-
-# Analyze session transcript
-context-analyze:
-	@echo "[BUILD] Analyzing session transcript..."
-	@if [ -z "$(SESSION)" ]; then \
-		echo "Usage: make context-analyze SESSION='transcript text here'"; \
-	else \
-		curl -s -X POST http://sam.chat:8025/analyze_session \
-			-H "Content-Type: application/json" \
-			-d '{"meeting_transcript":"$(SESSION)","analysis_depth":"standard"}' | jq .; \
-	fi
-
-# Test ContextBuilder integration
-context-test:
-	@echo "[BUILD] Testing ContextBuilder integration..."
-	@./scripts/bootstrap_context_builder.sh test
-
-# Get system status
-context-system-status:
-	@echo "[DATA] Complete ContextBuilder System Status"
-	@echo "==========================================="
-	@curl -s http://sam.chat:8025/system_status | jq . || echo "ContextBuilder not running"
-
-# Get knowledge tree
-context-knowledge-tree:
-	@echo "[DATA] Current Knowledge Tree"
-	@echo "============================"
-	@curl -s http://sam.chat:8025/knowledge_tree | jq . || echo "ContextBuilder not running"
-
-# Get performance metrics
-context-metrics:
-	@echo "[DATA] ContextBuilder Performance Metrics"
-	@echo "========================================"
-	@curl -s http://sam.chat:8025/metrics | jq . || echo "ContextBuilder not running"
-
-# ContextBuilder help
-# Start ContextBuilder ecosystem
 context-start:
 	@echo "🚀 Starting ContextBuilderAgent 2.0 ecosystem..."
 	@./scripts/bootstrap_context_builder.sh start
@@ -2769,13 +2696,6 @@ test-all:
 	@make test-performance
 
 # Security scanning
-security-scan:
-	@echo "🔒 Running security scans..."
-	@pip install bandit safety
-	@bandit -r services/ -f json -o bandit-report.json || true
-	@safety check --json --output safety-report.json || true
-	@echo "Security scan completed. Check reports: bandit-report.json, safety-report.json"
-
 # Code quality checks
 quality-check:
 	@echo "🔍 Running code quality checks..."
