@@ -1,0 +1,257 @@
+version: '3.8'
+
+services:
+  # UltraMCP Unified Backend (Consolidates: CoD, Memory, Voyage, Ref, Docs)
+  ultramcp-unified-backend:
+    build:
+      context: ./services/ultramcp-unified-backend
+      dockerfile: Dockerfile
+    container_name: ultramcp-unified-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant:6333
+      - LOG_LEVEL=INFO
+      - UNIFIED_BACKEND_PORT=8000
+    depends_on:
+      - postgres
+      - redis
+      - qdrant
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Specialized Services (Maintained Separately for Heavy Workloads)
+  
+  # Actions MCP Service (External actions execution)
+  actions-mcp:
+    build:
+      context: ./services/actions-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-actions-mcp
+    ports:
+      - "8010:8010"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./data/actions:/app/data/actions
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Asterisk Security Service (Heavy security scanning workloads)
+  asterisk-security:
+    build:
+      context: ./services/asterisk-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-asterisk-security
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+    volumes:
+      - ./data/security_scans:/app/data/security_scans
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Blockoli Code Intelligence (Heavy code analysis workloads)
+  blockoli-intelligence:
+    build:
+      context: ./services/blockoli-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-blockoli-intelligence
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+    volumes:
+      - ./data/code_intelligence:/app/data/code_intelligence
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Voice System Service (Heavy audio processing workloads)
+  voice-system:
+    build:
+      context: ./services/voice-system
+      dockerfile: Dockerfile
+    container_name: ultramcp-voice-system
+    ports:
+      - "8008:8008"  # WebSocket support
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./data/voice_sessions:/app/data/voice_sessions
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # DeepClaude Metacognitive Engine (Heavy reasoning workloads)
+  deepclaude-engine:
+    build:
+      context: ./services/deepclaude
+      dockerfile: Dockerfile
+    container_name: ultramcp-deepclaude-engine
+    ports:
+      - "8003:8000"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+    volumes:
+      - ./data/reasoning:/app/data/reasoning
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Actions MCP Service (External actions execution)
+  actions-mcp:
+    build:
+      context: ./services/actions-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-actions-mcp
+    ports:
+      - "8010:8010"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - REDIS_URL=redis://redis:6379
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./data/actions:/app/data/actions
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Control Tower Orchestration (Service coordination)
+  control-tower:
+    build:
+      context: ./services/control-tower
+      dockerfile: Dockerfile
+    container_name: ultramcp-control-tower
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://ultramcp:ultramcp_secure@postgres:5432/ultramcp
+      - REDIS_URL=redis://redis:6379
+      - UNIFIED_BACKEND_URL=http://ultramcp-unified-backend:8000
+      - ASTERISK_URL=http://asterisk-security:8000
+      - BLOCKOLI_URL=http://blockoli-intelligence:8000
+      - VOICE_URL=http://voice-system:8008
+      - DEEPCLAUDE_URL=http://deepclaude-engine:8000
+      - ACTIONS_URL=http://actions-mcp:8010
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+      - ultramcp-unified-backend
+    volumes:
+      - ./data/orchestrations:/app/data/orchestrations
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Shared Infrastructure
+  
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ultramcp-postgres
+    environment:
+      - POSTGRES_DB=ultramcp
+      - POSTGRES_USER=ultramcp
+      - POSTGRES_PASSWORD=ultramcp_secure
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ultramcp-redis
+    command: redis-server --requirepass ultramcp_redis_pass
+    environment:
+      - REDIS_PASSWORD=ultramcp_redis_pass
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ultramcp-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+  # API Gateway (Routes to unified backend and specialized services)
+  api-gateway:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: ultramcp-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - UNIFIED_BACKEND_URL=http://ultramcp-unified-backend:8000
+      - ASTERISK_URL=http://asterisk-security:8000
+      - BLOCKOLI_URL=http://blockoli-intelligence:8000
+      - VOICE_URL=http://voice-system:8008
+      - DEEPCLAUDE_URL=http://deepclaude-engine:8000
+      - ACTIONS_URL=http://actions-mcp:8010
+      - CONTROL_TOWER_URL=http://control-tower:3001
+    depends_on:
+      - ultramcp-unified-backend
+      - control-tower
+    restart: unless-stopped
+    networks:
+      - ultramcp-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+
+networks:
+  ultramcp-network:
+    driver: bridge

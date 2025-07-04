@@ -48,6 +48,13 @@ help:
 	@echo "  make index-project PROJECT='...' NAME='...' - Index project for semantic search"
 	@echo "  make code-search QUERY='...' PROJECT='...'  - Semantic code search"
 	@echo "  make code-debate TOPIC='...' PROJECT='...'  - Code-intelligent AI debate"
+	@echo ""
+	@echo "🚀 Unified Backend (FastAPI MCP Integration):"
+	@echo "  make unified-start             - Start unified backend with all core services"
+	@echo "  make unified-status           - Check unified backend health" 
+	@echo "  make unified-logs             - View unified backend logs"
+	@echo "  make unified-test             - Test unified backend endpoints"
+	@echo "  make unified-docs             - Open unified backend documentation"
 	@echo "  make architecture-analysis FOCUS='...' PROJECT='...' - Architecture analysis"
 	@echo "  make pattern-analysis PATTERN='...' PROJECT='...'    - Code pattern analysis"
 	@echo "  make intelligent-code-review FILE='...' PROJECT='...' - AI code review"
@@ -82,6 +89,18 @@ help:
 	@echo "  make docs-unified-search QUERY='...' [TYPE='...'] [INTELLIGENCE='...']  - Search all sources"
 	@echo "  make docs-code-search QUERY='...' PROJECT='...'               - Code-focused search"
 	@echo "  make docs-help                                                 - Complete docs guide"
+	@echo ""
+	@echo "🎭 External Actions Execution (Enterprise Integration):"
+	@echo "  make actions-list                                              - List all available external actions"
+	@echo "  make actions-escalate MESSAGE='...' [PRIORITY='...']          - Escalate to human approval"
+	@echo "  make actions-notify RECIPIENT='...' MESSAGE='...' [CHANNEL='...'] - Send notification"
+	@echo "  make actions-workflow JOB='...' [TYPE='...'] [PARAMS='...']   - Trigger external workflow"
+	@echo "  make actions-ticket TITLE='...' DESC='...' [SYSTEM='...']     - Create external ticket"
+	@echo "  make actions-security-scan TARGET='...' [TYPE='...'] [TOOL='...'] - Run security scan"
+	@echo "  make actions-validate ACTION='...' PARAMS='...'               - Validate action parameters"
+	@echo "  make actions-history ACTION='...' [LIMIT='...']               - Get action execution history"
+	@echo "  make actions-stats                                             - Get execution statistics"
+	@echo "  make actions-health                                            - Check actions service health"
 	@echo ""
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
@@ -1104,3 +1123,312 @@ docs-help:
 	@echo "  make ref-internal-search QUERY='deployment guidelines' PROJECT='enterprise' ORG='company'"
 	@echo "  make docs-code-search QUERY='React hooks patterns' PROJECT='frontend-app'"
 	@echo "  make docs-unified-search QUERY='API security' TYPE='HYBRID' INTELLIGENCE='SUPREME'"
+
+# =============================================================================
+# UNIFIED BACKEND - FastAPI MCP Integration
+# =============================================================================
+
+# Start unified backend with all core services
+unified-start:
+	@echo "🚀 Starting UltraMCP Unified Backend..."
+	@docker-compose -f docker-compose.unified.yml up -d ultramcp-unified-backend
+	@echo "✅ Unified backend started at http://localhost:8000"
+	@echo "📚 Documentation: http://localhost:8000/docs"
+	@echo "🔗 MCP Tools: http://localhost:8000/mcp/tools"
+
+# Start complete unified system (backend + specialized services)
+unified-system-start:
+	@echo "🌟 Starting Complete Unified System..."
+	@docker-compose -f docker-compose.unified.yml up -d
+	@echo "✅ Complete system started"
+	@make unified-status
+
+# Check unified backend health
+unified-status:
+	@echo "🏥 Unified Backend Health Check..."
+	@echo "1. Global Health:"
+	@curl -s http://localhost:8000/health 2>/dev/null | jq . || echo "❌ Unified backend not available"
+	@echo "2. Component Health:"
+	@curl -s http://localhost:8000/health/detailed 2>/dev/null | jq .components || echo "❌ Component health check failed"
+	@echo "3. MCP Tools:"
+	@curl -s http://localhost:8000/mcp/tools 2>/dev/null | jq .total_tools || echo "❌ MCP tools not available"
+
+# View unified backend logs
+unified-logs:
+	@echo "📜 Unified Backend Logs..."
+	@docker logs ultramcp-unified-backend --tail=50 -f
+
+# Test unified backend endpoints
+unified-test:
+	@echo "🧪 Testing Unified Backend Endpoints..."
+	@echo "1. Health check..."
+	@make unified-status
+	@echo "2. Testing CoD endpoint..."
+	@curl -X POST http://localhost:8000/cod/local-debate \
+		-H "Content-Type: application/json" \
+		-d '{"topic": "Test unified backend debate", "participants": 2, "rounds": 1}' 2>/dev/null | jq .debate_id || echo "❌ CoD test failed"
+	@echo "3. Testing Memory endpoint..."
+	@curl -X POST "http://localhost:8000/memory/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "❌ Memory test failed"
+	@echo "4. Testing VoyageAI endpoint..."
+	@curl -X POST "http://localhost:8000/voyage/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "❌ Voyage test failed"
+	@echo "✅ Unified backend tests complete"
+
+# Open unified backend documentation
+unified-docs:
+	@echo "📚 Opening Unified Backend Documentation..."
+	@echo "Swagger UI: http://localhost:8000/docs"
+	@echo "ReDoc: http://localhost:8000/redoc"
+	@echo "OpenAPI Schema: http://localhost:8000/openapi.json"
+	@echo "MCP Tools: http://localhost:8000/mcp/tools"
+	@if command -v open >/dev/null 2>&1; then \
+		open http://localhost:8000/docs; \
+	elif command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open http://localhost:8000/docs; \
+	else \
+		echo "Open manually: http://localhost:8000/docs"; \
+	fi
+
+# Test MCP protocol endpoints
+unified-mcp-test:
+	@echo "🔗 Testing MCP Protocol Integration..."
+	@echo "1. List MCP tools..."
+	@curl -s http://localhost:8000/mcp/tools | jq .total_tools
+	@echo "2. Get MCP capabilities..."
+	@curl -s http://localhost:8000/mcp/capabilities | jq .capabilities
+	@echo "3. Test MCP tool execution (CoD)..."
+	@curl -X POST http://localhost:8000/mcp/execute/cod_local_debate \
+		-H "Content-Type: application/json" \
+		-d '{"topic": "MCP integration test", "participants": 2}' | jq .result.debate_id
+	@echo "✅ MCP integration test complete"
+
+# Unified backend development mode
+unified-dev:
+	@echo "🔧 Starting Unified Backend in Development Mode..."
+	@cd services/ultramcp-unified-backend && \
+		pip install -r requirements.txt && \
+		python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Rebuild unified backend
+unified-rebuild:
+	@echo "🔄 Rebuilding Unified Backend..."
+	@docker-compose -f docker-compose.unified.yml down ultramcp-unified-backend
+	@docker-compose -f docker-compose.unified.yml build --no-cache ultramcp-unified-backend
+	@docker-compose -f docker-compose.unified.yml up -d ultramcp-unified-backend
+	@echo "✅ Unified backend rebuilt and restarted"
+
+# Migration from microservices to unified backend
+unified-migrate:
+	@echo "🔄 Migrating from Microservices to Unified Backend..."
+	@echo "1. Stopping individual microservices..."
+	@docker-compose down cod-service memory-service voyage-service ref-service docs-service 2>/dev/null || true
+	@echo "2. Starting unified backend..."
+	@make unified-start
+	@echo "3. Testing migration..."
+	@make unified-test
+	@echo "✅ Migration complete. Individual services consolidated into unified backend."
+
+# Stop unified backend
+unified-stop:
+	@echo "🛑 Stopping Unified Backend..."
+	@docker-compose -f docker-compose.unified.yml down ultramcp-unified-backend
+
+# Stop complete unified system
+unified-system-stop:
+	@echo "🛑 Stopping Complete Unified System..."
+	@docker-compose -f docker-compose.unified.yml down
+
+# Performance test for unified backend
+unified-performance-test:
+	@echo "⚡ Unified Backend Performance Test..."
+	@echo "1. Concurrent CoD requests..."
+	@for i in $$(seq 1 3); do \
+		curl -X POST http://localhost:8000/cod/local-debate \
+			-H "Content-Type: application/json" \
+			-d '{"topic": "Performance test $$i", "participants": 2, "rounds": 1}' \
+			-w "Response time: %{time_total}s\n" -o /dev/null -s & \
+	done; wait
+	@echo "2. Concurrent Memory searches..."
+	@for i in $$(seq 1 5); do \
+		curl -X POST "http://localhost:8000/memory/search/privacy-first?query=performance$$i&limit=2" \
+			-w "Response time: %{time_total}s\n" -o /dev/null -s & \
+	done; wait
+	@echo "✅ Performance test complete"
+
+# Complete unified backend help
+unified-help:
+	@echo "🚀 UltraMCP Unified Backend Commands"
+	@echo "===================================="
+	@echo ""
+	@echo "Basic Operations:"
+	@echo "  make unified-start                 - Start unified backend only"
+	@echo "  make unified-system-start          - Start complete unified system"
+	@echo "  make unified-status                - Check health and status"
+	@echo "  make unified-logs                  - View backend logs"
+	@echo "  make unified-stop                  - Stop unified backend"
+	@echo "  make unified-system-stop           - Stop complete system"
+	@echo ""
+	@echo "Development & Testing:"
+	@echo "  make unified-dev                   - Start in development mode"
+	@echo "  make unified-test                  - Test all endpoints"
+	@echo "  make unified-mcp-test              - Test MCP protocol integration"
+	@echo "  make unified-performance-test      - Performance testing"
+	@echo "  make unified-rebuild               - Rebuild and restart"
+	@echo ""
+	@echo "Documentation & Integration:"
+	@echo "  make unified-docs                  - Open documentation"
+	@echo "  make unified-migrate               - Migrate from microservices"
+	@echo ""
+	@echo "Service URLs:"
+	@echo "  Unified Backend:  http://localhost:8000"
+	@echo "  Documentation:    http://localhost:8000/docs"
+	@echo "  MCP Tools:        http://localhost:8000/mcp/tools"
+	@echo "  Health Check:     http://localhost:8000/health"
+	@echo ""
+	@echo "MCP Tools Available:"
+	@echo "  - cod_enhanced_debate             - Multi-LLM debate orchestration"
+	@echo "  - cod_local_debate                - Privacy-first local debate"
+	@echo "  - memory_enhanced_search          - Semantic code search"
+	@echo "  - memory_index_project            - Project indexing for memory"
+	@echo "  - voyage_enhanced_search          - Premium semantic search"
+	@echo "  - voyage_domain_search            - Domain-specialized search"
+	@echo "  - ref_search_documentation        - Documentation search"
+	@echo "  - ref_read_url                    - URL content extraction"
+	@echo "  - docs_unified_search             - Supreme documentation intelligence
+  - actions_list                    - List available external actions
+  - actions_execute                 - Execute external action
+  - actions_escalate_human          - Escalate to human approval
+  - actions_send_notification       - Send notifications
+  - actions_trigger_workflow        - Trigger external workflows
+  - actions_create_ticket           - Create external tickets
+  - actions_security_scan           - Run security scans
+
+# =============================================================================
+# Actions MCP Service Commands (External Actions Execution)
+# =============================================================================
+
+# Actions service status
+actions-health:
+	@echo "🎭 Checking Actions MCP Service Health..."
+	@curl -s http://localhost:8010/health/ | jq . || echo "❌ Actions service not available"
+
+# List all available actions
+actions-list:
+	@echo "📋 Available External Actions:"
+	@curl -s http://localhost:8010/actions/ | jq . || echo "❌ Failed to get actions list"
+
+# Escalate to human approval
+actions-escalate:
+	@echo "🚨 Escalating to Human: $(MESSAGE)"
+	@curl -X POST http://localhost:8010/actions/escalate_to_human/execute \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": {"message": "$(MESSAGE)", "priority": "$(if $(PRIORITY),$(PRIORITY),medium)"}}' | jq .
+
+# Send notification
+actions-notify:
+	@echo "📢 Sending Notification to $(RECIPIENT)"
+	@ACTION_ID=$$(if [ "$(CHANNEL)" = "slack" ]; then echo "send_slack_message"; else echo "send_email"; fi); \
+	curl -X POST http://localhost:8010/actions/$$ACTION_ID/execute \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": {"recipient": "$(RECIPIENT)", "message": "$(MESSAGE)", "subject": "$(if $(SUBJECT),$(SUBJECT),Notification)", "channel": "$(if $(CHANNEL),$(CHANNEL),email)"}}' | jq .
+
+# Trigger external workflow
+actions-workflow:
+	@echo "⚡ Triggering Workflow: $(JOB)"
+	@curl -X POST http://localhost:8010/actions/trigger_workflow/execute \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": {"job_name": "$(JOB)", "workflow_type": "$(if $(TYPE),$(TYPE),jenkins)", "parameters": $(if $(PARAMS),$(PARAMS),{})}}' | jq .
+
+# Create external ticket
+actions-ticket:
+	@echo "🎫 Creating Ticket: $(TITLE)"
+	@ACTION_ID=$$(if [ "$(SYSTEM)" = "github" ]; then echo "create_github_issue"; else echo "create_jira_ticket"; fi); \
+	curl -X POST http://localhost:8010/actions/$$ACTION_ID/execute \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": {"title": "$(TITLE)", "description": "$(DESC)", "system": "$(if $(SYSTEM),$(SYSTEM),jira)", "priority": "$(if $(PRIORITY),$(PRIORITY),medium)"}}' | jq .
+
+# Run security scan
+actions-security-scan:
+	@echo "🔒 Running Security Scan on $(TARGET)"
+	@curl -X POST http://localhost:8010/actions/run_security_scan/execute \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": {"target": "$(TARGET)", "scan_type": "$(if $(TYPE),$(TYPE),vulnerability)", "tool": "$(if $(TOOL),$(TOOL),sonarqube)"}}' | jq .
+
+# Validate action parameters
+actions-validate:
+	@echo "✅ Validating Parameters for Action: $(ACTION)"
+	@curl -X POST http://localhost:8010/actions/$(ACTION)/validate \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": $(PARAMS)}' | jq .
+
+# Get action execution history
+actions-history:
+	@echo "📜 Getting History for Action: $(ACTION)"
+	@curl -s "http://localhost:8010/actions/$(ACTION)/history?limit=$(if $(LIMIT),$(LIMIT),10)" | jq .
+
+# Get execution statistics
+actions-stats:
+	@echo "📊 Actions Execution Statistics:"
+	@curl -s http://localhost:8010/actions/stats/summary | jq .
+
+# Execute any action directly
+actions-execute:
+	@echo "🎭 Executing Action: $(ACTION)"
+	@curl -X POST http://localhost:8010/actions/$(ACTION)/execute \
+		-H "Content-Type: application/json" \
+		-d '{"parameters": $(PARAMS)}' | jq .
+
+# Test actions service integration
+actions-test:
+	@echo "🧪 Testing Actions MCP Service Integration..."
+	@echo "1. Health check..."
+	@make actions-health
+	@echo ""
+	@echo "2. List actions..."
+	@make actions-list
+	@echo ""
+	@echo "3. Validate parameters..."
+	@make actions-validate ACTION=escalate_to_human PARAMS='{"message":"test","priority":"low"}'
+	@echo ""
+	@echo "✅ Actions integration test complete"
+
+# Actions service help
+actions-help:
+	@echo "🎭 Actions MCP Service Commands"
+	@echo "================================"
+	@echo ""
+	@echo "Basic Operations:"
+	@echo "  make actions-health                               - Check service health"
+	@echo "  make actions-list                                 - List available actions"
+	@echo "  make actions-stats                                - Get execution statistics"
+	@echo "  make actions-test                                 - Test service integration"
+	@echo ""
+	@echo "Human Escalation:"
+	@echo "  make actions-escalate MESSAGE='Need approval' [PRIORITY=medium]"
+	@echo ""
+	@echo "Notifications:"
+	@echo "  make actions-notify RECIPIENT='user@domain.com' MESSAGE='Alert' [CHANNEL=email]"
+	@echo "  make actions-notify RECIPIENT='#channel' MESSAGE='Alert' CHANNEL=slack"
+	@echo ""
+	@echo "Workflow Triggers:"
+	@echo "  make actions-workflow JOB='deploy-app' [TYPE=jenkins] [PARAMS='{}']"
+	@echo "  make actions-workflow JOB='build' TYPE=github_actions"
+	@echo ""
+	@echo "Ticket Creation:"
+	@echo "  make actions-ticket TITLE='Bug fix' DESC='Description' [SYSTEM=jira]"
+	@echo "  make actions-ticket TITLE='Feature' DESC='Description' SYSTEM=github"
+	@echo ""
+	@echo "Security Scans:"
+	@echo "  make actions-security-scan TARGET='/app' [TYPE=vulnerability] [TOOL=sonarqube]"
+	@echo "  make actions-security-scan TARGET='/src' TYPE=code_analysis TOOL=snyk"
+	@echo ""
+	@echo "Parameter Validation:"
+	@echo "  make actions-validate ACTION=escalate_to_human PARAMS='{\"message\":\"test\"}'"
+	@echo ""
+	@echo "Execution History:"
+	@echo "  make actions-history ACTION=escalate_to_human [LIMIT=10]"
+	@echo ""
+	@echo "Direct Execution:"
+	@echo "  make actions-execute ACTION=escalate_to_human PARAMS='{\"message\":\"test\"}'"
+	@echo ""
+	@echo "Service URL: http://localhost:8010"
+	@echo "Documentation: http://localhost:8010/docs"
