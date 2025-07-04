@@ -1,0 +1,217 @@
+# UltraMCP ContextBuilderAgent 2.0 - ContextBuilder Services
+# Kubernetes Services for all 9 ContextBuilderAgent microservices
+
+---
+# ContextBuilder Core Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: contextbuilder-core
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: contextbuilder-core
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: core
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8020
+      targetPort: 8020
+      protocol: TCP
+    - name: metrics
+      port: 8021
+      targetPort: 8021
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: contextbuilder-core
+    app.kubernetes.io/component: core
+
+---
+# Belief Reviser Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: belief-reviser
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: belief-reviser
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8022
+      targetPort: 8022
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: belief-reviser
+    app.kubernetes.io/component: mutation-evaluator
+
+---
+# Contradiction Resolver Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: contradiction-resolver
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: contradiction-resolver
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8024
+      targetPort: 8024
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: contradiction-resolver
+    app.kubernetes.io/component: mutation-evaluator
+
+---
+# Utility Predictor Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: utility-predictor
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: utility-predictor
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8025
+      targetPort: 8025
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: utility-predictor
+    app.kubernetes.io/component: mutation-evaluator
+
+---
+# Context Drift Detector Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: context-drift-detector
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: context-drift-detector
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8026
+      targetPort: 8026
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: context-drift-detector
+    app.kubernetes.io/component: mutation-evaluator
+
+---
+# Prompt Assembler Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prompt-assembler
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: prompt-assembler
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: prompt-generator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8027
+      targetPort: 8027
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: prompt-assembler
+    app.kubernetes.io/component: prompt-generator
+
+---
+# Context Observatory Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: context-observatory
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: context-observatory
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8028
+      targetPort: 8028
+      protocol: TCP
+    - name: websocket
+      port: 8029
+      targetPort: 8029
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: context-observatory
+    app.kubernetes.io/component: monitoring
+
+---
+# Deterministic Debug Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: deterministic-debug
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: deterministic-debug
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: debug
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8029
+      targetPort: 8029
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: deterministic-debug
+    app.kubernetes.io/component: debug
+
+---
+# Context Memory Tuner Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: context-memory-tuner
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: context-memory-tuner
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: memory-tuner
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8030
+      targetPort: 8030
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: context-memory-tuner
+    app.kubernetes.io/component: memory-tuner

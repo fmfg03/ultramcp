@@ -1,0 +1,190 @@
+# UltraMCP ContextBuilderAgent 2.0 - Prometheus Configuration
+# Comprehensive Monitoring for All 9 Services + Infrastructure
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'contextbuilder-2.0'
+    environment: 'production'
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # ContextBuilderAgent Core Services
+  - job_name: 'contextbuilder-core'
+    static_configs:
+      - targets: 
+        - 'host.docker.internal:8020'
+        - 'host.docker.internal:8021'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+    scheme: http
+
+  - job_name: 'belief-reviser'
+    static_configs:
+      - targets: 
+        - 'host.docker.internal:8022'
+        - 'host.docker.internal:8023'
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'contradiction-resolver'
+    static_configs:
+      - targets: ['host.docker.internal:8024']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'utility-predictor'
+    static_configs:
+      - targets: ['host.docker.internal:8025']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'context-drift-detector'
+    static_configs:
+      - targets: ['host.docker.internal:8026']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'prompt-assembler'
+    static_configs:
+      - targets: ['host.docker.internal:8027']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'context-observatory'
+    static_configs:
+      - targets: ['host.docker.internal:8028']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'deterministic-debug'
+    static_configs:
+      - targets: ['host.docker.internal:8029']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  - job_name: 'context-memory-tuner'
+    static_configs:
+      - targets: ['host.docker.internal:8030']
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  # Database Services
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9187']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9121']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  # Load Balancer Monitoring
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9113']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  # System Monitoring
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9100']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  # Docker Container Monitoring
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  # Grafana Monitoring
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+
+  # Blackbox Exporter for Service Health
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://host.docker.internal:8020/health
+        - http://host.docker.internal:8022/health
+        - http://host.docker.internal:8024/health
+        - http://host.docker.internal:8025/health
+        - http://host.docker.internal:8026/health
+        - http://host.docker.internal:8027/health
+        - http://host.docker.internal:8028/health
+        - http://host.docker.internal:8029/health
+        - http://host.docker.internal:8030/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Custom Metrics for ContextBuilderAgent
+  - job_name: 'contextbuilder-custom-metrics'
+    honor_labels: true
+    static_configs:
+      - targets: ['host.docker.internal:8020']
+    metrics_path: /custom-metrics
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+# Remote storage configuration (for production scaling)
+# remote_write:
+#   - url: "https://prometheus-remote-write.example.com/api/v1/write"
+#     basic_auth:
+#       username: "contextbuilder"
+#       password: "secure_password"
+
+# Retention configuration
+storage:
+  tsdb:
+    retention.time: 30d
+    retention.size: 10GB
+    path: /prometheus/data
+    wal-compression: true

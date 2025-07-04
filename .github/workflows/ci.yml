@@ -1,0 +1,563 @@
+# UltraMCP ContextBuilderAgent 2.0 - Continuous Integration Pipeline
+# Comprehensive CI/CD with testing, security scanning, and quality gates
+
+name: 🧠 ContextBuilderAgent CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*', 'release/*' ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+  schedule:
+    # Run security scans weekly
+    - cron: '0 2 * * 1'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ultramcp/contextbuilder-agent
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+  GO_VERSION: '1.21'
+
+jobs:
+  # ============================================================================
+  # Code Quality and Security
+  # ============================================================================
+  
+  code-quality:
+    name: 🔍 Code Quality & Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          npm ci
+
+      - name: 🧹 Code Formatting Check
+        run: |
+          pip install black isort flake8
+          black --check --diff .
+          isort --check-only --diff .
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: 🔒 Security Scan with Bandit
+        run: |
+          pip install bandit[toml]
+          bandit -r services/ -f json -o bandit-report.json || true
+
+      - name: 🛡️ SAST with CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python, javascript
+
+      - name: 🔍 CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+      - name: 📊 SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: 🔐 Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: 📤 Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ============================================================================
+  # Unit and Integration Tests
+  # ============================================================================
+  
+  test-services:
+    name: 🧪 Service Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [
+          'context-builder-agent',
+          'belief-reviser', 
+          'contradiction-resolver',
+          'utility-predictor',
+          'context-drift-detector',
+          'prompt-assembler',
+          'context-observatory',
+          'deterministic-debug',
+          'context-memory-tuner'
+        ]
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+      
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: contextbuilder_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: 🗄️ Setup Test Database
+        run: |
+          PGPASSWORD=test psql -h localhost -U test -d contextbuilder_test -c "
+            CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";
+          "
+        env:
+          PGPASSWORD: test
+
+      - name: 🧪 Run Unit Tests
+        run: |
+          pytest services/${{ matrix.service }}/ -v --cov=services/${{ matrix.service }} --cov-report=xml
+        env:
+          REDIS_URL: redis://localhost:6379
+          POSTGRES_URL: postgresql://test:test@localhost:5432/contextbuilder_test
+
+      - name: 📊 Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: ${{ matrix.service }}
+          name: codecov-${{ matrix.service }}
+
+  # ============================================================================
+  # Integration Tests
+  # ============================================================================
+  
+  integration-tests:
+    name: 🔗 Integration Testing
+    runs-on: ubuntu-latest
+    needs: [code-quality, test-services]
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: contextbuilder_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 🐳 Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: 🚀 Start Services with Docker Compose
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 30
+
+      - name: 🧪 Run Integration Tests
+        run: |
+          pytest tests/integration/ -v --tb=short
+        env:
+          REDIS_URL: redis://localhost:6379
+          POSTGRES_URL: postgresql://test:test@localhost:5432/contextbuilder_test
+
+      - name: 🛑 Stop Services
+        if: always()
+        run: |
+          docker-compose -f docker-compose.test.yml down -v
+
+  # ============================================================================
+  # Performance and Load Testing
+  # ============================================================================
+  
+  performance-tests:
+    name: ⚡ Performance Testing
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Setup Docker Compose
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 60
+
+      - name: ⚡ Run Load Tests with Artillery
+        run: |
+          npm install -g artillery
+          artillery run tests/performance/load-test.yml
+
+      - name: 📊 Run Benchmark Tests
+        run: |
+          python tests/performance/benchmark.py
+
+      - name: 📈 Performance Report
+        run: |
+          echo "Performance test results:" >> $GITHUB_STEP_SUMMARY
+          cat tests/performance/results.md >> $GITHUB_STEP_SUMMARY
+
+      - name: 🛑 Cleanup
+        if: always()
+        run: |
+          docker-compose -f docker-compose.test.yml down -v
+
+  # ============================================================================
+  # Container Build and Security Scan
+  # ============================================================================
+  
+  build-and-scan:
+    name: 🐳 Container Build & Security Scan
+    runs-on: ubuntu-latest
+    needs: [code-quality, test-services]
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tag: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: 🔨 Build Container Image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ github.sha }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+
+      - name: 🔒 Scan Container Image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+
+      - name: 📤 Upload Image Scan Results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+
+      - name: 📋 Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+
+      - name: 📤 Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom.cyclonedx.json
+
+  # ============================================================================
+  # Kubernetes Manifest Testing
+  # ============================================================================
+  
+  k8s-validation:
+    name: ☸️ Kubernetes Manifest Validation
+    runs-on: ubuntu-latest
+    needs: [code-quality]
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Kubernetes Tools
+        run: |
+          # Install kubectl
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          
+          # Install kubeval
+          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval-linux-amd64.tar.gz
+          sudo mv kubeval /usr/local/bin
+
+      - name: ✅ Validate Kubernetes Manifests
+        run: |
+          find k8s/ -name "*.yaml" -exec kubeval {} \;
+
+      - name: 🔍 Lint Kubernetes Manifests
+        run: |
+          # Install kube-score
+          wget https://github.com/zegl/kube-score/releases/latest/download/kube-score_linux_amd64.tar.gz
+          tar xzf kube-score_linux_amd64.tar.gz
+          sudo mv kube-score /usr/local/bin/
+          
+          # Run kube-score
+          find k8s/ -name "*.yaml" -exec kube-score score {} \;
+
+      - name: 🛡️ Security Policy Validation
+        uses: instrumenta/conftest-action@master
+        with:
+          files: k8s/
+          policy: tests/policies/
+
+  # ============================================================================
+  # Deployment Staging
+  # ============================================================================
+  
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-scan, integration-tests, k8s-validation]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ☸️ Setup Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: 🔑 Configure Kubernetes Context
+        run: |
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: 🚀 Deploy to Staging
+        run: |
+          export KUBECONFIG=kubeconfig
+          ./scripts/deploy_kubernetes.sh deploy
+          
+      - name: 🧪 Smoke Tests
+        run: |
+          export KUBECONFIG=kubeconfig
+          ./scripts/smoke_tests.sh staging
+
+      - name: 📊 Deployment Status
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl get pods -n contextbuilder-staging
+
+  # ============================================================================
+  # Production Deployment
+  # ============================================================================
+  
+  deploy-production:
+    name: 🏭 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, performance-tests]
+    if: github.event_name == 'release'
+    environment: production
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ☸️ Setup Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: 🔑 Configure Kubernetes Context
+        run: |
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: 🏭 Deploy to Production
+        run: |
+          export KUBECONFIG=kubeconfig
+          ./scripts/deploy_kubernetes.sh deploy
+
+      - name: ✅ Health Checks
+        run: |
+          export KUBECONFIG=kubeconfig
+          ./scripts/health_checks.sh production
+
+      - name: 📊 Production Metrics
+        run: |
+          export KUBECONFIG=kubeconfig
+          kubectl top pods -n contextbuilder
+
+      - name: 🎉 Deployment Success Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: "🎉 ContextBuilderAgent 2.0 successfully deployed to production!"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ============================================================================
+  # Security and Compliance
+  # ============================================================================
+  
+  security-compliance:
+    name: 🛡️ Security & Compliance Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔐 OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'ContextBuilderAgent'
+          path: '.'
+          format: 'ALL'
+
+      - name: 📊 Upload OWASP Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-check-report
+          path: reports/
+
+      - name: 🔍 License Compliance Check
+        run: |
+          pip install licensecheck
+          licensecheck --dependencies --format json > license-report.json
+
+      - name: 🏛️ Policy as Code Validation
+        uses: open-policy-agent/conftest-action@v0.1
+        with:
+          files: k8s/
+          policy: tests/policies/security.rego
+
+  # ============================================================================
+  # Notification and Reporting
+  # ============================================================================
+  
+  notify-results:
+    name: 📢 Notify Results
+    runs-on: ubuntu-latest
+    needs: [
+      code-quality,
+      test-services, 
+      integration-tests,
+      build-and-scan,
+      k8s-validation
+    ]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Summary Report
+        run: |
+          echo "# 🧠 ContextBuilderAgent CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Pipeline Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Service Tests: ${{ needs.test-services.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration Tests: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Container Build: ${{ needs.build-and-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- K8s Validation: ${{ needs.k8s-validation.result }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📧 Slack Notification
+        uses: 8398a7/action-slack@v3
+        if: failure()
+        with:
+          status: failure
+          text: "❌ ContextBuilderAgent CI/CD Pipeline failed. Check GitHub Actions for details."
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

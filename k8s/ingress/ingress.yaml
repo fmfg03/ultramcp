@@ -1,0 +1,318 @@
+# UltraMCP ContextBuilderAgent 2.0 - Ingress Configuration
+# Production-ready ingress with SSL termination and routing
+
+---
+# Nginx Ingress Controller ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ingress-config
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: nginx-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: contextbuilder
+data:
+  # Nginx configuration
+  proxy-body-size: "100m"
+  proxy-read-timeout: "300"
+  proxy-send-timeout: "300"
+  client-max-body-size: "100m"
+  
+  # Rate limiting
+  rate-limit-rps: "100"
+  rate-limit-rpm: "6000"
+  
+  # SSL configuration
+  ssl-protocols: "TLSv1.2 TLSv1.3"
+  ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
+  
+  # Security headers
+  add-headers: "contextbuilder/security-headers"
+
+---
+# Security Headers ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-headers
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: security-headers
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: contextbuilder
+data:
+  X-Frame-Options: "SAMEORIGIN"
+  X-Content-Type-Options: "nosniff"
+  X-XSS-Protection: "1; mode=block"
+  Strict-Transport-Security: "max-age=31536000; includeSubDomains"
+  Referrer-Policy: "strict-origin-when-cross-origin"
+
+---
+# TLS Certificate (Self-signed for development)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: contextbuilder-tls
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: tls-certificate
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: contextbuilder
+type: kubernetes.io/tls
+data:
+  # Base64 encoded self-signed certificate (replace with real certs in production)
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURSVENDQWkyZ0F3SUJBZ0lKQUt2V01JQTB3MXVZTUEwR0NTcUdTSWIzRFFFQkN3VUFNREl4Q3pBSkJnTlYKQkFZVEFsVlRNUXN3Q1FZRFZRUUlEQUpUZEdGMFpURUxNQWtHQTFVRUJ3d0NRMmwwZVRFUk1BOEdBMVVFQ2d3SQpWV3gwY21GTVEwQXdIaGNOTWpRd01URXdNVEF3TURBd1doY05NalV3TVRBNU1UQXdNREF3V2pBeU1Rc3dDUVlEClZRUUdFd0pWVXpFTE1Ba0dBMVVFQ0F3Q1UzUmhkR1V4Q3pBSkJnTlZCQWNNQWtOcGRIa3hFVEFQQmdOVkJBb00KQ0ZWc2RISmhUVU5CTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEvL2VxK2dUSgpRMEE4SCtKK3lJS3hPczVEU1I2L0VNNEhPTjlqM3VReWgxSmlVYmlqZjhJbnZsbG1aVzJ3Q2tPZStFOXNVR0h0Cm9vYS9TTE5BUWhKK0Q4SFBmWVNKRG1VOXRTS1hwQXNHUFJHSzlTbUlub2UrNVh5OWhBWXo4YnBpSGV1ZFdkZk4KaGYxMG9CRFR4Z2lla1pqOFpVWnBqMUVDV2NkN21sOTZwQllJaUg2NHZ3OHFKc1k5Q2JoNWNPQ3MzOUNvbnJacwo4TGh6ak1Sdm1JZlI1ZHFQT3cyQjE2RlN6VnpuK0w5SnZ1SllNUXpCQ1k5TXFBaDdpa0U1YWN3cW9YbFlzUFpYCnNjL1ZGWml1Z2l2L2VjQ3U4bm5LZlNnYzZjSW5yQTRJaFN3SFpKdTBaWGNlWCszZWVUd2Y4T3o1cTBCZkdBTXQKV2ZLMElwZXFIaUJlZ2ZNVERRSURBUUFCbzFNd1VUQWRCZ05WSFE0RUZnUVVNVHEyNlFmUGpHQjJRRVZJQkE1bgpraE80VEpRd0h3WURWUjBqQkJnd0ZvQVVNVHEyNlFmUGpHQjJRRVZJQkE1bmtoTzRUSlF3RHdZRFZSMFRBUUgvCkJBVXdBd0VCL3pBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQWVkRWM3U3R2K3hseEFpVTBjSXUxVE90YitPcloKTVROYWNjMUQ0VnpLdVhXOEYvU3gvM3ZnVWtaY3V2NmdWaGF2OThCdGxkRXFndFFxRjBSMkhIVHBxaVZvOWVJNApNSmhyS1g5UFV3OUlJa20rZVdJOC9ucmJ6MVdTZzZxaUIzRmFPYnN2aU5sSEE1N3ljNmlmY0Z3Q3dXdE42YVV3Cm9WU2ZZZGcxQnF5eVBpWnc0UXVHd1l0T29ocXlpWGlCQWJoTGJLY05VbU5mbnhLUUtaRWFkdVZJNjNFTUpWSlkKNkI1YkVLYnBxTTlFU3dDNmZhK0NCc1V1cVFNUHl6VkROY1VCODdreWNxZmVTSktURGlGbHAyaFpkeTFKaVVGdQpHZlFLSVFLdFQxVnVPZkFLUHM5QTdzdGZEOWVLSmttQVJ6UkZwKysyaGVONzJlMExLZzFCYlQrZGp3PT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRRC85NnI2Qk1sRFFEd2YKNGo3SWdyRTZ6a05KSHI4UXpnYzQzMlBlNURLSFVtSlJ1S04veWllK1dXWmxiYkFLUTU3NFQyeFFZZTJpaHI5SQpzMEJDRW40UHdjOTloSWtPWlQyMUlwZWtDd1k5RVlyMUtZaWVoNzdsZkwyRUJqUHh1bUlkNjUxWjE4MkYvWFNnCkVOUEdCNTZSbVB4bFJtbVBVUUpaeDN1YVgzcWtGZ2lJZnJpL0R5b214ajBKdUhsdzRLemYwS2lldG16d3VIT00KeUcrWWg5SGwyOE82RFlIWG9WTE5YT2Y0djBtKzRsZ3hETUVKajB5b0NIdUtRVGxwekNxaGVWaXc5bGV4ejlVVgptSzZDSy85NXdLN3llY3A5S0J6cHdpZXNEZ2lGTEFka202UmxkeDVmN2Q1NVBCL3c3UG1yUUY4WUF5MVo4clFpCmw2b2VJRjZCOHhNTkFnTUJBQUVDZ2dFQVUwOE5mQXJKdkNjZVRaTnBOUHJSTytaTUFaZ01yTjNoMHZnQmY2cEIKTjlKV0I4YUVlT0FUaCtEcWpXc2kvMjc3cWJFUlQ1Q1Nta3Awdy8rSStEMEhjT0ttVkVSbXN0VTJQZVFNd1N2SQpSMGZRanZvOXErK2d0RUVYZ3BmT2VWa3hzRVBXVUFOaHJ6VUx1SXVweHNyQ045Uzk3cmZCK09hcUNHWmNnRGk3CjlXdkVlUGNVUmJSYzR5cEVDK2dReTh5NkphcWt0a0tZdkJZRzNCM2pxNGxTVUVnZTRVVkU5WHhRZGUrZG1xclIKekhORGVvRlU4Z0dQUmRGVmxvUzd5ZFZtNWUxaFdPQnIzdTBPTDUrdFR6UjNOSzNNb3Z4MU1qVnVRM0g4NGF1SgpiOEw2YkU5NmpPWXR3YlZVRnNiNnIrOFBaZGNsbWtLT0dnbU15Z0dZcVFLQmdRRC8vd2p1bHpNZGtOa1VPRU5UCkFNQXIwRUZXMlJGOGpMK3l4ZkdUSit2eFpJckl2eUVoc1Z5Lzk5bC9KV0RoNEx5eHBpZjdpYkQzSUhpZHZpOGUKa2Y0MGJsTjNMVXNWTWlJVm9oOEtqR3phN0RVMXZJeUZ1VFB0RFdGQ0loZytvUk9sSi9ITmNpYnZ2Vm0raGxWMQpVZUN3aTlMdUwxTVZvUklYZXpQaXRQZWlYUUtCZ1FEL0ZtY0l4cWVZQVAvNy9pckxqREFxbEpzMWZ0Sng1QU9CCmNsaXJ5VGdYQ2dUUWY4VnJRcXZzbjQ5Tm1ldDhDWm02VzNJT05TbGdHY2ZFekJlRGdMVjl5SUVoTGhsK2ZjTjQKeXVLOGpyV3p3M1dzT044YzNYTEI5L28wZzhWN2VPRC91a1pYMUEvM0F3UHBrUjZaOWx1UEVqRGY4T24yWmR2SApaOG1Ga0xCODRRS0JnUUNHM0J4N0Z2VjlyVjN2L0hNclhWVE8xaTlBajNMT1lNRFJjK0plWDVCM21FTlpGTE44Ck5yNUdOcnAwSW1HMHJ2WjkrOCtqUWxVSjJWaUprOVh0U3pzU0RtTWMzdFQ1T1Z6UjNPZ3F5NGZpSUtRcnpBcXAKRWl1alFXelZnSEdNRnB0WGZ4dkNVMTN4eHU1MEdGTjJ6UHNHMlBkSFVKbElBWktUMVZBUVNKRnpuUUtCZ1FERwpsK3hJZXc2WnVhZW1mNUhGZmJ5RU1lVzlFZVJ1a1NnOHZGaUZVTVBnUEJhWnpxc1VMZnAyYkJxb0NVS0U3dG9yCndqT1RkRUtIVnJiaTJPMTB5RXpDK0R5Sk1wMkJyU1RWOW9NVkdNcUs3eGppdzlJOEtrYWljRU5GaXVNRFJhMVQKOWNWWm9PelJueGN0dlVha0lzdVJLbGhIOW5aMGZOcWhoUWVjczFNN1RoVlFFUUtCZ0dGNlp5b3FYY2l5dEpOdApUSE9oa0ROUFV0SmxQTFdRMnAvL0thNlE5b1FpQ0hQbmpPZERGZVpDeUluVStNQnNxeUZmbEZ1SDZQV283M2dGClROcnFkRVF5MFF2eG14QnJSZU1EZWNGNVZzK2xHV1U4dTBOQ1YzS1lHdk1KWW1GN1dxZkJvS0FLVkhMYWJrbFUKNDBMVDIrZWZGZVNySzU5SlFPOXVaOTR0eTZTMgotLS0tLUVORCBQUklWQVRFIEtFWS0tLS0t
+
+---
+# Main Ingress Resource
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: contextbuilder-ingress
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: contextbuilder-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: contextbuilder
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - contextbuilder.ultramcp.local
+        - api.contextbuilder.ultramcp.local
+        - monitoring.contextbuilder.ultramcp.local
+      secretName: contextbuilder-tls
+  rules:
+    # Main ContextBuilderAgent API
+    - host: api.contextbuilder.ultramcp.local
+      http:
+        paths:
+          # Core ContextBuilder API
+          - path: /api/context
+            pathType: Prefix
+            backend:
+              service:
+                name: contextbuilder-core
+                port:
+                  number: 8020
+          
+          # Belief Reviser API
+          - path: /api/belief
+            pathType: Prefix
+            backend:
+              service:
+                name: belief-reviser
+                port:
+                  number: 8022
+          
+          # Contradiction Resolver API
+          - path: /api/contradiction
+            pathType: Prefix
+            backend:
+              service:
+                name: contradiction-resolver
+                port:
+                  number: 8024
+          
+          # Utility Predictor API
+          - path: /api/utility
+            pathType: Prefix
+            backend:
+              service:
+                name: utility-predictor
+                port:
+                  number: 8025
+          
+          # Context Drift Detector API
+          - path: /api/drift
+            pathType: Prefix
+            backend:
+              service:
+                name: context-drift-detector
+                port:
+                  number: 8026
+          
+          # Prompt Assembler API
+          - path: /api/prompt
+            pathType: Prefix
+            backend:
+              service:
+                name: prompt-assembler
+                port:
+                  number: 8027
+          
+          # Context Observatory API
+          - path: /api/observatory
+            pathType: Prefix
+            backend:
+              service:
+                name: context-observatory
+                port:
+                  number: 8028
+          
+          # Deterministic Debug API
+          - path: /api/debug
+            pathType: Prefix
+            backend:
+              service:
+                name: deterministic-debug
+                port:
+                  number: 8029
+          
+          # Context Memory Tuner API
+          - path: /api/memory
+            pathType: Prefix
+            backend:
+              service:
+                name: context-memory-tuner
+                port:
+                  number: 8030
+          
+          # WebSocket Support for Observatory
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: context-observatory
+                port:
+                  number: 8029
+          
+          # Health Check Endpoint
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: contextbuilder-core
+                port:
+                  number: 8020
+
+    # Monitoring Dashboard
+    - host: monitoring.contextbuilder.ultramcp.local
+      http:
+        paths:
+          # Grafana
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+          
+          # Prometheus
+          - path: /prometheus
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090
+          
+          # Alertmanager
+          - path: /alertmanager
+            pathType: Prefix
+            backend:
+              service:
+                name: alertmanager
+                port:
+                  number: 9093
+
+    # Main Domain (redirect to API docs)
+    - host: contextbuilder.ultramcp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: contextbuilder-core
+                port:
+                  number: 8020
+
+---
+# Monitoring-specific Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: monitoring-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: contextbuilder
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: monitoring-auth
+    nginx.ingress.kubernetes.io/auth-realm: "ContextBuilderAgent Monitoring"
+spec:
+  tls:
+    - hosts:
+        - prometheus.contextbuilder.ultramcp.local
+        - grafana.contextbuilder.ultramcp.local
+        - alertmanager.contextbuilder.ultramcp.local
+      secretName: contextbuilder-tls
+  rules:
+    # Prometheus
+    - host: prometheus.contextbuilder.ultramcp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090
+    
+    # Grafana
+    - host: grafana.contextbuilder.ultramcp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+    
+    # Alertmanager
+    - host: alertmanager.contextbuilder.ultramcp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: alertmanager
+                port:
+                  number: 9093
+
+---
+# Basic Auth Secret for Monitoring
+apiVersion: v1
+kind: Secret
+metadata:
+  name: monitoring-auth
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: monitoring-auth
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: contextbuilder
+type: Opaque
+data:
+  # admin:contextbuilder2024 (generated with htpasswd)
+  auth: YWRtaW46JGFwcjEkVUh5TXhSeVckSFZhS1pkVTRmbXpqbE5sOW1LY3RXMQ==

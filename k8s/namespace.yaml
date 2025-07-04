@@ -1,0 +1,20 @@
+# UltraMCP ContextBuilderAgent 2.0 - Kubernetes Namespace
+# Production-Ready Kubernetes Deployment
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: contextbuilder
+  labels:
+    name: contextbuilder
+    version: "2.0"
+    environment: production
+    app.kubernetes.io/name: contextbuilder-agent
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: namespace
+    app.kubernetes.io/part-of: ultramcp
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "UltraMCP ContextBuilderAgent 2.0 - Next-Generation Semantic Coherence Platform"
+    contact: "admin@contextbuilder.local"
+    documentation: "https://github.com/ultramcp/contextbuilder-agent"

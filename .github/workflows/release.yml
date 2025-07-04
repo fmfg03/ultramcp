@@ -1,0 +1,436 @@
+# UltraMCP ContextBuilderAgent 2.0 - Release Pipeline
+# Automated release management with semantic versioning
+
+name: 🚀 Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v2.1.0)'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ultramcp/contextbuilder-agent
+
+permissions:
+  contents: write
+  packages: write
+  security-events: write
+
+jobs:
+  # ============================================================================
+  # Release Validation
+  # ============================================================================
+  
+  validate-release:
+    name: ✅ Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Extract Version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+
+      - name: 📝 Generate Changelog
+        id: changelog
+        run: |
+          # Generate changelog since last release
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+          if [[ -n "$LAST_TAG" ]]; then
+            CHANGELOG=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges --max-count=50)
+          fi
+          
+          # Save changelog to file and output
+          echo "$CHANGELOG" > changelog.txt
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🔍 Validate Version Format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: $VERSION"
+            echo "Expected format: vX.Y.Z (e.g., v2.1.0)"
+            exit 1
+          fi
+
+      - name: 📊 Pre-release Checks
+        run: |
+          echo "Running pre-release validation..."
+          
+          # Check if all required files exist
+          required_files=(
+            "README.md"
+            "CHANGELOG.md"
+            "LICENSE"
+            "requirements.txt"
+            "Dockerfile"
+            "k8s/kustomization.yaml"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              echo "Missing required file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "Pre-release validation passed!"
+
+  # ============================================================================
+  # Build Release Artifacts
+  # ============================================================================
+  
+  build-release:
+    name: 🔨 Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: [validate-release]
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=ContextBuilderAgent
+            org.opencontainers.image.description=Next-Generation Semantic Coherence Platform
+            org.opencontainers.image.version=${{ needs.validate-release.outputs.version }}
+
+      - name: 🔨 Build and Push Container Images
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.validate-release.outputs.version }}
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            COMMIT_SHA=${{ github.sha }}
+
+      - name: 📋 Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+
+      - name: 🔒 Sign Container Image
+        uses: sigstore/cosign-installer@v3
+
+      - name: 🔐 Sign Image with Cosign
+        run: |
+          cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+
+      - name: 📦 Create Release Archive
+        run: |
+          mkdir -p release-artifacts
+          
+          # Package Kubernetes manifests
+          tar -czf release-artifacts/kubernetes-manifests-${{ needs.validate-release.outputs.version }}.tar.gz k8s/
+          
+          # Package scripts
+          tar -czf release-artifacts/deployment-scripts-${{ needs.validate-release.outputs.version }}.tar.gz scripts/
+          
+          # Package configuration
+          tar -czf release-artifacts/configuration-${{ needs.validate-release.outputs.version }}.tar.gz config/
+          
+          # Copy SBOM
+          cp sbom.cyclonedx.json release-artifacts/
+
+      - name: 📤 Upload Release Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-artifacts-${{ needs.validate-release.outputs.version }}
+          path: release-artifacts/
+
+  # ============================================================================
+  # Security Scan Release
+  # ============================================================================
+  
+  security-scan-release:
+    name: 🔒 Security Scan Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release]
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Scan Release Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-release-results.sarif'
+
+      - name: 📤 Upload Security Results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-release-results.sarif'
+
+      - name: 🛡️ Verify Security Baseline
+        run: |
+          # Check if there are any critical vulnerabilities
+          CRITICAL_COUNT=$(docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy image --severity CRITICAL --format json \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }} | \
+            jq '.Results[].Vulnerabilities | length')
+          
+          if [[ "$CRITICAL_COUNT" -gt 0 ]]; then
+            echo "❌ Release contains $CRITICAL_COUNT critical vulnerabilities"
+            exit 1
+          else
+            echo "✅ No critical vulnerabilities found"
+          fi
+
+  # ============================================================================
+  # Deploy to Staging
+  # ============================================================================
+  
+  deploy-staging:
+    name: 🧪 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release, security-scan-release]
+    environment: staging
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ☸️ Setup Kubernetes
+        uses: azure/setup-kubectl@v3
+
+      - name: 🔑 Configure Staging Context
+        run: |
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: 🚀 Deploy to Staging
+        run: |
+          export KUBECONFIG=kubeconfig
+          export IMAGE_TAG=${{ needs.validate-release.outputs.version }}
+          ./scripts/deploy_kubernetes.sh deploy
+
+      - name: 🧪 Run Release Tests
+        run: |
+          export KUBECONFIG=kubeconfig
+          ./scripts/release_tests.sh staging ${{ needs.validate-release.outputs.version }}
+
+      - name: 📊 Staging Deployment Status
+        run: |
+          export KUBECONFIG=kubeconfig
+          echo "## Staging Deployment Status" >> $GITHUB_STEP_SUMMARY
+          kubectl get pods -n contextbuilder-staging >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # Create GitHub Release
+  # ============================================================================
+  
+  create-github-release:
+    name: 📝 Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release, deploy-staging]
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Release Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: release-artifacts-${{ needs.validate-release.outputs.version }}
+          path: release-artifacts/
+
+      - name: 📝 Create Release Notes
+        run: |
+          cat > release-notes.md << EOF
+          # 🧠 ContextBuilderAgent ${{ needs.validate-release.outputs.version }}
+          
+          ## 🚀 What's New
+          
+          ${{ needs.validate-release.outputs.changelog }}
+          
+          ## 📦 Release Artifacts
+          
+          - **Container Images**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}\`
+          - **Kubernetes Manifests**: kubernetes-manifests-${{ needs.validate-release.outputs.version }}.tar.gz
+          - **Deployment Scripts**: deployment-scripts-${{ needs.validate-release.outputs.version }}.tar.gz
+          - **Configuration Files**: configuration-${{ needs.validate-release.outputs.version }}.tar.gz
+          - **SBOM**: sbom.cyclonedx.json
+          
+          ## 🔒 Security
+          
+          - Container image signed with Cosign
+          - Vulnerability scan passed (no critical issues)
+          - SBOM included for supply chain security
+          
+          ## 🚀 Quick Start
+          
+          \`\`\`bash
+          # Deploy to Kubernetes
+          kubectl apply -f kubernetes-manifests-${{ needs.validate-release.outputs.version }}.tar.gz
+          
+          # Or use Docker
+          docker run ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
+          \`\`\`
+          
+          ## 📊 Verified Deployments
+          
+          - ✅ Staging Environment
+          - ⏳ Production Environment (pending approval)
+          EOF
+
+      - name: 🎉 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.validate-release.outputs.version }}
+          name: "ContextBuilderAgent ${{ needs.validate-release.outputs.version }}"
+          body_path: release-notes.md
+          files: |
+            release-artifacts/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+  # ============================================================================
+  # Deploy to Production
+  # ============================================================================
+  
+  deploy-production:
+    name: 🏭 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [validate-release, build-release, create-github-release]
+    environment: production
+    if: github.event.inputs.environment == 'production' || github.ref_type == 'tag'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ☸️ Setup Kubernetes
+        uses: azure/setup-kubectl@v3
+
+      - name: 🔑 Configure Production Context
+        run: |
+          echo "${{ secrets.KUBECONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: 🏭 Deploy to Production
+        run: |
+          export KUBECONFIG=kubeconfig
+          export IMAGE_TAG=${{ needs.validate-release.outputs.version }}
+          ./scripts/deploy_kubernetes.sh deploy
+
+      - name: ✅ Production Health Checks
+        run: |
+          export KUBECONFIG=kubeconfig
+          ./scripts/health_checks.sh production
+
+      - name: 📊 Production Deployment Verification
+        run: |
+          export KUBECONFIG=kubeconfig
+          echo "## Production Deployment Status" >> $GITHUB_STEP_SUMMARY
+          kubectl get pods -n contextbuilder >> $GITHUB_STEP_SUMMARY
+          kubectl top pods -n contextbuilder >> $GITHUB_STEP_SUMMARY
+
+      - name: 🎉 Success Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🎉 ContextBuilderAgent ${{ needs.validate-release.outputs.version }} successfully deployed to production!
+            
+            📊 Release Summary:
+            - Version: ${{ needs.validate-release.outputs.version }}
+            - Container: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate-release.outputs.version }}
+            - Security: ✅ Scanned and verified
+            - Deployment: ✅ Production ready
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ============================================================================
+  # Post-Release Tasks
+  # ============================================================================
+  
+  post-release:
+    name: 📋 Post-Release Tasks
+    runs-on: ubuntu-latest
+    needs: [validate-release, deploy-production]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 📊 Update Release Dashboard
+        run: |
+          echo "Updating release dashboard..."
+          # Add logic to update internal dashboards or documentation
+
+      - name: 📧 Notify Stakeholders
+        run: |
+          echo "Release ${{ needs.validate-release.outputs.version }} completed successfully!"
+          echo "Production deployment status: ${{ needs.deploy-production.result }}"
+
+      - name: 🧹 Cleanup Old Releases
+        run: |
+          echo "Cleaning up old development releases..."
+          # Add logic to cleanup old pre-release images or artifacts

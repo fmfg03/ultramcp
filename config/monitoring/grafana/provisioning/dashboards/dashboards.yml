@@ -1,0 +1,49 @@
+# UltraMCP ContextBuilderAgent 2.0 - Grafana Dashboard Provisioning
+# Automatic Dashboard Loading
+
+apiVersion: 1
+
+providers:
+  # ContextBuilderAgent System Dashboards
+  - name: 'contextbuilder-system'
+    orgId: 1
+    folder: 'ContextBuilderAgent'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/system
+
+  # Infrastructure Dashboards
+  - name: 'infrastructure'
+    orgId: 1
+    folder: 'Infrastructure'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/infrastructure
+
+  # Business Logic Dashboards
+  - name: 'business-logic'
+    orgId: 1
+    folder: 'Business Logic'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/business
+
+  # Performance Dashboards
+  - name: 'performance'
+    orgId: 1
+    folder: 'Performance'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/performance

@@ -1,0 +1,237 @@
+# UltraMCP ContextBuilderAgent 2.0 - Load Testing Configuration
+# Artillery.js performance testing suite
+
+config:
+  target: http://localhost:8020
+  phases:
+    # Warm-up phase
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up"
+    
+    # Ramp-up phase
+    - duration: 120
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp-up"
+    
+    # Sustained load phase
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained load"
+    
+    # Peak load phase
+    - duration: 120
+      arrivalRate: 50
+      rampTo: 100
+      name: "Peak load"
+    
+    # Cool-down phase
+    - duration: 60
+      arrivalRate: 100
+      rampTo: 5
+      name: "Cool-down"
+
+  variables:
+    context_id:
+      - "ctx-001"
+      - "ctx-002"
+      - "ctx-003"
+      - "ctx-004"
+      - "ctx-005"
+    
+    belief_type:
+      - "factual"
+      - "inferential"
+      - "hypothetical"
+    
+    validation_type:
+      - "semantic"
+      - "logical"
+      - "coherence"
+
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+scenarios:
+  # Core ContextBuilder API Load Test
+  - name: "Core Context Operations"
+    weight: 40
+    flow:
+      - get:
+          url: "/health"
+          name: "Health Check"
+      
+      - post:
+          url: "/api/context/validate"
+          name: "Context Validation"
+          json:
+            context_id: "{{ context_id }}"
+            validation_type: "{{ validation_type }}"
+            content: "This is a test context for validation"
+            coherence_threshold: 0.8
+          expect:
+            - statusCode: 200
+            - hasProperty: "coherence_score"
+      
+      - get:
+          url: "/api/context/{{ context_id }}/status"
+          name: "Context Status"
+          expect:
+            - statusCode: [200, 404]
+      
+      - post:
+          url: "/api/context/analyze"
+          name: "Context Analysis"
+          json:
+            context_id: "{{ context_id }}"
+            analysis_type: "comprehensive"
+            include_metrics: true
+          expect:
+            - statusCode: 200
+
+  # Belief Revision Load Test
+  - name: "Belief Revision Operations"
+    weight: 25
+    flow:
+      - post:
+          url: "/api/belief/revise"
+          name: "Belief Revision"
+          json:
+            context_id: "{{ context_id }}"
+            belief_type: "{{ belief_type }}"
+            original_belief: "Original belief statement"
+            new_evidence: "New contradictory evidence"
+            revision_strategy: "gradual"
+          expect:
+            - statusCode: 200
+            - hasProperty: "revised_belief"
+      
+      - get:
+          url: "/api/belief/history/{{ context_id }}"
+          name: "Belief History"
+          expect:
+            - statusCode: 200
+
+  # Prompt Assembly Load Test
+  - name: "Prompt Assembly Operations"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/prompt/assemble"
+          name: "Prompt Assembly"
+          json:
+            template_name: "default"
+            complexity_level: "advanced"
+            context_variables:
+              domain: "testing"
+              task_type: "analysis"
+              depth: "comprehensive"
+            optimization_enabled: true
+          expect:
+            - statusCode: 200
+            - hasProperty: "assembled_prompt"
+      
+      - get:
+          url: "/api/prompt/analytics"
+          name: "Prompt Analytics"
+          expect:
+            - statusCode: 200
+
+  # Observatory Monitoring Load Test
+  - name: "Observatory Operations"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/observatory/health"
+          name: "Observatory Health"
+          expect:
+            - statusCode: 200
+      
+      - get:
+          url: "/api/observatory/metrics"
+          name: "Observatory Metrics"
+          expect:
+            - statusCode: 200
+      
+      - post:
+          url: "/api/observatory/alert"
+          name: "Create Alert"
+          json:
+            alert_type: "performance"
+            severity: "warning"
+            message: "Load test alert"
+            service: "contextbuilder-core"
+          expect:
+            - statusCode: [200, 201]
+
+  # Utility Prediction Load Test
+  - name: "Utility Prediction Operations"
+    weight: 5
+    flow:
+      - post:
+          url: "/api/utility/predict"
+          name: "Utility Prediction"
+          json:
+            context_id: "{{ context_id }}"
+            prediction_horizon: "short"
+            features:
+              complexity: 0.7
+              novelty: 0.5
+              relevance: 0.9
+          expect:
+            - statusCode: 200
+            - hasProperty: "predicted_utility"
+
+# Performance expectations and SLA definitions
+expectations:
+  # Response time expectations
+  - responseTime:
+      p95: 2000  # 95th percentile under 2 seconds
+      p99: 5000  # 99th percentile under 5 seconds
+      max: 10000 # Maximum response time under 10 seconds
+  
+  # Error rate expectations
+  - errorRate:
+      max: 1  # Maximum 1% error rate
+  
+  # Throughput expectations
+  - throughput:
+      min: 100  # Minimum 100 requests per second
+
+# Custom metrics and reporting
+metrics:
+  - name: "context_operations_per_second"
+    expression: "rate(contextbuilder_http_requests_total{endpoint=~'/api/context/.*'}[1m])"
+  
+  - name: "average_coherence_score"
+    expression: "avg(contextbuilder_coherence_score_average)"
+  
+  - name: "belief_revision_latency"
+    expression: "histogram_quantile(0.95, contextbuilder_processing_time_seconds{operation_type='belief_revision'})"
+
+# Stress testing configuration
+stress:
+  phases:
+    - duration: 60
+      arrivalRate: 200
+      name: "Stress test"
+  
+  expectations:
+    - responseTime:
+        p95: 5000
+        max: 30000
+    - errorRate:
+        max: 5
+
+# Memory and resource monitoring
+monitoring:
+  - metric: "memory_usage"
+    threshold: 2048  # 2GB max memory
+  
+  - metric: "cpu_usage"
+    threshold: 80    # 80% max CPU
+  
+  - metric: "database_connections"
+    threshold: 100   # Max 100 DB connections

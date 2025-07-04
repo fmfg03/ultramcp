@@ -1,0 +1,32 @@
+# Sample Session Insights
+session_id: "sample_session_001"
+timestamp: "2025-07-04T06:30:00Z"
+source: "bootstrap_sample"
+
+insights:
+  pain_points_explicit:
+    - content: "Difficulty scaling current infrastructure"
+      confidence: 0.9
+      source: "sample_data"
+      timestamp: "2025-07-04T06:30:00Z"
+      
+  objetivos_declarados:
+    - content: "Achieve 99.9% uptime for critical services"
+      confidence: 0.8
+      source: "sample_data"
+      timestamp: "2025-07-04T06:30:00Z"
+      
+  senales_oportunidad:
+    - content: "Growing demand for AI-enhanced solutions"
+      confidence: 0.7
+      source: "sample_data"
+      timestamp: "2025-07-04T06:30:00Z"
+
+proposed_mutations:
+  - mutation_id: "add_scaling_challenge"
+    type: "ADD_INSIGHT"
+    target_domain: "PAIN_POINTS.problemas_actuales"
+    confidence: 0.9
+    requires_cod_validation: false
+    new_value: "Infrastructure scaling challenges"
+    source: "sample_session"

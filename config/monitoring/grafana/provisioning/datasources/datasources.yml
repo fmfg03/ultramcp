@@ -1,0 +1,76 @@
+# UltraMCP ContextBuilderAgent 2.0 - Grafana Datasources
+# Automatic Provisioning of Data Sources
+
+apiVersion: 1
+
+datasources:
+  # Prometheus Data Source
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    basicAuth: false
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      alertmanagerUid: alertmanager
+    version: 1
+
+  # Alertmanager Data Source
+  - name: Alertmanager
+    type: alertmanager
+    uid: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: true
+    jsonData:
+      implementation: prometheus
+    version: 1
+
+  # Loki Data Source for Logs
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - datasourceUid: jaeger
+          matcherRegex: "trace_id=(\\w+)"
+          name: TraceID
+          url: "$${__value.raw}"
+    version: 1
+
+  # Jaeger Data Source for Tracing
+  - name: Jaeger
+    type: jaeger
+    uid: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: true
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: false
+        filterBySpanID: false
+    version: 1
+
+  # Custom ContextBuilderAgent Metrics
+  - name: ContextBuilderMetrics
+    type: prometheus
+    access: proxy
+    url: http://contextbuilder-metrics-collector:8000
+    editable: true
+    basicAuth: false
+    jsonData:
+      httpMethod: GET
+      customQueryParameters: 'service=contextbuilder'
+    version: 1

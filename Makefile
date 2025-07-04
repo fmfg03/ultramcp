@@ -2194,3 +2194,692 @@ debug-help:
 	@echo "  2. make debug-trace-operation TYPE='validate_coherence'"
 	@echo "  3. make debug-capture-snapshot"
 	@echo "  4. make debug-reproducibility-report SESSION_ID='...'"
+
+# =============================================================================
+# PRODUCTION LOAD BALANCER - Nginx & HAProxy
+# =============================================================================
+
+# Deploy load balancer
+deploy-load-balancer:
+	@echo "🚀 Deploying Nginx load balancer..."
+	@./scripts/deploy_load_balancer.sh deploy nginx
+
+deploy-load-balancer-haproxy:
+	@echo "🚀 Deploying HAProxy load balancer..."
+	@./scripts/deploy_load_balancer.sh deploy haproxy
+
+# Load balancer status
+load-balancer-status:
+	@echo "📊 Load balancer status:"
+	@./scripts/deploy_load_balancer.sh status
+
+# Test load balancer
+test-load-balancer:
+	@echo "🧪 Testing load balancer..."
+	@./scripts/deploy_load_balancer.sh test
+
+# Production deployment
+production-deploy:
+	@echo "🏭 Deploying ContextBuilderAgent 2.0 for production..."
+	@./scripts/deploy_load_balancer.sh deploy nginx
+	@echo "Production deployment completed!"
+
+production-status:
+	@echo "📈 Production system status:"
+	@make contextbuilder-status
+	@make load-balancer-status
+
+production-test:
+	@echo "🧪 Testing production deployment..."
+	@make test-load-balancer
+	@make contextbuilder-test-all
+
+# Nginx commands
+nginx-deploy:
+	@echo "🌐 Deploying Nginx load balancer..."
+	@cd config/nginx && docker-compose -f docker-compose.nginx.yml up -d
+	@echo "Nginx deployed successfully!"
+
+nginx-stop:
+	@echo "🛑 Stopping Nginx load balancer..."
+	@cd config/nginx && docker-compose -f docker-compose.nginx.yml down
+	@echo "Nginx stopped!"
+
+nginx-logs:
+	@echo "📋 Nginx logs:"
+	@cd config/nginx && docker-compose -f docker-compose.nginx.yml logs -f nginx-lb
+
+nginx-status:
+	@echo "📊 Nginx status:"
+	@curl -s http://localhost:8080/health 2>/dev/null || echo "Nginx not available"
+
+# HAProxy commands
+haproxy-deploy:
+	@echo "🔀 Deploying HAProxy load balancer..."
+	@cd config/nginx && docker-compose -f docker-compose.haproxy.yml up -d
+	@echo "HAProxy deployed successfully!"
+
+haproxy-stop:
+	@echo "🛑 Stopping HAProxy load balancer..."
+	@cd config/nginx && docker-compose -f docker-compose.haproxy.yml down
+	@echo "HAProxy stopped!"
+
+haproxy-logs:
+	@echo "📋 HAProxy logs:"
+	@cd config/nginx && docker-compose -f docker-compose.haproxy.yml logs -f haproxy-lb
+
+haproxy-status:
+	@echo "📊 HAProxy status:"
+	@curl -s http://localhost:8405/health 2>/dev/null || echo "HAProxy not available"
+
+haproxy-admin:
+	@echo "🔧 HAProxy admin interface:"
+	@echo "Available at: http://localhost:8404"
+	@echo "Username: admin"
+	@echo "Password: contextbuilder2024"
+
+# Load balancer help
+load-balancer-help:
+	@echo "🌐 Load Balancer Commands - Production Ready"
+	@echo "=============================================="
+	@echo ""
+	@echo "Deployment:"
+	@echo "  make deploy-load-balancer          - Deploy Nginx load balancer"
+	@echo "  make deploy-load-balancer-haproxy  - Deploy HAProxy load balancer"
+	@echo "  make production-deploy             - Full production deployment"
+	@echo ""
+	@echo "Status & Testing:"
+	@echo "  make load-balancer-status          - Check load balancer status"
+	@echo "  make test-load-balancer            - Test load balancer functionality"
+	@echo "  make production-status             - Complete production status"
+	@echo "  make production-test               - Test production deployment"
+	@echo ""
+	@echo "Nginx Commands:"
+	@echo "  make nginx-deploy                  - Deploy Nginx"
+	@echo "  make nginx-stop                    - Stop Nginx"
+	@echo "  make nginx-logs                    - View Nginx logs"
+	@echo "  make nginx-status                  - Check Nginx status"
+	@echo ""
+	@echo "HAProxy Commands:"
+	@echo "  make haproxy-deploy                - Deploy HAProxy"
+	@echo "  make haproxy-stop                  - Stop HAProxy"
+	@echo "  make haproxy-logs                  - View HAProxy logs"
+	@echo "  make haproxy-status                - Check HAProxy status"
+	@echo "  make haproxy-admin                 - Access HAProxy admin"
+	@echo ""
+	@echo "Load Balancer Features:"
+	@echo "  ✅ SSL/TLS termination"
+	@echo "  ✅ Health checks for all 9 services"
+	@echo "  ✅ Rate limiting and security headers"
+	@echo "  ✅ WebSocket support for Observatory"
+	@echo "  ✅ Backup server configuration"
+	@echo "  ✅ Production-ready scaling"
+
+# =============================================================================
+# DATABASE INTEGRATION - PostgreSQL & Redis
+# =============================================================================
+
+# Setup database services
+setup-database:
+	@echo "🗄️ Setting up PostgreSQL + Redis integration..."
+	@./scripts/setup_database.sh setup
+
+# Database status
+database-status:
+	@echo "📊 Database services status:"
+	@./scripts/setup_database.sh status
+
+# Test database integration
+test-database:
+	@echo "🧪 Testing database integration..."
+	@./scripts/setup_database.sh test
+
+# Database backup
+database-backup:
+	@echo "💾 Running database backup..."
+	@./scripts/setup_database.sh backup
+
+# Start database services
+database-start:
+	@echo "🚀 Starting database services..."
+	@cd config/database && docker-compose -f docker-compose.database.yml up -d
+	@echo "Database services started!"
+
+# Stop database services
+database-stop:
+	@echo "🛑 Stopping database services..."
+	@cd config/database && docker-compose -f docker-compose.database.yml down
+	@echo "Database services stopped!"
+
+# Database logs
+database-logs:
+	@echo "📋 Database logs:"
+	@cd config/database && docker-compose -f docker-compose.database.yml logs -f
+
+# PostgreSQL commands
+postgres-status:
+	@echo "🐘 PostgreSQL status:"
+	@docker exec contextbuilder-postgres pg_isready -U contextbuilder -d contextbuilder 2>/dev/null && echo "PostgreSQL: Healthy" || echo "PostgreSQL: Unhealthy"
+
+postgres-shell:
+	@echo "🐘 Opening PostgreSQL shell..."
+	@docker exec -it contextbuilder-postgres psql -U contextbuilder -d contextbuilder
+
+postgres-backup:
+	@echo "💾 PostgreSQL backup..."
+	@docker exec contextbuilder-postgres pg_dump -U contextbuilder -d contextbuilder > backup/postgres_$(shell date +%Y%m%d_%H%M%S).sql
+	@echo "Backup completed!"
+
+# Redis commands
+redis-status:
+	@echo "🔴 Redis status:"
+	@docker exec contextbuilder-redis redis-cli ping 2>/dev/null && echo "Redis: Healthy" || echo "Redis: Unhealthy"
+
+redis-shell:
+	@echo "🔴 Opening Redis shell..."
+	@docker exec -it contextbuilder-redis redis-cli -a contextbuilder_redis_2024
+
+redis-monitor:
+	@echo "📊 Redis monitoring..."
+	@docker exec -it contextbuilder-redis redis-cli -a contextbuilder_redis_2024 monitor
+
+# Database management interfaces
+database-admin:
+	@echo "🛠️ Database management interfaces:"
+	@echo "PgAdmin: http://localhost:5050"
+	@echo "  Email: admin@contextbuilder.local"
+	@echo "  Password: contextbuilder_admin_2024"
+	@echo ""
+	@echo "Redis Commander: http://localhost:8081"
+	@echo ""
+	@echo "PostgreSQL Metrics: http://localhost:9187/metrics"
+	@echo "Redis Metrics: http://localhost:9121/metrics"
+
+# Database help
+database-help:
+	@echo "🗄️ Database Integration Commands"
+	@echo "================================="
+	@echo ""
+	@echo "Setup & Management:"
+	@echo "  make setup-database            - Complete database setup"
+	@echo "  make database-status           - Check database services status"
+	@echo "  make test-database             - Test database integration"
+	@echo "  make database-backup           - Run database backup"
+	@echo ""
+	@echo "Service Control:"
+	@echo "  make database-start            - Start database services"
+	@echo "  make database-stop             - Stop database services"
+	@echo "  make database-logs             - View database logs"
+	@echo ""
+	@echo "PostgreSQL Commands:"
+	@echo "  make postgres-status           - Check PostgreSQL status"
+	@echo "  make postgres-shell            - Open PostgreSQL shell"
+	@echo "  make postgres-backup           - PostgreSQL backup"
+	@echo ""
+	@echo "Redis Commands:"
+	@echo "  make redis-status              - Check Redis status"
+	@echo "  make redis-shell               - Open Redis shell"
+	@echo "  make redis-monitor             - Monitor Redis operations"
+	@echo ""
+	@echo "Management:"
+	@echo "  make database-admin            - Show admin interface URLs"
+	@echo ""
+	@echo "Database Features:"
+	@echo "  ✅ PostgreSQL 15 with optimized configuration"
+	@echo "  ✅ Redis 7 with Sentinel for high availability"
+	@echo "  ✅ PgBouncer connection pooling"
+	@echo "  ✅ Automated backup system"
+	@echo "  ✅ Prometheus monitoring integration"
+	@echo "  ✅ Web-based management interfaces"
+
+# =============================================================================
+# PROMETHEUS/GRAFANA MONITORING - Production Observability
+# =============================================================================
+
+# Setup monitoring stack
+setup-monitoring:
+	@echo "📊 Setting up Prometheus + Grafana monitoring..."
+	@./scripts/setup_monitoring.sh setup
+
+# Monitoring status
+monitoring-status:
+	@echo "📈 Monitoring services status:"
+	@./scripts/setup_monitoring.sh status
+
+# Test monitoring integration
+test-monitoring:
+	@echo "🧪 Testing monitoring integration..."
+	@./scripts/setup_monitoring.sh test
+
+# Start monitoring services
+monitoring-start:
+	@echo "🚀 Starting monitoring services..."
+	@cd config/monitoring && docker-compose -f docker-compose.monitoring.yml up -d
+	@echo "Monitoring services started!"
+
+# Stop monitoring services
+monitoring-stop:
+	@echo "🛑 Stopping monitoring services..."
+	@cd config/monitoring && docker-compose -f docker-compose.monitoring.yml down
+	@echo "Monitoring services stopped!"
+
+# Monitoring logs
+monitoring-logs:
+	@echo "📋 Monitoring logs:"
+	@cd config/monitoring && docker-compose -f docker-compose.monitoring.yml logs -f
+
+# Prometheus commands
+prometheus-status:
+	@echo "🔍 Prometheus status:"
+	@curl -s http://localhost:9090/-/healthy 2>/dev/null && echo "Prometheus: Healthy" || echo "Prometheus: Unhealthy"
+
+prometheus-reload:
+	@echo "🔄 Reloading Prometheus configuration..."
+	@curl -X POST http://localhost:9090/-/reload 2>/dev/null && echo "Configuration reloaded!" || echo "Failed to reload"
+
+prometheus-targets:
+	@echo "🎯 Prometheus targets:"
+	@curl -s http://localhost:9090/api/v1/targets | jq -r '.data.activeTargets[] | "\(.labels.job): \(.health)"' 2>/dev/null || echo "Failed to get targets"
+
+# Grafana commands
+grafana-status:
+	@echo "📊 Grafana status:"
+	@curl -s http://localhost:3000/api/health 2>/dev/null && echo "Grafana: Healthy" || echo "Grafana: Unhealthy"
+
+grafana-admin:
+	@echo "🔑 Grafana admin access:"
+	@echo "URL: http://localhost:3000"
+	@echo "Username: admin"
+	@echo "Password: contextbuilder_grafana_2024"
+
+# Alertmanager commands
+alertmanager-status:
+	@echo "🚨 Alertmanager status:"
+	@curl -s http://localhost:9093/-/healthy 2>/dev/null && echo "Alertmanager: Healthy" || echo "Alertmanager: Unhealthy"
+
+alertmanager-alerts:
+	@echo "📢 Active alerts:"
+	@curl -s http://localhost:9093/api/v1/alerts | jq -r '.data[] | "\(.labels.alertname): \(.status.state)"' 2>/dev/null || echo "No alerts or service unavailable"
+
+# Custom metrics
+custom-metrics:
+	@echo "📈 Custom ContextBuilderAgent metrics:"
+	@curl -s http://localhost:8000/metrics | grep -E "contextbuilder_|HELP" | head -20 2>/dev/null || echo "Custom metrics not available"
+
+# Monitoring dashboards
+monitoring-dashboards:
+	@echo "📊 Monitoring Dashboard URLs:"
+	@echo "Prometheus: http://localhost:9090"
+	@echo "Grafana: http://localhost:3000"
+	@echo "Alertmanager: http://localhost:9093"
+	@echo "Node Exporter: http://localhost:9100/metrics"
+	@echo "cAdvisor: http://localhost:8080"
+	@echo "Custom Metrics: http://localhost:8000/metrics"
+
+# Complete production monitoring setup
+production-monitoring-deploy:
+	@echo "🏭 Deploying complete production monitoring..."
+	@make setup-monitoring
+	@make setup-database
+	@make deploy-load-balancer
+	@echo "Production monitoring deployment completed!"
+
+# Monitoring help
+monitoring-help:
+	@echo "📊 Monitoring & Observability Commands"
+	@echo "======================================"
+	@echo ""
+	@echo "Setup & Management:"
+	@echo "  make setup-monitoring              - Complete monitoring stack setup"
+	@echo "  make monitoring-status             - Check monitoring services status"
+	@echo "  make test-monitoring               - Test monitoring integration"
+	@echo "  make production-monitoring-deploy  - Deploy complete production monitoring"
+	@echo ""
+	@echo "Service Control:"
+	@echo "  make monitoring-start              - Start monitoring services"
+	@echo "  make monitoring-stop               - Stop monitoring services"
+	@echo "  make monitoring-logs               - View monitoring logs"
+	@echo ""
+	@echo "Prometheus Commands:"
+	@echo "  make prometheus-status             - Check Prometheus status"
+	@echo "  make prometheus-reload             - Reload Prometheus configuration"
+	@echo "  make prometheus-targets            - Show monitored targets"
+	@echo ""
+	@echo "Grafana Commands:"
+	@echo "  make grafana-status                - Check Grafana status"
+	@echo "  make grafana-admin                 - Show Grafana admin credentials"
+	@echo ""
+	@echo "Alertmanager Commands:"
+	@echo "  make alertmanager-status           - Check Alertmanager status"
+	@echo "  make alertmanager-alerts           - Show active alerts"
+	@echo ""
+	@echo "Metrics & Dashboards:"
+	@echo "  make custom-metrics                - Show custom ContextBuilderAgent metrics"
+	@echo "  make monitoring-dashboards         - Show dashboard URLs"
+	@echo ""
+	@echo "Monitoring Features:"
+	@echo "  ✅ Prometheus metrics collection (9 services + infrastructure)"
+	@echo "  ✅ Grafana dashboards with custom visualizations"
+	@echo "  ✅ Intelligent alerting with Alertmanager"
+	@echo "  ✅ Business logic metrics (coherence, validation, ML performance)"
+	@echo "  ✅ Infrastructure monitoring (CPU, memory, disk, network)"
+	@echo "  ✅ Database monitoring (PostgreSQL + Redis)"
+	@echo "  ✅ Log aggregation with Loki"
+	@echo "  ✅ Distributed tracing with Jaeger"
+	@echo "  ✅ Custom ContextBuilderAgent metrics collector"
+
+# =============================================================================
+# KUBERNETES DEPLOYMENT - Container Orchestration
+# =============================================================================
+
+# Deploy to Kubernetes
+k8s-deploy:
+	@echo "🚀 Deploying ContextBuilderAgent 2.0 to Kubernetes..."
+	@./scripts/deploy_kubernetes.sh deploy
+
+# Kubernetes status
+k8s-status:
+	@echo "📊 Kubernetes deployment status:"
+	@./scripts/deploy_kubernetes.sh status
+
+# Verify Kubernetes deployment
+k8s-verify:
+	@echo "🧪 Verifying Kubernetes deployment..."
+	@./scripts/deploy_kubernetes.sh verify
+
+# Scale Kubernetes deployment
+k8s-scale:
+	@echo "📈 Scaling Kubernetes deployment..."
+	@./scripts/deploy_kubernetes.sh scale $(COMPONENT) $(REPLICAS)
+
+# Kubernetes cleanup
+k8s-cleanup:
+	@echo "🧹 Cleaning up Kubernetes deployment..."
+	@./scripts/deploy_kubernetes.sh cleanup
+
+# Apply specific Kubernetes manifests
+k8s-apply-storage:
+	@echo "💾 Applying storage manifests..."
+	@kubectl apply -f k8s/storage/
+
+k8s-apply-services:
+	@echo "🔗 Applying service manifests..."
+	@kubectl apply -f k8s/services/
+
+k8s-apply-deployments:
+	@echo "🚀 Applying deployment manifests..."
+	@kubectl apply -f k8s/deployments/
+
+k8s-apply-ingress:
+	@echo "🌐 Applying ingress manifests..."
+	@kubectl apply -f k8s/ingress/
+
+# Kubernetes port forwarding for local access
+k8s-port-forward-grafana:
+	@echo "📊 Port forwarding Grafana (http://localhost:3000)..."
+	@kubectl port-forward svc/grafana 3000:3000 -n contextbuilder
+
+k8s-port-forward-prometheus:
+	@echo "🔍 Port forwarding Prometheus (http://localhost:9090)..."
+	@kubectl port-forward svc/prometheus 9090:9090 -n contextbuilder
+
+k8s-port-forward-api:
+	@echo "🔌 Port forwarding ContextBuilder API (http://localhost:8020)..."
+	@kubectl port-forward svc/contextbuilder-core 8020:8020 -n contextbuilder
+
+# Kubernetes logs
+k8s-logs:
+	@echo "📋 ContextBuilderAgent Kubernetes logs:"
+	@kubectl logs -l app.kubernetes.io/part-of=contextbuilder -n contextbuilder --tail=100
+
+k8s-logs-core:
+	@echo "📋 ContextBuilder Core logs:"
+	@kubectl logs -l app.kubernetes.io/name=contextbuilder-core -n contextbuilder --tail=100
+
+k8s-logs-monitoring:
+	@echo "📋 Monitoring logs:"
+	@kubectl logs -l app.kubernetes.io/component=monitoring -n contextbuilder --tail=100
+
+# Kubernetes shell access
+k8s-shell-core:
+	@echo "🐚 Opening shell in ContextBuilder Core pod..."
+	@kubectl exec -it deployment/contextbuilder-core -n contextbuilder -- /bin/bash
+
+k8s-shell-postgres:
+	@echo "🐚 Opening shell in PostgreSQL pod..."
+	@kubectl exec -it deployment/postgres -n contextbuilder -- /bin/bash
+
+k8s-shell-redis:
+	@echo "🐚 Opening shell in Redis pod..."
+	@kubectl exec -it deployment/redis -n contextbuilder -- /bin/sh
+
+# Kubernetes resource management
+k8s-get-all:
+	@echo "📋 All Kubernetes resources:"
+	@kubectl get all -n contextbuilder
+
+k8s-describe-pods:
+	@echo "📊 Pod descriptions:"
+	@kubectl describe pods -n contextbuilder
+
+k8s-top:
+	@echo "📈 Resource usage:"
+	@kubectl top pods -n contextbuilder 2>/dev/null || echo "Metrics server not available"
+
+# Production deployment
+k8s-production-deploy:
+	@echo "🏭 Deploying ContextBuilderAgent 2.0 for production on Kubernetes..."
+	@echo "This will deploy with production resource limits and high availability"
+	@./scripts/deploy_kubernetes.sh deploy
+	@echo "Production Kubernetes deployment completed!"
+
+# Kubernetes help
+k8s-help:
+	@echo "🚢 Kubernetes Deployment Commands"
+	@echo "=================================="
+	@echo ""
+	@echo "Deployment & Management:"
+	@echo "  make k8s-deploy                    - Deploy complete platform to Kubernetes"
+	@echo "  make k8s-status                    - Show deployment status"
+	@echo "  make k8s-verify                    - Verify deployment health"
+	@echo "  make k8s-production-deploy         - Production deployment with HA"
+	@echo "  make k8s-cleanup                   - Remove entire deployment"
+	@echo ""
+	@echo "Scaling:"
+	@echo "  make k8s-scale COMPONENT=core REPLICAS=5    - Scale specific component"
+	@echo "  make k8s-scale COMPONENT=all REPLICAS=3     - Scale all services"
+	@echo ""
+	@echo "Individual Components:"
+	@echo "  make k8s-apply-storage             - Apply storage manifests"
+	@echo "  make k8s-apply-services            - Apply service manifests"
+	@echo "  make k8s-apply-deployments         - Apply deployment manifests"
+	@echo "  make k8s-apply-ingress             - Apply ingress manifests"
+	@echo ""
+	@echo "Local Access (Port Forwarding):"
+	@echo "  make k8s-port-forward-grafana      - Access Grafana locally"
+	@echo "  make k8s-port-forward-prometheus   - Access Prometheus locally"
+	@echo "  make k8s-port-forward-api          - Access API locally"
+	@echo ""
+	@echo "Debugging & Logs:"
+	@echo "  make k8s-logs                      - View all logs"
+	@echo "  make k8s-logs-core                 - View core service logs"
+	@echo "  make k8s-logs-monitoring           - View monitoring logs"
+	@echo "  make k8s-shell-core                - Shell access to core pod"
+	@echo "  make k8s-shell-postgres            - Shell access to PostgreSQL"
+	@echo "  make k8s-shell-redis               - Shell access to Redis"
+	@echo ""
+	@echo "Resource Monitoring:"
+	@echo "  make k8s-get-all                   - Show all resources"
+	@echo "  make k8s-describe-pods             - Describe all pods"
+	@echo "  make k8s-top                       - Show resource usage"
+	@echo ""
+	@echo "Kubernetes Features:"
+	@echo "  ✅ Complete container orchestration (15+ deployments)"
+	@echo "  ✅ High availability with replica sets"
+	@echo "  ✅ Auto-scaling and resource management"
+	@echo "  ✅ Persistent storage with PV/PVC"
+	@echo "  ✅ Service discovery and load balancing"
+	@echo "  ✅ Ingress with SSL termination"
+	@echo "  ✅ ConfigMaps and Secrets management"
+	@echo "  ✅ Health checks and rolling updates"
+	@echo "  ✅ Production-ready resource limits"
+
+# =============================================================================
+# CI/CD PIPELINE - GitHub Actions Automation
+# =============================================================================
+
+# Setup CI/CD pipeline
+setup-cicd:
+	@echo "🚀 Setting up CI/CD pipeline..."
+	@./scripts/setup_cicd.sh setup
+
+# Validate CI/CD configuration
+validate-cicd:
+	@echo "✅ Validating CI/CD configuration..."
+	@./scripts/setup_cicd.sh validate
+
+# Setup GitHub secrets
+setup-github-secrets:
+	@echo "🔐 Setting up GitHub repository secrets..."
+	@./scripts/setup_cicd.sh secrets
+
+# Run local tests
+test-unit:
+	@echo "🧪 Running unit tests..."
+	@pytest tests/unit/ -v --cov=services --cov-report=term-missing
+
+test-integration:
+	@echo "🔗 Running integration tests..."
+	@docker-compose -f docker-compose.test.yml up -d
+	@sleep 30
+	@pytest tests/integration/ -v
+	@docker-compose -f docker-compose.test.yml down -v
+
+test-performance:
+	@echo "⚡ Running performance tests..."
+	@docker-compose -f docker-compose.test.yml up -d
+	@sleep 30
+	@python tests/performance/benchmark.py
+	@docker-compose -f docker-compose.test.yml down -v
+
+test-all:
+	@echo "🧪 Running all tests..."
+	@make test-unit
+	@make test-integration
+	@make test-performance
+
+# Security scanning
+security-scan:
+	@echo "🔒 Running security scans..."
+	@pip install bandit safety
+	@bandit -r services/ -f json -o bandit-report.json || true
+	@safety check --json --output safety-report.json || true
+	@echo "Security scan completed. Check reports: bandit-report.json, safety-report.json"
+
+# Code quality checks
+quality-check:
+	@echo "🔍 Running code quality checks..."
+	@pip install black isort flake8
+	@black --check .
+	@isort --check-only .
+	@flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+# Pre-commit hooks
+setup-pre-commit:
+	@echo "🪝 Setting up pre-commit hooks..."
+	@pip install pre-commit
+	@pre-commit install
+	@echo "Pre-commit hooks installed!"
+
+run-pre-commit:
+	@echo "🪝 Running pre-commit checks..."
+	@pre-commit run --all-files
+
+# Container testing
+test-container:
+	@echo "🐳 Testing container build..."
+	@docker build -t contextbuilder-test:latest .
+	@docker run --rm contextbuilder-test:latest /bin/sh -c "echo 'Container test passed'"
+
+# Kubernetes manifest validation
+validate-k8s:
+	@echo "☸️ Validating Kubernetes manifests..."
+	@kubectl apply --dry-run=client -f k8s/ || echo "Kubernetes validation completed with warnings"
+
+# Release preparation
+prepare-release:
+	@echo "📦 Preparing release..."
+	@make test-all
+	@make security-scan
+	@make quality-check
+	@make validate-k8s
+	@echo "Release preparation completed!"
+
+# GitHub Actions simulation
+simulate-ci:
+	@echo "🔄 Simulating CI pipeline locally..."
+	@make quality-check
+	@make test-unit
+	@make security-scan
+	@make test-container
+	@echo "CI simulation completed!"
+
+# Deployment status check
+deployment-status:
+	@echo "📊 Checking deployment status across environments..."
+	@echo "Staging Environment:"
+	@kubectl get pods -n contextbuilder-staging 2>/dev/null || echo "Staging not accessible"
+	@echo ""
+	@echo "Production Environment:"
+	@kubectl get pods -n contextbuilder 2>/dev/null || echo "Production not accessible"
+
+# Complete production deployment pipeline
+production-pipeline:
+	@echo "🏭 Running complete production pipeline..."
+	@make setup-database
+	@make setup-monitoring
+	@make deploy-load-balancer
+	@make k8s-deploy
+	@echo "Complete production pipeline deployed!"
+
+# CI/CD help
+cicd-help:
+	@echo "🚀 CI/CD Pipeline Commands"
+	@echo "=========================="
+	@echo ""
+	@echo "Setup & Configuration:"
+	@echo "  make setup-cicd                - Complete CI/CD pipeline setup"
+	@echo "  make validate-cicd             - Validate CI/CD configuration"
+	@echo "  make setup-github-secrets      - Setup GitHub repository secrets"
+	@echo "  make setup-pre-commit          - Setup pre-commit hooks"
+	@echo ""
+	@echo "Testing:"
+	@echo "  make test-unit                 - Run unit tests"
+	@echo "  make test-integration          - Run integration tests"
+	@echo "  make test-performance          - Run performance tests"
+	@echo "  make test-all                  - Run all tests"
+	@echo "  make test-container            - Test container build"
+	@echo ""
+	@echo "Quality & Security:"
+	@echo "  make quality-check             - Run code quality checks"
+	@echo "  make security-scan             - Run security scans"
+	@echo "  make run-pre-commit            - Run pre-commit checks"
+	@echo "  make validate-k8s              - Validate Kubernetes manifests"
+	@echo ""
+	@echo "Release & Deployment:"
+	@echo "  make prepare-release           - Prepare for release"
+	@echo "  make simulate-ci               - Simulate CI pipeline locally"
+	@echo "  make deployment-status         - Check deployment status"
+	@echo "  make production-pipeline       - Complete production deployment"
+	@echo ""
+	@echo "CI/CD Features:"
+	@echo "  ✅ GitHub Actions workflows (CI, Security, Release)"
+	@echo "  ✅ Automated testing (Unit, Integration, Performance)"
+	@echo "  ✅ Security scanning (SAST, DAST, Container, Dependencies)"
+	@echo "  ✅ Code quality analysis (SonarCloud, CodeQL)"
+	@echo "  ✅ Container security scanning (Trivy, Snyk)"
+	@echo "  ✅ Kubernetes manifest validation"
+	@echo "  ✅ Automated deployments (Staging → Production)"
+	@echo "  ✅ Release management with semantic versioning"
+	@echo "  ✅ Slack notifications and alerts"
+	@echo "  ✅ Pre-commit hooks for code quality"

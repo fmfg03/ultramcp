@@ -1,0 +1,142 @@
+# UltraMCP ContextBuilderAgent 2.0 - Production Resource Patches
+# Resource limits and requests for production environment
+
+---
+# ContextBuilder Core - Production Resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contextbuilder-core
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: contextbuilder-core
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+
+---
+# Prompt Assembler - Production Resources (Higher for ML workloads)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prompt-assembler
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: prompt-assembler
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"
+              cpu: "1500m"
+
+---
+# Context Observatory - Production Resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: context-observatory
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: context-observatory
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+
+---
+# PostgreSQL - Production Resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: postgresql
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+
+---
+# Redis - Production Resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: redis
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+
+---
+# Prometheus - Production Resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: prometheus
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+
+---
+# Grafana - Production Resources
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: contextbuilder
+spec:
+  template:
+    spec:
+      containers:
+        - name: grafana
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"

@@ -1,0 +1,111 @@
+# UltraMCP ContextBuilderAgent 2.0 - Kustomization
+# Complete Kubernetes deployment configuration
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: contextbuilder-2.0
+  labels:
+    app.kubernetes.io/name: contextbuilder-agent
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: platform
+    app.kubernetes.io/part-of: ultramcp
+
+# Namespace
+namespace: contextbuilder
+
+# Resources
+resources:
+  # Core Infrastructure
+  - namespace.yaml
+  
+  # Storage
+  - storage/persistent-volumes.yaml
+  - storage/persistent-volume-claims.yaml
+  
+  # Configuration and Secrets
+  - configmaps/redis-config.yaml
+  - configmaps/postgres-config.yaml
+  - secrets/database-secrets.yaml
+  
+  # Services
+  - services/database-services.yaml
+  - services/contextbuilder-services.yaml
+  - services/monitoring-services.yaml
+  
+  # Deployments
+  - deployments/database-deployments.yaml
+  - deployments/contextbuilder-deployments.yaml
+  - deployments/monitoring-deployments.yaml
+  
+  # Ingress
+  - ingress/ingress.yaml
+
+# Common Labels
+commonLabels:
+  app.kubernetes.io/part-of: contextbuilder
+  app.kubernetes.io/managed-by: kustomize
+  version: "2.0"
+  environment: production
+
+# Common Annotations
+commonAnnotations:
+  contact: "admin@contextbuilder.local"
+  documentation: "https://github.com/ultramcp/contextbuilder-agent"
+  description: "UltraMCP ContextBuilderAgent 2.0 - Next-Generation Semantic Coherence Platform"
+
+# Images (can be overridden for different environments)
+images:
+  - name: ultramcp/contextbuilder-agent
+    newTag: "2.0"
+  - name: postgres
+    newTag: "15-alpine"
+  - name: redis
+    newTag: "7-alpine"
+  - name: prom/prometheus
+    newTag: "latest"
+  - name: grafana/grafana
+    newTag: "latest"
+
+# Resource Generators
+configMapGenerator:
+  - name: prometheus-config
+    files:
+      - config/monitoring/prometheus.yml
+  - name: alertmanager-config
+    files:
+      - config/monitoring/alertmanager.yml
+  - name: metrics-collector-code
+    files:
+      - config/monitoring/collector/metrics_collector.py
+
+# Patches for different environments
+patchesStrategicMerge:
+  # Production patches (can be overridden)
+  - patches/production-resources.yaml
+
+# Replicas (can be overridden for scaling)
+replicas:
+  - name: contextbuilder-core
+    count: 3
+  - name: prompt-assembler
+    count: 3
+  - name: context-observatory
+    count: 2
+  - name: belief-reviser
+    count: 2
+  - name: contradiction-resolver
+    count: 2
+  - name: utility-predictor
+    count: 2
+  - name: context-drift-detector
+    count: 2
+  - name: context-memory-tuner
+    count: 2
+  - name: deterministic-debug
+    count: 1
+  - name: pgbouncer
+    count: 2
+  - name: metrics-collector
+    count: 2

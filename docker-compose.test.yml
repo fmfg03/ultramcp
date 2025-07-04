@@ -1,0 +1,166 @@
+# UltraMCP ContextBuilderAgent 2.0 - Testing Environment
+# Docker Compose for CI/CD integration and testing
+
+version: '3.8'
+
+services:
+  # Test PostgreSQL Database
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: contextbuilder-postgres-test
+    environment:
+      - POSTGRES_DB=contextbuilder_test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./config/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d contextbuilder_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Test Redis Cache
+  redis-test:
+    image: redis:7-alpine
+    container_name: contextbuilder-redis-test
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_test_data:/data
+      - ./config/database/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ContextBuilder Core Service - Test
+  contextbuilder-core-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: contextbuilder-core-test
+    ports:
+      - "8020:8020"
+    environment:
+      - SERVICE_NAME=contextbuilder-core
+      - SERVICE_PORT=8020
+      - REDIS_URL=redis://redis-test:6379
+      - POSTGRES_URL=postgresql://test:test@postgres-test:5432/contextbuilder_test
+      - ENVIRONMENT=test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Belief Reviser Service - Test
+  belief-reviser-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: belief-reviser-test
+    ports:
+      - "8022:8022"
+    environment:
+      - SERVICE_NAME=belief-reviser
+      - SERVICE_PORT=8022
+      - REDIS_URL=redis://redis-test:6379
+      - POSTGRES_URL=postgresql://test:test@postgres-test:5432/contextbuilder_test
+      - ENVIRONMENT=test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8022/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prompt Assembler Service - Test
+  prompt-assembler-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: prompt-assembler-test
+    ports:
+      - "8027:8027"
+    environment:
+      - SERVICE_NAME=prompt-assembler
+      - SERVICE_PORT=8027
+      - REDIS_URL=redis://redis-test:6379
+      - POSTGRES_URL=postgresql://test:test@postgres-test:5432/contextbuilder_test
+      - ENVIRONMENT=test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8027/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Context Observatory Service - Test
+  context-observatory-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: context-observatory-test
+    ports:
+      - "8028:8028"
+    environment:
+      - SERVICE_NAME=context-observatory
+      - SERVICE_PORT=8028
+      - REDIS_URL=redis://redis-test:6379
+      - POSTGRES_URL=postgresql://test:test@postgres-test:5432/contextbuilder_test
+      - ENVIRONMENT=test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8028/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Test Load Balancer (Nginx)
+  nginx-test:
+    image: nginx:alpine
+    container_name: contextbuilder-nginx-test
+    ports:
+      - "8080:80"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - contextbuilder-core-test
+      - belief-reviser-test
+      - prompt-assembler-test
+      - context-observatory-test
+
+volumes:
+  postgres_test_data:
+  redis_test_data:
+
+networks:
+  default:
+    name: contextbuilder-test-network

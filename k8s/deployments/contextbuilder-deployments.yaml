@@ -1,0 +1,674 @@
+# UltraMCP ContextBuilderAgent 2.0 - ContextBuilder Deployments
+# Kubernetes Deployments for all 9 ContextBuilderAgent microservices
+
+---
+# ContextBuilder Core Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contextbuilder-core
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: contextbuilder-core
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: core
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: contextbuilder-core
+      app.kubernetes.io/component: core
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: contextbuilder-core
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: core
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: contextbuilder-core
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8020
+              name: http
+            - containerPort: 8021
+              name: metrics
+          env:
+            - name: SERVICE_NAME
+              value: "contextbuilder-core"
+            - name: SERVICE_PORT
+              value: "8020"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+            - name: ENVIRONMENT
+              value: "production"
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8020
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8020
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Belief Reviser Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: belief-reviser
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: belief-reviser
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: belief-reviser
+      app.kubernetes.io/component: mutation-evaluator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: belief-reviser
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: mutation-evaluator
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: belief-reviser
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8022
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "belief-reviser"
+            - name: SERVICE_PORT
+              value: "8022"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8022
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8022
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Contradiction Resolver Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contradiction-resolver
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: contradiction-resolver
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: contradiction-resolver
+      app.kubernetes.io/component: mutation-evaluator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: contradiction-resolver
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: mutation-evaluator
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: contradiction-resolver
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8024
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "contradiction-resolver"
+            - name: SERVICE_PORT
+              value: "8024"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8024
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8024
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Utility Predictor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: utility-predictor
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: utility-predictor
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: utility-predictor
+      app.kubernetes.io/component: mutation-evaluator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: utility-predictor
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: mutation-evaluator
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: utility-predictor
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8025
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "utility-predictor"
+            - name: SERVICE_PORT
+              value: "8025"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8025
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8025
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Context Drift Detector Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: context-drift-detector
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: context-drift-detector
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: mutation-evaluator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: context-drift-detector
+      app.kubernetes.io/component: mutation-evaluator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: context-drift-detector
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: mutation-evaluator
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: context-drift-detector
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8026
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "context-drift-detector"
+            - name: SERVICE_PORT
+              value: "8026"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8026
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8026
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Prompt Assembler Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prompt-assembler
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: prompt-assembler
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: prompt-generator
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prompt-assembler
+      app.kubernetes.io/component: prompt-generator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prompt-assembler
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: prompt-generator
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: prompt-assembler
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8027
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "prompt-assembler"
+            - name: SERVICE_PORT
+              value: "8027"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8027
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8027
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Context Observatory Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: context-observatory
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: context-observatory
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: monitoring
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: context-observatory
+      app.kubernetes.io/component: monitoring
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: context-observatory
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: monitoring
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: context-observatory
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8028
+              name: http
+            - containerPort: 8029
+              name: websocket
+          env:
+            - name: SERVICE_NAME
+              value: "context-observatory"
+            - name: SERVICE_PORT
+              value: "8028"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8028
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8028
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Deterministic Debug Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deterministic-debug
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: deterministic-debug
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: debug
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: deterministic-debug
+      app.kubernetes.io/component: debug
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: deterministic-debug
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: debug
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: deterministic-debug
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8029
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "deterministic-debug"
+            - name: SERVICE_PORT
+              value: "8029"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8029
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8029
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc
+
+---
+# Context Memory Tuner Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: context-memory-tuner
+  namespace: contextbuilder
+  labels:
+    app.kubernetes.io/name: context-memory-tuner
+    app.kubernetes.io/version: "2.0"
+    app.kubernetes.io/component: memory-tuner
+    app.kubernetes.io/part-of: contextbuilder
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: context-memory-tuner
+      app.kubernetes.io/component: memory-tuner
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: context-memory-tuner
+        app.kubernetes.io/version: "2.0"
+        app.kubernetes.io/component: memory-tuner
+        app.kubernetes.io/part-of: contextbuilder
+    spec:
+      containers:
+        - name: context-memory-tuner
+          image: ultramcp/contextbuilder-agent:2.0
+          ports:
+            - containerPort: 8030
+              name: http
+          env:
+            - name: SERVICE_NAME
+              value: "context-memory-tuner"
+            - name: SERVICE_PORT
+              value: "8030"
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: redis-url
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: postgres-url
+          volumeMounts:
+            - name: context-data
+              mountPath: /.context
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8030
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8030
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: context-data
+          persistentVolumeClaim:
+            claimName: context-data-pvc

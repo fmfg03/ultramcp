@@ -1,0 +1,303 @@
+# UltraMCP ContextBuilderAgent 2.0 - Prometheus Alert Rules
+# Comprehensive Alerting for Production Environment
+
+groups:
+  - name: contextbuilder-services
+    rules:
+      # Service Health Alerts
+      - alert: ContextBuilderServiceDown
+        expr: up{job=~"contextbuilder-.*|belief-.*|contradiction-.*|utility-.*|context-.*|prompt-.*|deterministic-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: contextbuilder
+        annotations:
+          summary: "ContextBuilderAgent service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+
+      # High Response Time Alerts
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95",job=~"contextbuilder-.*"} > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High response time for {{ $labels.job }}"
+          description: "95th percentile response time for {{ $labels.job }} is {{ $value }}s for 5 minutes."
+
+      # High Error Rate Alerts
+      - alert: HighErrorRate
+        expr: (rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High error rate for {{ $labels.job }}"
+          description: "Error rate for {{ $labels.job }} is {{ $value | humanizePercentage }} for 3 minutes."
+
+      # Memory Usage Alerts
+      - alert: HighMemoryUsage
+        expr: (process_resident_memory_bytes / 1024 / 1024) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High memory usage for {{ $labels.job }}"
+          description: "Memory usage for {{ $labels.job }} is {{ $value }}MB for 5 minutes."
+
+      # CPU Usage Alerts
+      - alert: HighCPUUsage
+        expr: rate(process_cpu_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High CPU usage for {{ $labels.job }}"
+          description: "CPU usage for {{ $labels.job }} is {{ $value | humanizePercentage }} for 5 minutes."
+
+  - name: contextbuilder-business-logic
+    rules:
+      # Coherence Score Alerts
+      - alert: LowCoherenceScore
+        expr: contextbuilder_coherence_score_average < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "Low coherence score detected"
+          description: "Average coherence score has been below 0.7 for 10 minutes: {{ $value }}"
+
+      # Context Validation Failure Rate
+      - alert: HighValidationFailureRate
+        expr: (rate(contextbuilder_validation_failures_total[5m]) / rate(contextbuilder_validation_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High context validation failure rate"
+          description: "Validation failure rate is {{ $value | humanizePercentage }} for 5 minutes."
+
+      # Belief Revision Anomalies
+      - alert: ExcessiveBeliefRevisions
+        expr: rate(contextbuilder_belief_revisions_total[1h]) > 100
+        for: 15m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "Excessive belief revisions detected"
+          description: "Belief revision rate is {{ $value }} per hour for 15 minutes."
+
+      # Context Drift Detection
+      - alert: HighContextDrift
+        expr: contextbuilder_context_drift_magnitude > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High context drift detected"
+          description: "Context drift magnitude is {{ $value }} for 5 minutes."
+
+      # Utility Prediction Accuracy
+      - alert: LowPredictionAccuracy
+        expr: contextbuilder_utility_prediction_accuracy < 0.8
+        for: 30m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "Low utility prediction accuracy"
+          description: "Prediction accuracy has been below 80% for 30 minutes: {{ $value }}"
+
+  - name: database-alerts
+    rules:
+      # PostgreSQL Down
+      - alert: PostgreSQLDown
+        expr: up{job="postgres-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      # High Database Connections
+      - alert: HighDatabaseConnections
+        expr: pg_stat_activity_count > 150
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High number of database connections"
+          description: "Number of database connections is {{ $value }} for 5 minutes."
+
+      # Database Lock Waits
+      - alert: DatabaseLockWaits
+        expr: pg_locks_count{mode="ExclusiveLock"} > 10
+        for: 2m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Database lock waits detected"
+          description: "{{ $value }} exclusive locks detected for 2 minutes."
+
+      # Redis Down
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Redis is down"
+          description: "Redis server has been down for more than 1 minute."
+
+      # High Redis Memory Usage
+      - alert: HighRedisMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }} for 5 minutes."
+
+  - name: system-alerts
+    rules:
+      # High System Load
+      - alert: HighSystemLoad
+        expr: node_load1 > 4
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High system load"
+          description: "System load is {{ $value }} for 5 minutes."
+
+      # Low Disk Space
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is {{ $value | humanizePercentage }} available for 5 minutes."
+
+      # High Memory Usage
+      - alert: HighSystemMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High system memory usage"
+          description: "System memory usage is {{ $value | humanizePercentage }} for 10 minutes."
+
+  - name: load-balancer-alerts
+    rules:
+      # Nginx Down
+      - alert: NginxDown
+        expr: up{job="nginx-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Nginx load balancer is down"
+          description: "Nginx load balancer has been down for more than 1 minute."
+
+      # High Request Rate
+      - alert: HighRequestRate
+        expr: rate(nginx_http_requests_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High request rate to load balancer"
+          description: "Request rate is {{ $value }} requests/sec for 5 minutes."
+
+      # Backend Server Down
+      - alert: BackendServerDown
+        expr: nginx_upstream_server_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Backend server is down"
+          description: "Backend server {{ $labels.server }} in upstream {{ $labels.upstream }} is down."
+
+  - name: observatory-alerts
+    rules:
+      # Observatory Alert Threshold Exceeded
+      - alert: ObservatoryAlertThresholdExceeded
+        expr: contextbuilder_observatory_alert_count{severity="critical"} > 0
+        for: 0s
+        labels:
+          severity: critical
+          team: contextbuilder
+        annotations:
+          summary: "Critical alert from Observatory"
+          description: "Observatory has detected {{ $value }} critical alerts."
+
+      # Health Check Failures
+      - alert: HealthCheckFailures
+        expr: contextbuilder_observatory_health_check_failures > 3
+        for: 2m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "Multiple health check failures"
+          description: "{{ $value }} health check failures detected in 2 minutes."
+
+  - name: performance-alerts
+    rules:
+      # Processing Time Alerts
+      - alert: SlowProcessingTime
+        expr: contextbuilder_processing_time_seconds{quantile="0.95"} > 5
+        for: 10m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "Slow processing time detected"
+          description: "95th percentile processing time is {{ $value }}s for 10 minutes."
+
+      # Queue Depth Alerts
+      - alert: HighQueueDepth
+        expr: contextbuilder_queue_depth > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High queue depth"
+          description: "Queue depth is {{ $value }} for 5 minutes."
+
+      # Stream Lag Alerts (Redis Streams)
+      - alert: HighStreamLag
+        expr: redis_stream_length{stream="coherence_stream"} > 10000
+        for: 5m
+        labels:
+          severity: warning
+          team: contextbuilder
+        annotations:
+          summary: "High stream lag in coherence bus"
+          description: "Coherence stream length is {{ $value }} for 5 minutes."
