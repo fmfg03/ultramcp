@@ -2,7 +2,7 @@
 # Production Alert Management and Notification
 
 global:
-  smtp_smarthost: 'localhost:587'
+  smtp_smarthost: 'sam.chat:587'
   smtp_from: 'alerts@contextbuilder.local'
   smtp_auth_username: 'alerts@contextbuilder.local'
   smtp_auth_password: 'contextbuilder_alerts_2024'
@@ -186,7 +186,7 @@ receivers:
 # Webhook configurations for external systems
   - name: 'webhook-alerts'
     webhook_configs:
-      - url: 'http://localhost:8028/api/observatory/alerts/webhook'
+      - url: 'http://sam.chat:8028/api/observatory/alerts/webhook'
         send_resolved: true
         http_config:
           basic_auth:
@@ -219,7 +219,7 @@ receivers:
 # Custom notification script
   - name: 'custom-script'
     webhook_configs:
-      - url: 'http://localhost:8999/custom-alert-handler'
+      - url: 'http://sam.chat:8999/custom-alert-handler'
         send_resolved: true
         http_config:
           basic_auth:

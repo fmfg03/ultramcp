@@ -150,8 +150,8 @@ class MCPSystemOrchestrator:
             # Default configuration
             self.config = {
                 'infrastructure': {
-                    'redis_url': 'redis://localhost:6379',
-                    'database_url': 'postgresql://user:pass@localhost/mcp',
+                    'redis_url': 'redis://sam.chat:6379',
+                    'database_url': 'postgresql://user:pass@sam.chat/mcp',
                     'docker_enabled': True,
                     'kubernetes_enabled': False
                 },

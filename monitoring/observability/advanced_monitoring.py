@@ -783,7 +783,7 @@ class TracingManager:
         
         # Configure Jaeger exporter
         jaeger_exporter = JaegerExporter(
-            agent_host_name=os.getenv('JAEGER_AGENT_HOST', 'localhost'),
+            agent_host_name=os.getenv('JAEGER_AGENT_HOST', 'sam.chat'),
             agent_port=int(os.getenv('JAEGER_AGENT_PORT', '6831')),
         )
         
@@ -854,7 +854,7 @@ async def database_health_check() -> Dict[str, Any]:
 async def redis_health_check() -> Dict[str, Any]:
     """Check Redis health"""
     try:
-        redis = await aioredis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
+        redis = await aioredis.from_url(os.getenv('REDIS_URL', 'redis://sam.chat:6379'))
         await redis.ping()
         await redis.close()
         
@@ -898,7 +898,7 @@ async def setup_monitoring():
     performance_monitor = PerformanceMonitor()
     
     # Redis for alerts and logs
-    redis_client = await aioredis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
+    redis_client = await aioredis.from_url(os.getenv('REDIS_URL', 'redis://sam.chat:6379'))
     
     alert_manager = AlertManager(redis_client)
     health_checker = HealthChecker()

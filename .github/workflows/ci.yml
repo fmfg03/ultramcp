@@ -156,7 +156,7 @@ jobs:
 
       - name: 🗄️ Setup Test Database
         run: |
-          PGPASSWORD=test psql -h localhost -U test -d contextbuilder_test -c "
+          PGPASSWORD=test psql -h sam.chat -U test -d contextbuilder_test -c "
             CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";
           "
         env:
@@ -166,8 +166,8 @@ jobs:
         run: |
           pytest services/${{ matrix.service }}/ -v --cov=services/${{ matrix.service }} --cov-report=xml
         env:
-          REDIS_URL: redis://localhost:6379
-          POSTGRES_URL: postgresql://test:test@localhost:5432/contextbuilder_test
+          REDIS_URL: redis://sam.chat:6379
+          POSTGRES_URL: postgresql://test:test@sam.chat:5432/contextbuilder_test
 
       - name: 📊 Upload Coverage
         uses: codecov/codecov-action@v3
@@ -225,8 +225,8 @@ jobs:
         run: |
           pytest tests/integration/ -v --tb=short
         env:
-          REDIS_URL: redis://localhost:6379
-          POSTGRES_URL: postgresql://test:test@localhost:5432/contextbuilder_test
+          REDIS_URL: redis://sam.chat:6379
+          POSTGRES_URL: postgresql://test:test@sam.chat:5432/contextbuilder_test
 
       - name: 🛑 Stop Services
         if: always()

@@ -116,7 +116,7 @@ const UltraMCPControlTower = () => {
 
   // Initialize WebSocket Connection
   useEffect(() => {
-    const socketConnection = io('ws://localhost:8001', {
+    const socketConnection = io('ws://sam.chat:8001', {
       transports: ['websocket']
     });
     

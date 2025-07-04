@@ -896,8 +896,8 @@ class ProductionReadinessChecker:
         """Check database configuration for production"""
         issues = []
         
-        if db_config.get('host') in ['localhost', '127.0.0.1']:
-            issues.append("Database host should not be localhost in production")
+        if db_config.get('host') in ['sam.chat', '127.0.0.1']:
+            issues.append("Database host should not be sam.chat in production")
         
         if not db_config.get('ssl_mode') or db_config['ssl_mode'] == 'disable':
             issues.append("Database SSL should be enabled")
@@ -951,7 +951,7 @@ async def setup_security():
     auth_manager = AuthenticationManager(config, encryption_manager)
     
     # Redis for rate limiting and threat detection
-    redis_client = await aioredis.from_url('redis://localhost:6379')
+    redis_client = await aioredis.from_url('redis://sam.chat:6379')
     rate_limiter = RateLimiter(redis_client)
     threat_detector = ThreatDetector(redis_client)
     

@@ -29,8 +29,8 @@ class ContextBuilderMetricsCollector:
     
     def __init__(self):
         # Configuration
-        self.redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
-        self.postgres_url = os.getenv('POSTGRES_URL', 'postgresql://contextbuilder:contextbuilder_secure_2024@localhost:5432/contextbuilder')
+        self.redis_url = os.getenv('REDIS_URL', 'redis://sam.chat:6379')
+        self.postgres_url = os.getenv('POSTGRES_URL', 'postgresql://contextbuilder:contextbuilder_secure_2024@sam.chat:5432/contextbuilder')
         self.prometheus_port = int(os.getenv('PROMETHEUS_PORT', '8000'))
         self.collection_interval = int(os.getenv('COLLECTION_INTERVAL', '30'))
         

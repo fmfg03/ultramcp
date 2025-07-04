@@ -111,10 +111,10 @@ jobs:
     - name: Initialize test database
       run: |
         if [ -f database/init/database_init.sql ]; then
-          PGPASSWORD=test_password psql -h localhost -U test_user -d mcp_test -f database/init/database_init.sql
+          PGPASSWORD=test_password psql -h sam.chat -U test_user -d mcp_test -f database/init/database_init.sql
         fi
       env:
-        POSTGRES_HOST: localhost
+        POSTGRES_HOST: sam.chat
         POSTGRES_PORT: 5432
         POSTGRES_DB: mcp_test
         POSTGRES_USER: test_user
@@ -129,12 +129,12 @@ jobs:
           python -m pytest voice_system/tests/ -v || echo "Voice system tests failed, continuing..."
         fi
       env:
-        POSTGRES_HOST: localhost
+        POSTGRES_HOST: sam.chat
         POSTGRES_PORT: 5432
         POSTGRES_DB: mcp_test
         POSTGRES_USER: test_user
         POSTGRES_PASSWORD: test_password
-        REDIS_HOST: localhost
+        REDIS_HOST: sam.chat
         REDIS_PORT: 6379
     
     - name: Run Node.js tests
@@ -162,8 +162,8 @@ jobs:
           cp .env.example .env
         else
           echo "NODE_ENV=test" > .env
-          echo "DATABASE_URL=postgresql://mcp_user:mcp_password@localhost:5432/mcp_test" >> .env
-          echo "REDIS_URL=redis://localhost:6379" >> .env
+          echo "DATABASE_URL=postgresql://mcp_user:mcp_password@sam.chat:5432/mcp_test" >> .env
+          echo "REDIS_URL=redis://sam.chat:6379" >> .env
         fi
     
     - name: Start services with Docker Compose
@@ -178,8 +178,8 @@ jobs:
     
     - name: Wait for services to be healthy
       run: |
-        timeout 300 bash -c 'until curl -f http://localhost:3000/health 2>/dev/null; do sleep 5; done' || echo "Backend health check failed"
-        timeout 300 bash -c 'until curl -f http://localhost:9091/-/healthy 2>/dev/null; do sleep 5; done' || echo "Prometheus health check failed"
+        timeout 300 bash -c 'until curl -f http://sam.chat:3000/health 2>/dev/null; do sleep 5; done' || echo "Backend health check failed"
+        timeout 300 bash -c 'until curl -f http://sam.chat:9091/-/healthy 2>/dev/null; do sleep 5; done' || echo "Prometheus health check failed"
     
     - name: Run integration tests
       run: |

@@ -18,7 +18,7 @@ export const WebSocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Connect to the MCP backend WebSocket
-    const newSocket = io('ws://localhost:8124', {
+    const newSocket = io('ws://sam.chat:8124', {
       transports: ['websocket'],
       autoConnect: true,
     })

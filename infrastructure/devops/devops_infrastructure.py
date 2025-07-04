@@ -507,26 +507,26 @@ class MonitoringManager:
                     {
                         'job_name': 'mcp-backend',
                         'static_configs': [{
-                            'targets': config.get('backend_targets', ['localhost:3000'])
+                            'targets': config.get('backend_targets', ['sam.chat:3000'])
                         }]
                     },
                     {
                         'job_name': 'mcp-frontend',
                         'static_configs': [{
-                            'targets': config.get('frontend_targets', ['localhost:5173'])
+                            'targets': config.get('frontend_targets', ['sam.chat:5173'])
                         }]
                     },
                     {
                         'job_name': 'node-exporter',
                         'static_configs': [{
-                            'targets': config.get('node_targets', ['localhost:9100'])
+                            'targets': config.get('node_targets', ['sam.chat:9100'])
                         }]
                     }
                 ],
                 'alerting': {
                     'alertmanagers': [{
                         'static_configs': [{
-                            'targets': config.get('alertmanager_targets', ['localhost:9093'])
+                            'targets': config.get('alertmanager_targets', ['sam.chat:9093'])
                         }]
                     }]
                 }
@@ -783,7 +783,7 @@ if __name__ == "__main__":
             health_checks=[
                 {
                     'type': 'http',
-                    'url': 'http://localhost:3000/health',
+                    'url': 'http://sam.chat:3000/health',
                     'expected_status': 200
                 }
             ]

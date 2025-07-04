@@ -65,7 +65,7 @@ const LangwatchViewer = () => {
   const connectToLangwatch = () => {
     try {
       // Connect to Langwatch WebSocket endpoint
-      const wsUrl = `ws://localhost:8124/langwatch`
+      const wsUrl = `ws://sam.chat:8124/langwatch`
       wsRef.current = new WebSocket(wsUrl)
 
       wsRef.current.onopen = () => {

@@ -2,7 +2,7 @@
 # Artillery.js performance testing suite
 
 config:
-  target: http://localhost:8020
+  target: http://sam.chat:8020
   phases:
     # Warm-up phase
     - duration: 60

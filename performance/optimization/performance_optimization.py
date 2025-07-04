@@ -784,11 +784,11 @@ async def setup_performance_optimization():
     """Setup comprehensive performance optimization"""
     
     # Redis client for caching
-    redis_client = await aioredis.from_url('redis://localhost:6379')
+    redis_client = await aioredis.from_url('redis://sam.chat:6379')
     
     # Initialize components
     llm_cache = LLMCacheManager(redis_client)
-    db_optimizer = DatabaseQueryOptimizer('postgresql://user:pass@localhost/db', redis_client)
+    db_optimizer = DatabaseQueryOptimizer('postgresql://user:pass@sam.chat/db', redis_client)
     memory_optimizer = MemoryOptimizer()
     profiler = PerformanceProfiler()
     adaptive_optimizer = AdaptiveOptimizer()

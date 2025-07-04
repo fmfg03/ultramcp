@@ -22,7 +22,7 @@ scrape_configs:
   # Prometheus self-monitoring
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['sam.chat:9090']
     scrape_interval: 5s
     metrics_path: /metrics
 

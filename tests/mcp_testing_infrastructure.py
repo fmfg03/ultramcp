@@ -17,7 +17,7 @@ from datetime import datetime
 @dataclass
 class TestConfig:
     """Test configuration settings"""
-    test_server_url: str = "http://localhost:3000"
+    test_server_url: str = "http://sam.chat:3000"
     test_timeout: int = 30
     performance_threshold: float = 5.0  # seconds
     memory_threshold: int = 100  # MB

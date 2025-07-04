@@ -62,7 +62,7 @@ class TestEnvironment:
             "task_id": "test_task_001",
             "agent_id": "test_sam_001",
             "webhook_id": "test_webhook_001",
-            "endpoint_url": "http://localhost:8999/webhook/test"
+            "endpoint_url": "http://sam.chat:8999/webhook/test"
         }
     
     async def teardown(self):
@@ -385,7 +385,7 @@ class IntegrationTests:
         # 1. Registrar webhook para recibir notificaciones
         self.test_env.webhook_manager.register_webhook(
             "integration_webhook",
-            "http://localhost:8999/webhook/integration",
+            "http://sam.chat:8999/webhook/integration",
             ["task_lifecycle"],
             "integration_secret"
         )
@@ -508,7 +508,7 @@ class PerformanceTests:
         # Registrar webhook
         self.test_env.webhook_manager.register_webhook(
             "performance_webhook",
-            "http://localhost:8999/webhook/performance",
+            "http://sam.chat:8999/webhook/performance",
             ["task_lifecycle"],
             "performance_secret"
         )
@@ -565,7 +565,7 @@ class PerformanceTests:
         for i in range(10):
             self.test_env.webhook_manager.register_webhook(
                 f"perf_webhook_{i}",
-                f"http://localhost:899{i}/webhook",
+                f"http://sam.chat:899{i}/webhook",
                 ["task_lifecycle"],
                 f"secret_{i}"
             )

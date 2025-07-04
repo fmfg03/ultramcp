@@ -906,8 +906,8 @@ def main():
     logs_system.create_alert("system", "info", "Sistema iniciado", "El dashboard se ha iniciado correctamente", "dashboard")
     
     print("✅ Sistema de logs y dashboard iniciado")
-    print("🌐 Dashboard disponible en: http://localhost:8126")
-    print("📊 API disponible en: http://localhost:8126/api/")
+    print("🌐 Dashboard disponible en: http://sam.chat:8126")
+    print("📊 API disponible en: http://sam.chat:8126/api/")
     print("📝 Endpoints disponibles:")
     print("   GET  / - Dashboard web")
     print("   GET  /api/logs - Obtener logs")
