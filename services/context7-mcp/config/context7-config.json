@@ -1,0 +1,110 @@
+{
+  "context7": {
+    "server": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "timeout": 30000,
+      "retries": 3,
+      "autoRestart": true
+    },
+    "cache": {
+      "ttl": 3600,
+      "maxSize": 1000,
+      "cleanup": true
+    },
+    "documentation": {
+      "maxLibraries": 50,
+      "maxExamples": 10,
+      "preferredFormat": "markdown",
+      "includeExamples": true,
+      "includeVersionInfo": true
+    },
+    "libraries": {
+      "popular": [
+        "react",
+        "vue",
+        "angular",
+        "express",
+        "fastify",
+        "next",
+        "nuxt",
+        "svelte",
+        "typescript",
+        "lodash",
+        "moment",
+        "axios",
+        "prisma",
+        "mongoose",
+        "sequelize",
+        "tailwind",
+        "bootstrap",
+        "material-ui",
+        "chakra-ui",
+        "framer-motion",
+        "three",
+        "d3"
+      ],
+      "autoDetection": {
+        "enabled": true,
+        "patterns": [
+          "import.*from ['\"]([^'\"]+)['\"]",
+          "require\\(['\"]([^'\"]+)['\"]\\)",
+          "from ['\"]([^'\"]+)['\"]",
+          "@([a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+)",
+          "npm install ([a-zA-Z0-9_-]+)",
+          "yarn add ([a-zA-Z0-9_-]+)"
+        ]
+      }
+    },
+    "integration": {
+      "claudeCode": {
+        "enabled": true,
+        "triggerPhrase": "use context7",
+        "autoEnhance": true,
+        "maxLibrariesPerRequest": 10
+      },
+      "ultramcp": {
+        "eventBus": true,
+        "logging": true,
+        "metrics": true
+      }
+    },
+    "api": {
+      "rateLimiting": {
+        "enabled": true,
+        "requestsPerMinute": 100,
+        "burstLimit": 20
+      },
+      "cors": {
+        "enabled": true,
+        "origins": ["*"],
+        "methods": ["GET", "POST", "DELETE"]
+      },
+      "compression": true,
+      "security": {
+        "helmet": true,
+        "validateInput": true
+      }
+    },
+    "logging": {
+      "level": "info",
+      "format": "json",
+      "destinations": ["console", "file"],
+      "files": {
+        "combined": "/app/logs/combined.log",
+        "error": "/app/logs/error.log"
+      }
+    },
+    "monitoring": {
+      "healthCheck": {
+        "enabled": true,
+        "interval": 30,
+        "timeout": 10
+      },
+      "metrics": {
+        "enabled": true,
+        "collectInterval": 60
+      }
+    }
+  }
+}

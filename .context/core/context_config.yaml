@@ -1,0 +1,358 @@
+# UltraMCP ContextBuilderAgent 2.0 - Core Configuration
+# Configuration central del ContextBuilderAgent
+# Version: 1.0.0
+
+context_builder:
+  version: "2.0.0"
+  mode: "production"
+  debug_enabled: false
+  deterministic_mode: false
+  
+  # Semantic Coherence Bus Configuration
+  semantic_bus:
+    technology: "redis_streams"
+    host: "mcp-redis"
+    port: 6379
+    db: 0
+    
+    streams:
+      context_mutations:
+        max_len: 10000
+        retention: "7d"
+        
+      semantic_validation:
+        max_len: 5000
+        retention: "3d"
+        
+      coherence_alerts:
+        max_len: 1000
+        retention: "30d"
+        
+      fragment_updates:
+        max_len: 20000
+        retention: "14d"
+    
+    performance:
+      target_throughput: 10000  # msg/s
+      max_latency_p95: 50       # ms
+      availability_target: 99.9  # %
+      
+    circuit_breaker:
+      failure_threshold: 3
+      recovery_threshold: 5
+      timeout_window: 300       # seconds
+      
+  # Mutation Evaluator Pool Configuration  
+  mutation_evaluator:
+    parallelism: 4
+    timeout: 30000            # ms
+    
+    context_drift_detector:
+      enabled: true
+      port: 8020
+      model: "BGE-Large"
+      similarity_threshold: 0.78
+      embedding_dimension: 1024
+      
+    contradiction_resolver:
+      enabled: true
+      port: 8021
+      model_pool: ["qwen2.5:14b", "llama3.1:8b"]
+      confidence_threshold: 0.85
+      consensus_algorithm: "weighted"
+      
+    belief_reviser:
+      enabled: true
+      port: 8022
+      versioning: "git_like"
+      knowledge_graph_backend: "postgresql"
+      
+    utility_predictor:
+      enabled: true
+      port: 8023
+      ml_models: ["random_forest", "neural_network"]
+      accuracy_threshold: 0.85
+      
+  # Coherence Validation Configuration
+  coherence_validator:
+    enabled: true
+    port: 8024
+    
+    metrics:
+      context_overlap_ratio:
+        target: 0.78
+        warning_threshold: 0.75
+        critical_threshold: 0.70
+        
+      embedding_similarity:
+        target: 0.85
+        warning_threshold: 0.80
+        critical_threshold: 0.75
+        
+      belief_consistency_index:
+        target: 0.90
+        warning_threshold: 0.85
+        critical_threshold: 0.80
+        
+      contradiction_detection_rate:
+        target: 0.05
+        warning_threshold: 0.08
+        critical_threshold: 0.10
+        
+    validation_frequency: 60   # seconds
+    
+  # Chain of Debate Configuration
+  chain_of_debate:
+    enabled: true
+    
+    activation_criteria:
+      contradiction_confidence_threshold: 0.3
+      affects_multiple_phases: true
+      high_confidence_conflict: true
+      manual_escalation_enabled: true
+      
+    cognitive_roles:
+      analytical_thinking:
+        model: "qwen2.5:14b"
+        weight: 0.3
+        timeout: 30000
+        
+      creative_thinking:
+        model: "llama3.1:8b"
+        weight: 0.25
+        timeout: 30000
+        
+      intuitive_thinking:
+        model: "mistral:7b"
+        weight: 0.2
+        timeout: 30000
+        
+      systems_thinking:
+        model: "deepseek-coder:6.7b"
+        weight: 0.25
+        timeout: 30000
+        
+    consensus:
+      minimum_agreement: 0.7
+      max_iterations: 3
+      timeout: 120000           # ms
+      
+  # Fragment Management Configuration
+  fragment_manager:
+    enabled: true
+    port: 8025
+    
+    cache:
+      enabled: true
+      ttl: 3600               # seconds
+      max_size: 1000
+      
+    generation:
+      parallel_agents: 5
+      timeout: 5000           # ms
+      
+    validation:
+      coherence_threshold: 0.80
+      completeness_threshold: 0.85
+      
+  # Memory Tuner Configuration (ContextMemoryTuner)
+  memory_tuner:
+    enabled: true
+    port: 8026
+    
+    learning:
+      window_size: 1000       # observations
+      adaptation_rate: 0.1
+      min_samples: 100
+      
+    optimization:
+      algorithm: "genetic"
+      population_size: 50
+      generations: 100
+      mutation_rate: 0.1
+      
+    patterns:
+      drift_detection_window: 24  # hours
+      threshold_adjustment_frequency: 12  # hours
+      
+  # Prompt Assembler Configuration
+  prompt_assembler:
+    enabled: true
+    port: 8027
+    
+    frameworks:
+      crispe: true
+      race: true
+      react: true
+      hierarchical: true
+      
+    templates:
+      cache_enabled: true
+      hit_rate_target: 0.80
+      precompilation: true
+      
+    performance:
+      target_latency_p95: 100  # ms
+      target_throughput: 500   # prompts/s
+      
+  # Observatory Configuration
+  observatory:
+    enabled: true
+    port: 8028
+    
+    backend:
+      technology: "supabase"
+      real_time: true
+      
+    frontend:
+      technology: "react_grafana"
+      auto_refresh: 30        # seconds
+      
+    analytics:
+      query_timeout: 1000     # ms
+      drill_down: true
+      
+# Integration Configuration
+integrations:
+  ultramcp_gateway:
+    host: "localhost"
+    port: 3001
+    context_routes:
+      - "/api/context/tree"
+      - "/api/context/fragments"
+      - "/api/context/mutations"
+      - "/api/context/health"
+      
+  qdrant:
+    enabled: true
+    url: "https://7d496b1f-ee40-4081-a4ad-3c54d250e6da.us-east4-0.gcp.cloud.qdrant.io:6333"
+    api_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.bJ6JNxqeZmuZv0hhUqmo4p_Bh3vh68GAVC_BqLRnIh4"
+    collection: "project_context"
+    vector_size: 1024
+    distance: "cosine"
+    
+  postgresql:
+    host: "mcp-database"
+    port: 5432
+    database: "mcp_system"
+    username: "mcp_user"
+    
+  ollama:
+    host: "localhost"
+    port: 11434
+    models:
+      - "qwen2.5:14b"
+      - "llama3.1:8b"
+      - "mistral:7b"
+      - "deepseek-coder:6.7b"
+      - "qwen2.5-coder:7b"
+      
+# Observability Configuration
+observability:
+  metrics:
+    enabled: true
+    export_interval: 15       # seconds
+    
+    business:
+      context_coherence_score: true
+      mutation_success_rate: true
+      cod_consensus_rate: true
+      
+    technical:
+      semantic_bus_throughput: true
+      fragment_propagation_latency: true
+      circuit_breaker_trip_rate: true
+      
+  tracing:
+    enabled: true
+    opentelemetry: true
+    sample_rate: 0.1
+    
+    custom_spans:
+      - "context_propagation"
+      - "mutation_evaluation"
+      - "cod_debates"
+      - "fragment_generation"
+      
+  dashboards:
+    grafana:
+      enabled: true
+      provisioned: true
+      dashboards:
+        - "business_metrics"
+        - "technical_performance"
+        - "service_health"
+        - "real_time_alerts"
+        
+  alerting:
+    enabled: true
+    channels:
+      - "webhook"
+      - "email"
+      
+    rules:
+      coherence_drift:
+        threshold: 0.70
+        severity: "warning"
+        
+      circuit_breaker_trip:
+        threshold: 1
+        severity: "critical"
+        
+      high_latency:
+        threshold: 1000       # ms
+        severity: "warning"
+
+# Security Configuration
+security:
+  authentication:
+    enabled: true
+    type: "enterprise_sso"
+    
+  encryption:
+    in_transit: "tls_1_3"
+    at_rest: "aes_256"
+    
+  access_control:
+    rbac: true
+    audit_trails: true
+    
+  api_security:
+    rate_limiting: true
+    request_validation: true
+    response_filtering: true
+    
+# Development Configuration
+development:
+  hot_reload: false
+  debug_logging: false
+  
+  testing:
+    unit_tests: true
+    integration_tests: true
+    e2e_tests: true
+    
+  validation:
+    schema_validation: true
+    coherence_validation: true
+    performance_validation: true
+    
+# Deployment Configuration  
+deployment:
+  environment: "kubernetes"
+  namespace: "ultramcp-context"
+  
+  scaling:
+    horizontal: true
+    vertical: false
+    
+  resources:
+    cpu_request: "500m"
+    cpu_limit: "2000m"
+    memory_request: "1Gi"
+    memory_limit: "4Gi"
+    
+  health_checks:
+    liveness_probe: true
+    readiness_probe: true
+    startup_probe: true

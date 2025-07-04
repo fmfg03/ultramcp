@@ -1,0 +1,375 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UltraMCP ContextBuilder Validation Schema",
+  "description": "Comprehensive validation schema for semantic coherence",
+  "version": "1.0.0",
+  "type": "object",
+  
+  "definitions": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "ISO 8601 timestamp in UTC"
+    },
+    
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence score between 0 and 1"
+    },
+    
+    "criticality_level": {
+      "type": "string",
+      "enum": ["alta", "media", "baja"],
+      "description": "Criticality level of the domain"
+    },
+    
+    "domain_type": {
+      "type": "string",
+      "enum": [
+        "foundational",
+        "value_proposition", 
+        "market_context",
+        "target_audience",
+        "goals_metrics",
+        "challenges_problems",
+        "ai_derived",
+        "constraints_compliance"
+      ]
+    },
+    
+    "context_field": {
+      "type": "object",
+      "required": ["value", "confidence", "source", "timestamp"],
+      "properties": {
+        "value": {
+          "description": "Field value - can be string, array, or object"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence_score"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Source of the information"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional tags for categorization"
+        }
+      },
+      "additionalProperties": false
+    },
+    
+    "domain": {
+      "type": "object",
+      "required": [
+        "type", 
+        "criticality", 
+        "owner", 
+        "dependencies", 
+        "confidence", 
+        "source", 
+        "timestamp", 
+        "tags", 
+        "fields"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/domain_type"
+        },
+        "criticality": {
+          "$ref": "#/definitions/criticality_level"
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of domain dependencies"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence_score"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fields": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z_]+$": {
+              "$ref": "#/definitions/context_field"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    
+    "mutation": {
+      "type": "object",
+      "required": [
+        "mutation_id",
+        "type", 
+        "target_domain",
+        "confidence",
+        "requires_cod_validation",
+        "timestamp",
+        "source"
+      ],
+      "properties": {
+        "mutation_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["ADD_INSIGHT", "UPDATE_FIELD", "REMOVE_FIELD", "ADD_DOMAIN", "UPDATE_DOMAIN"]
+        },
+        "target_domain": {
+          "type": "string",
+          "pattern": "^[A-Z_]+\\.[a-z_]+$"
+        },
+        "confidence": {
+          "$ref": "#/definitions/confidence_score"
+        },
+        "requires_cod_validation": {
+          "type": "boolean"
+        },
+        "timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "new_value": {
+          "description": "New value for the mutation"
+        },
+        "previous_value": {
+          "description": "Previous value (for rollback)"
+        },
+        "validation_status": {
+          "type": "string",
+          "enum": ["pending", "validating", "approved", "rejected", "applied"]
+        }
+      },
+      "additionalProperties": false
+    },
+    
+    "fragment": {
+      "type": "object",
+      "required": [
+        "fragment_id",
+        "agent_type",
+        "phase",
+        "context_subset",
+        "generation_timestamp",
+        "coherence_score"
+      ],
+      "properties": {
+        "fragment_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+$"
+        },
+        "agent_type": {
+          "type": "string",
+          "enum": ["sitebuilder", "leadscorer", "nurturer", "crm_sync", "paid_campaigns"]
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["discovery", "planning", "execution", "optimization"]
+        },
+        "context_subset": {
+          "type": "object",
+          "description": "Subset of knowledge tree relevant to agent"
+        },
+        "generation_timestamp": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "coherence_score": {
+          "$ref": "#/definitions/confidence_score"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  
+  "properties": {
+    "knowledge_tree": {
+      "type": "object",
+      "required": [
+        "version",
+        "last_updated", 
+        "context_hash",
+        "coherence_score",
+        "domains",
+        "metadata",
+        "validation_status"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "last_updated": {
+          "$ref": "#/definitions/timestamp"
+        },
+        "context_hash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coherence_score": {
+          "$ref": "#/definitions/confidence_score",
+          "minimum": 0.7,
+          "description": "Must be above 0.7 for valid context"
+        },
+        "domains": {
+          "type": "object",
+          "required": [
+            "ORGANIZACION",
+            "OFERTA", 
+            "MERCADO",
+            "BUYER_PERSONAS",
+            "OBJETIVOS",
+            "PAIN_POINTS",
+            "INSIGHTS",
+            "REGLAS_NEGOCIO"
+          ],
+          "properties": {
+            "ORGANIZACION": { "$ref": "#/definitions/domain" },
+            "OFERTA": { "$ref": "#/definitions/domain" },
+            "MERCADO": { "$ref": "#/definitions/domain" },
+            "BUYER_PERSONAS": { "$ref": "#/definitions/domain" },
+            "OBJETIVOS": { "$ref": "#/definitions/domain" },
+            "PAIN_POINTS": { "$ref": "#/definitions/domain" },
+            "INSIGHTS": { "$ref": "#/definitions/domain" },
+            "REGLAS_NEGOCIO": { "$ref": "#/definitions/domain" }
+          },
+          "additionalProperties": false
+        },
+        "metadata": {
+          "type": "object",
+          "required": [
+            "total_domains",
+            "avg_confidence",
+            "last_mutation",
+            "next_review",
+            "coherence_validation"
+          ],
+          "properties": {
+            "total_domains": {
+              "type": "integer",
+              "minimum": 8,
+              "maximum": 8
+            },
+            "avg_confidence": {
+              "$ref": "#/definitions/confidence_score"
+            },
+            "last_mutation": {
+              "type": "string"
+            },
+            "next_review": {
+              "$ref": "#/definitions/timestamp"
+            },
+            "coherence_validation": {
+              "type": "string",
+              "enum": ["passed", "failed", "pending"]
+            }
+          }
+        },
+        "validation_status": {
+          "type": "object",
+          "required": [
+            "schema_valid",
+            "dependencies_resolved", 
+            "confidence_threshold_met",
+            "timestamp"
+          ],
+          "properties": {
+            "schema_valid": {
+              "type": "boolean"
+            },
+            "dependencies_resolved": {
+              "type": "boolean"
+            },
+            "confidence_threshold_met": {
+              "type": "boolean"
+            },
+            "timestamp": {
+              "$ref": "#/definitions/timestamp"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    
+    "mutations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/mutation"
+      }
+    },
+    
+    "fragments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/fragment"
+      }
+    }
+  },
+  
+  "coherence_rules": {
+    "description": "Business rules for semantic coherence validation",
+    "domain_dependencies": {
+      "OFERTA": ["ORGANIZACION"],
+      "MERCADO": ["OFERTA"],
+      "BUYER_PERSONAS": ["MERCADO", "OFERTA"],
+      "PAIN_POINTS": ["OBJETIVOS"]
+    },
+    "minimum_confidence_thresholds": {
+      "alta": 0.8,
+      "media": 0.6,
+      "baja": 0.4
+    },
+    "mutation_validation_rules": {
+      "critical_mutations": {
+        "confidence_threshold": 0.3,
+        "requires_cod": true
+      },
+      "standard_mutations": {
+        "confidence_threshold": 0.6,
+        "requires_cod": false
+      }
+    }
+  }
+}

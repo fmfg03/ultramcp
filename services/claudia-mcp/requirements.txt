@@ -1,0 +1,4 @@
+# MCP Server requirements for Claudia integration
+mcp>=1.10.0
+requests>=2.31.0
+aiohttp>=3.8.0

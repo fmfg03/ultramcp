@@ -1,0 +1,256 @@
+# UltraMCP ContextBuilderAgent 2.0 - Knowledge Tree
+# Fuente única de verdad con 8 dominios contextuales
+# Version: 1.0.0
+# Last Updated: 2025-07-04T06:25:00Z
+
+version: "1.0.0"
+last_updated: "2025-07-04T06:25:00Z"
+context_hash: "initial_bootstrap_context"
+coherence_score: 1.0
+
+domains:
+  ORGANIZACION:
+    type: "foundational"
+    criticality: "alta"
+    owner: "context_builder"
+    dependencies: []
+    confidence: 0.95
+    source: "bootstrap_initialization"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["identity", "corporate", "foundational"]
+    
+    fields:
+      nombre_empresa:
+        value: "UltraMCP Enterprise Client"
+        confidence: 0.90
+        source: "initialization"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      industria:
+        value: "AI-Enhanced Business Solutions"
+        confidence: 0.85
+        source: "system_context"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      tamano_empresa:
+        value: "Enterprise (500+ employees)"
+        confidence: 0.80
+        source: "estimated"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      ubicacion:
+        value: "Global (Cloud-Native)"
+        confidence: 0.90
+        source: "system_architecture"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  OFERTA:
+    type: "value_proposition"
+    criticality: "alta"
+    owner: "context_builder"
+    dependencies: ["ORGANIZACION"]
+    confidence: 0.90
+    source: "system_analysis"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["value", "offering", "solutions"]
+    
+    fields:
+      productos_servicios:
+        value: "AI-Orchestrated Multi-Agent Systems"
+        confidence: 0.95
+        source: "codebase_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      diferenciadores:
+        value: ["Semantic Coherence", "Privacy-First", "Terminal-Optimized", "Enterprise-Ready"]
+        confidence: 0.90
+        source: "architecture_review"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      propuesta_valor:
+        value: "80% terminal-first approach with 20% advanced orchestration"
+        confidence: 0.85
+        source: "design_philosophy"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  MERCADO:
+    type: "market_context"
+    criticality: "media"
+    owner: "context_builder"
+    dependencies: ["OFERTA"]
+    confidence: 0.75
+    source: "estimated"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["market", "competition", "opportunity"]
+    
+    fields:
+      mercado_objetivo:
+        value: "Enterprise AI/ML Teams"
+        confidence: 0.80
+        source: "target_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      competidores:
+        value: ["LangChain", "CrewAI", "AutoGen", "Traditional Microservices"]
+        confidence: 0.70
+        source: "market_research"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      oportunidades:
+        value: ["Model Context Protocol adoption", "Local LLM growth", "Privacy regulations"]
+        confidence: 0.75
+        source: "trend_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  BUYER_PERSONAS:
+    type: "target_audience"
+    criticality: "alta"
+    owner: "context_builder"
+    dependencies: ["MERCADO", "OFERTA"]
+    confidence: 0.85
+    source: "persona_modeling"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["personas", "audience", "targeting"]
+    
+    fields:
+      persona_primaria:
+        value: "Enterprise AI/ML Engineering Lead"
+        confidence: 0.90
+        source: "role_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      caracteristicas:
+        value: ["Technical depth", "Privacy concerns", "Scalability needs", "Integration challenges"]
+        confidence: 0.85
+        source: "persona_research"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      motivaciones:
+        value: ["Coherent AI systems", "Reduced complexity", "Enterprise security", "Developer productivity"]
+        confidence: 0.80
+        source: "needs_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  OBJETIVOS:
+    type: "goals_metrics"
+    criticality: "alta"
+    owner: "context_builder"
+    dependencies: []
+    confidence: 0.95
+    source: "system_requirements"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["goals", "metrics", "success"]
+    
+    fields:
+      objetivos_primarios:
+        value: ["Semantic coherence >0.85", "Zero loose components", "Enterprise security", "Developer productivity"]
+        confidence: 0.95
+        source: "architecture_goals"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      metricas_exito:
+        value: ["Context overlap ratio >0.78", "Embedding similarity >0.85", "Contradiction rate <0.05"]
+        confidence: 0.90
+        source: "performance_targets"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      limitaciones:
+        value: ["875 files complexity", "2.0M tokens scale", "Multiple language stack"]
+        confidence: 0.85
+        source: "constraint_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  PAIN_POINTS:
+    type: "challenges_problems"
+    criticality: "alta"
+    owner: "context_builder"
+    dependencies: ["OBJETIVOS"]
+    confidence: 0.90
+    source: "system_analysis"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["problems", "challenges", "pain"]
+    
+    fields:
+      problemas_actuales:
+        value: ["Microservice coordination", "Context drift", "Agent inconsistency", "Complex debugging"]
+        confidence: 0.95
+        source: "architecture_review"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      contexto_historico:
+        value: "Traditional microservices lack semantic coherence"
+        confidence: 0.85
+        source: "problem_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      impacto:
+        value: ["Reduced reliability", "Maintenance complexity", "Integration challenges"]
+        confidence: 0.90
+        source: "impact_assessment"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  INSIGHTS:
+    type: "ai_derived"
+    criticality: "media"
+    owner: "ai_system"
+    dependencies: []
+    confidence: 0.80
+    source: "auto_generated"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["insights", "intelligence", "derived"]
+    
+    fields:
+      insights_principales:
+        value: ["Terminal-first approach reduces complexity", "Local models enable privacy", "MCP protocol improves interop"]
+        confidence: 0.80
+        source: "pattern_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      oportunidades_detectadas:
+        value: ["Regulatory compliance market", "Edge deployment potential", "Developer tool integration"]
+        confidence: 0.75
+        source: "opportunity_scanner"
+        timestamp: "2025-07-04T06:25:00Z"
+
+  REGLAS_NEGOCIO:
+    type: "constraints_compliance"
+    criticality: "alta"
+    owner: "compliance_team"
+    dependencies: []
+    confidence: 0.95
+    source: "compliance_requirements"
+    timestamp: "2025-07-04T06:25:00Z"
+    tags: ["rules", "compliance", "constraints"]
+    
+    fields:
+      requisitos_seguridad:
+        value: ["Enterprise authentication", "TLS 1.3 encryption", "Audit trails", "Access controls"]
+        confidence: 0.95
+        source: "security_policy"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      compliance_frameworks:
+        value: ["SOC2", "GDPR", "HIPAA", "SOX"]
+        confidence: 0.90
+        source: "regulatory_analysis"
+        timestamp: "2025-07-04T06:25:00Z"
+        
+      limitaciones_tecnicas:
+        value: ["No API key exposure", "Local-first processing", "Deterministic debugging"]
+        confidence: 0.95
+        source: "technical_constraints"
+        timestamp: "2025-07-04T06:25:00Z"
+
+# Metadata y control de versiones
+metadata:
+  total_domains: 8
+  avg_confidence: 0.87
+  last_mutation: "bootstrap_initialization"
+  next_review: "2025-07-04T12:25:00Z"
+  coherence_validation: "passed"
+  
+validation_status:
+  schema_valid: true
+  dependencies_resolved: true
+  confidence_threshold_met: true
+  timestamp: "2025-07-04T06:25:00Z"

@@ -29,6 +29,10 @@ class EventBus extends EventEmitter {
             eventsByType: new Map(),
             lastEventTime: null
         };
+        
+        // Wait-for-input functionality
+        this.pendingInputRequests = new Map();
+        this.inputTimeouts = new Map();
 
         // Set max listeners to prevent warnings
         this.setMaxListeners(this.config.maxListeners);
@@ -460,6 +464,334 @@ class EventBus extends EventEmitter {
     }
 
     /**
+     * Wait for human input with timeout and default response
+     * Core functionality for Human-in-the-Loop operations
+     * 
+     * @param {Object} options - Wait configuration
+     * @param {string} options.event_pattern - Event pattern to wait for
+     * @param {number} options.timeout_seconds - Timeout in seconds
+     * @param {any} options.default_response - Default response on timeout
+     * @param {string} options.request_id - Unique request identifier
+     * @param {Object} options.metadata - Additional metadata
+     * @returns {Promise} Promise that resolves with input data or default response
+     */
+    async wait_for_input(options = {}) {
+        const {
+            event_pattern,
+            timeout_seconds = 60,
+            default_response = { status: 'timeout', reason: 'No response received within timeout' },
+            request_id = this.generateRequestId(),
+            metadata = {}
+        } = options;
+
+        return new Promise((resolve, reject) => {
+            // Store the pending request
+            const requestData = {
+                request_id,
+                event_pattern,
+                timeout_seconds,
+                default_response,
+                metadata,
+                created_at: new Date().toISOString(),
+                resolve,
+                reject
+            };
+
+            this.pendingInputRequests.set(request_id, requestData);
+
+            // Set up event listener for the expected input
+            const inputListener = (eventData) => {
+                // Check if this event matches our request
+                if (this.matchesInputRequest(eventData, requestData)) {
+                    this.resolveInputRequest(request_id, eventData);
+                }
+            };
+
+            // Listen for the input event
+            this.onPattern(event_pattern, inputListener);
+
+            // Set up timeout
+            const timeoutId = setTimeout(() => {
+                this.timeoutInputRequest(request_id);
+            }, timeout_seconds * 1000);
+
+            // Store timeout ID for cleanup
+            this.inputTimeouts.set(request_id, { timeoutId, listener: inputListener, event_pattern });
+
+            // Emit notification that we're waiting for input
+            this.emit('input.waiting', {
+                request_id,
+                event_pattern,
+                timeout_seconds,
+                metadata,
+                created_at: requestData.created_at
+            });
+        });
+    }
+
+    /**
+     * Provide input for a waiting request
+     * 
+     * @param {string} request_id - Request identifier
+     * @param {any} input_data - Input data to provide
+     * @returns {boolean} True if request was found and resolved
+     */
+    provide_input(request_id, input_data) {
+        if (this.pendingInputRequests.has(request_id)) {
+            this.resolveInputRequest(request_id, {
+                status: 'completed',
+                data: input_data,
+                provided_at: new Date().toISOString()
+            });
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Cancel a pending input request
+     * 
+     * @param {string} request_id - Request identifier
+     * @param {string} reason - Cancellation reason
+     * @returns {boolean} True if request was found and cancelled
+     */
+    cancel_input_request(request_id, reason = 'Cancelled by system') {
+        if (this.pendingInputRequests.has(request_id)) {
+            this.resolveInputRequest(request_id, {
+                status: 'cancelled',
+                reason,
+                cancelled_at: new Date().toISOString()
+            });
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get information about pending input requests
+     * 
+     * @returns {Array} Array of pending request information
+     */
+    get_pending_input_requests() {
+        const pending = [];
+        for (const [request_id, requestData] of this.pendingInputRequests) {
+            pending.push({
+                request_id,
+                event_pattern: requestData.event_pattern,
+                timeout_seconds: requestData.timeout_seconds,
+                metadata: requestData.metadata,
+                created_at: requestData.created_at,
+                time_remaining: this.calculateTimeRemaining(requestData)
+            });
+        }
+        return pending;
+    }
+
+    /**
+     * Resolve an input request with provided data
+     * 
+     * @private
+     * @param {string} request_id - Request identifier
+     * @param {any} response_data - Response data
+     */
+    resolveInputRequest(request_id, response_data) {
+        const requestData = this.pendingInputRequests.get(request_id);
+        if (!requestData) return;
+
+        // Clean up timeout and listener
+        this.cleanupInputRequest(request_id);
+
+        // Emit resolution event
+        this.emit('input.resolved', {
+            request_id,
+            response_data,
+            resolved_at: new Date().toISOString()
+        });
+
+        // Resolve the promise
+        requestData.resolve(response_data);
+
+        // Remove from pending requests
+        this.pendingInputRequests.delete(request_id);
+    }
+
+    /**
+     * Handle timeout for an input request
+     * 
+     * @private
+     * @param {string} request_id - Request identifier
+     */
+    timeoutInputRequest(request_id) {
+        const requestData = this.pendingInputRequests.get(request_id);
+        if (!requestData) return;
+
+        // Emit timeout event
+        this.emit('input.timeout', {
+            request_id,
+            timeout_at: new Date().toISOString(),
+            default_response: requestData.default_response
+        });
+
+        // Resolve with default response
+        this.resolveInputRequest(request_id, requestData.default_response);
+    }
+
+    /**
+     * Check if an event matches an input request
+     * 
+     * @private
+     * @param {Object} eventData - Event data
+     * @param {Object} requestData - Request data
+     * @returns {boolean} True if event matches request
+     */
+    matchesInputRequest(eventData, requestData) {
+        // Check if event pattern matches
+        if (!this.matchesPattern(eventData.event, requestData.event_pattern)) {
+            return false;
+        }
+
+        // Check if request_id matches (if present in event data)
+        if (eventData.data && eventData.data.request_id) {
+            return eventData.data.request_id === requestData.request_id;
+        }
+
+        return true;
+    }
+
+    /**
+     * Clean up timeout and listeners for an input request
+     * 
+     * @private
+     * @param {string} request_id - Request identifier
+     */
+    cleanupInputRequest(request_id) {
+        const timeoutData = this.inputTimeouts.get(request_id);
+        if (timeoutData) {
+            // Clear timeout
+            clearTimeout(timeoutData.timeoutId);
+            
+            // Remove pattern listener
+            const listeners = this.eventPatterns.get(timeoutData.event_pattern);
+            if (listeners) {
+                const index = listeners.indexOf(timeoutData.listener);
+                if (index > -1) {
+                    listeners.splice(index, 1);
+                    if (listeners.length === 0) {
+                        this.eventPatterns.delete(timeoutData.event_pattern);
+                    }
+                }
+            }
+            
+            this.inputTimeouts.delete(request_id);
+        }
+    }
+
+    /**
+     * Calculate remaining time for a request
+     * 
+     * @private
+     * @param {Object} requestData - Request data
+     * @returns {number} Remaining time in seconds
+     */
+    calculateTimeRemaining(requestData) {
+        const created = new Date(requestData.created_at);
+        const elapsed = (new Date() - created) / 1000;
+        return Math.max(0, requestData.timeout_seconds - elapsed);
+    }
+
+    /**
+     * Generate unique request ID
+     * 
+     * @private
+     * @returns {string} Unique request identifier
+     */
+    generateRequestId() {
+        return `input_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    /**
+     * Enhanced wait for input with human escalation support
+     * 
+     * @param {Object} options - Wait configuration with escalation
+     * @param {string} options.event_pattern - Event pattern to wait for
+     * @param {number} options.timeout_seconds - Timeout in seconds
+     * @param {any} options.default_response - Default response on timeout
+     * @param {boolean} options.enable_escalation - Enable escalation on timeout
+     * @param {Array} options.escalation_chain - Chain of escalation targets
+     * @param {Object} options.escalation_data - Data for escalation
+     * @returns {Promise} Promise that resolves with input data or escalated response
+     */
+    async wait_for_input_with_escalation(options = {}) {
+        const {
+            enable_escalation = true,
+            escalation_chain = ['team_lead', 'manager', 'director'],
+            escalation_data = {},
+            ...waitOptions
+        } = options;
+
+        try {
+            return await this.wait_for_input(waitOptions);
+        } catch (error) {
+            if (enable_escalation && escalation_chain.length > 0) {
+                // Emit escalation event
+                this.emit('input.escalation', {
+                    original_request: waitOptions,
+                    escalation_chain,
+                    escalation_data,
+                    escalation_reason: error.message || 'timeout',
+                    escalated_at: new Date().toISOString()
+                });
+
+                // Try with next level in escalation chain
+                const nextLevel = escalation_chain[0];
+                const remainingChain = escalation_chain.slice(1);
+
+                return this.wait_for_input_with_escalation({
+                    ...options,
+                    escalation_chain: remainingChain,
+                    escalation_data: {
+                        ...escalation_data,
+                        escalated_from: options.escalation_data?.current_approver || 'system',
+                        current_approver: nextLevel,
+                        escalation_level: (options.escalation_data?.escalation_level || 0) + 1
+                    }
+                });
+            }
+
+            throw error;
+        }
+    }
+
+    /**
+     * Batch wait for multiple inputs
+     * 
+     * @param {Array} input_requests - Array of input request configurations
+     * @param {Object} options - Batch options
+     * @returns {Promise} Promise that resolves with array of responses
+     */
+    async wait_for_multiple_inputs(input_requests, options = {}) {
+        const { 
+            wait_for_all = true,
+            timeout_seconds = 300,
+            enable_partial_results = false 
+        } = options;
+
+        const promises = input_requests.map(request => 
+            this.wait_for_input({
+                timeout_seconds,
+                ...request
+            }).catch(error => ({ error: error.message, request }))
+        );
+
+        if (wait_for_all) {
+            return Promise.all(promises);
+        } else {
+            // Wait for first completed response
+            return Promise.race(promises);
+        }
+    }
+
+    /**
      * Debug helper to list all listeners
      */
     getListenerInfo() {
@@ -479,6 +811,7 @@ class EventBus extends EventEmitter {
         return {
             standard: standardEvents,
             patterns: patternEvents,
+            pending_inputs: this.pendingInputRequests.size,
             total: Object.values(standardEvents).reduce((a, b) => a + b, 0) +
                    Object.values(patternEvents).reduce((a, b) => a + b, 0)
         };

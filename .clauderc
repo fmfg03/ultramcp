@@ -1,0 +1,32 @@
+# =============================================================================
+# UltraMCP Claude Code Configuration
+# Automatic initialization settings for Claude Code sessions
+# =============================================================================
+
+# This file is automatically sourced when Claude Code starts in UltraMCP directory
+
+# Auto-run initialization if this is a fresh session
+if [ -x "./scripts/claude-session-init.sh" ]; then
+    ./scripts/claude-session-init.sh
+fi
+
+# Set up helpful aliases for Claude Code usage
+alias ultramcp-help='make claude-help'
+alias ultramcp-status='make status'
+alias ultramcp-verify='make claude-verify'
+alias ultramcp-start='make claude-start'
+
+# Quick commands
+alias uhelp='make help'
+alias ustatus='make status'
+alias uverify='make claude-verify'
+alias uchat='make chat TEXT='
+alias ulocal='make local-chat TEXT='
+
+# Environment variables for UltraMCP
+export ULTRAMCP_PROJECT_ROOT=$(pwd)
+export ULTRAMCP_SESSION_ID=$(date +%Y%m%d-%H%M%S)
+
+# Welcome message
+echo "🚀 UltraMCP environment loaded for Claude Code"
+echo "💡 Type 'ultramcp-help' for commands or 'make help' for full list"

@@ -1,0 +1,223 @@
+# UltraMCP ContextBuilderAgent 2.0 - Project Metadata
+# Metadatos globales y configuración del proyecto
+# Version: 1.0.0
+
+project:
+  name: "UltraMCP Supreme Stack"
+  version: "2.0.0-contextbuilder"
+  description: "AI-orchestrated multi-agent system with semantic coherence"
+  created: "2025-07-04T06:25:00Z"
+  last_updated: "2025-07-04T06:25:00Z"
+  
+  architecture:
+    type: "microservices_with_semantic_coherence"
+    total_services: 12
+    total_files: 875
+    estimated_tokens: "2.0M"
+    
+  repositories:
+    main: "/root/ultramcp"
+    context: "/root/ultramcp/.context"
+    data: "/root/ultramcp/data"
+    services: "/root/ultramcp/services"
+
+context_builder:
+  version: "2.0.0"
+  semantic_bus:
+    technology: "Redis Streams 7.0+"
+    channels: ["context_mutations", "semantic_validation", "coherence_alerts", "fragment_updates"]
+    throughput_target: "10000 msg/s"
+    latency_p95: "<50ms"
+    availability: "99.9%"
+    
+  mutation_evaluator_pool:
+    services:
+      - name: "context_drift_detector"
+        technology: "FastAPI + BGE-Large"
+        threshold: 0.78
+        response_time_p95: "<200ms"
+        
+      - name: "contradiction_resolver"
+        technology: "FastAPI + Ollama"
+        confidence_threshold: 0.85
+        response_time_p95: "<500ms"
+        
+      - name: "belief_reviser"
+        technology: "FastAPI + Knowledge Graph"
+        versioning: "git-like"
+        response_time_p95: "<300ms"
+        
+      - name: "utility_predictor"
+        technology: "FastAPI + ML (RF + NN)"
+        accuracy_target: ">85%"
+        response_time_p95: "<100ms"
+
+  coherence_validator:
+    metrics:
+      context_overlap_ratio: ">0.78"
+      embedding_similarity: ">0.85"
+      belief_consistency_index: ">0.90"
+      contradiction_detection_rate: "<0.05"
+      
+    circuit_breaker:
+      failure_threshold: 3
+      recovery_threshold: 5
+      timeout_window: "5m"
+
+integrations:
+  ultramcp_services:
+    - name: "chain-of-debate"
+      integration_type: "direct_api"
+      context_injection: "pre_hooks"
+      
+    - name: "claude-code-memory"
+      integration_type: "qdrant_sharing"
+      context_injection: "metadata_enhancement"
+      
+    - name: "asterisk-security"
+      integration_type: "policy_fragments"
+      context_injection: "security_headers"
+      
+    - name: "control-tower"
+      integration_type: "workflow_context"
+      context_injection: "orchestration_context"
+      
+    - name: "voice-system"
+      integration_type: "transcription_context"
+      context_injection: "voice_processing"
+      
+    - name: "blockoli-mcp"
+      integration_type: "semantic_search"
+      context_injection: "search_context"
+      
+    - name: "sam-mcp-tool"
+      integration_type: "agent_context"
+      context_injection: "context_fragments"
+      
+    - name: "deepclaude"
+      integration_type: "enhanced_reasoning"
+      context_injection: "reasoning_context"
+      
+    - name: "gitingest-mcp"
+      integration_type: "repository_analysis"
+      context_injection: "analysis_context"
+
+external_integrations:
+  ai_models:
+    local:
+      - "qwen2.5:14b"
+      - "llama3.1:8b"
+      - "mistral:7b"
+      - "deepseek-coder:6.7b"
+      - "qwen2.5-coder:7b"
+      
+    external:
+      - "openai/gpt-4o-mini"
+      - "anthropic/claude-3-haiku"
+      - "perplexity/llama-3.1-sonar"
+      
+  vector_database:
+    qdrant:
+      url: "https://7d496b1f-ee40-4081-a4ad-3c54d250e6da.us-east4-0.gcp.cloud.qdrant.io:6333"
+      collection: "project_context"
+      vector_size: 1024
+      distance: "cosine"
+      
+  databases:
+    postgresql:
+      host: "mcp-database"
+      port: 5432
+      database: "mcp_system"
+      
+    redis:
+      host: "mcp-redis"
+      port: 6379
+      streams_enabled: true
+
+chain_of_debate:
+  activation_criteria:
+    - "contradiction_confidence < 0.3"
+    - "affects_multiple_phases = true"
+    - "high_confidence_conflict = true"
+    - "manual_escalation = true"
+    
+  cognitive_roles:
+    analytical_thinking:
+      model: "qwen2.5:14b"
+      focus: "evidence_evaluation"
+      
+    creative_thinking:
+      model: "llama3.1:8b"
+      focus: "solution_exploration"
+      
+    intuitive_thinking:
+      model: "mistral:7b"
+      focus: "pattern_recognition"
+      
+    systems_thinking:
+      model: "deepseek-coder:6.7b"
+      focus: "holistic_impact"
+
+observability:
+  metrics:
+    business:
+      - "context_coherence_score"
+      - "mutation_success_rate"
+      - "cod_consensus_rate"
+      
+    technical:
+      - "semantic_bus_throughput"
+      - "fragment_propagation_latency"
+      - "circuit_breaker_trip_rate"
+      
+  dashboards:
+    grafana:
+      - "business_metrics_dashboard"
+      - "technical_performance_dashboard"
+      - "service_health_matrix"
+      - "real_time_alerts"
+      
+  tracing:
+    opentelemetry:
+      enabled: true
+      custom_spans: ["context_propagation", "mutation_evaluation", "cod_debates", "fragment_generation"]
+
+security:
+  authentication:
+    type: "enterprise_sso"
+    protocols: ["oauth2", "saml", "ldap"]
+    
+  encryption:
+    in_transit: "TLS 1.3"
+    at_rest: "AES-256"
+    
+  access_control:
+    rbac_enabled: true
+    audit_trails: true
+    
+  compliance:
+    frameworks: ["SOC2", "GDPR", "HIPAA", "SOX"]
+    
+deployment:
+  environment: "kubernetes"
+  scaling:
+    redis_cluster: "3 nodes, 16GB RAM each"
+    postgresql_ha: "master + 2 replicas, 32GB RAM"
+    qdrant_cluster: "3 nodes, 64GB RAM"
+    k8s_cluster: "8 nodes, 32GB RAM, 8 CPU each"
+    
+  monitoring:
+    prometheus: true
+    grafana: true
+    alertmanager: true
+    
+development:
+  team_size: 11
+  timeline: "17 weeks"
+  phases: 6
+  estimated_effort: "100 person-days"
+  
+  git:
+    branch_strategy: "feature-branches"
+    pr_required: true
+    testing_required: true

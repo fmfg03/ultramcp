@@ -6,7 +6,7 @@
 
 # Default target
 help:
-	@echo "🚀 UltraMCP Hybrid System"
+	@echo "[START] UltraMCP Hybrid System"
 	@echo ""
 	@echo "Claude Code Integration:"
 	@echo "  make claude-init             - Initialize Claude session (RECOMMENDED)"
@@ -34,7 +34,7 @@ help:
 	@echo "  make context7-enhance PROMPT='...'     - Enhance prompt with docs"
 	@echo "  make context7-health                   - Check Context7 status"
 	@echo ""
-	@echo "🎛️ Control Tower UI:"
+	@echo "[CONTROL] Control Tower UI:"
 	@echo "  make control-tower             - Launch full Control Tower UI"
 	@echo "  make control-tower-status      - Check Control Tower status"
 	@echo ""
@@ -44,12 +44,12 @@ help:
 	@echo "  make local-remove MODEL='...'  - Remove local model"
 	@echo "  make local-status              - Check local LLM system status"
 	@echo ""
-	@echo "🔍 Code Intelligence (Blockoli):"
+	@echo "[SEARCH] Code Intelligence (Blockoli):"
 	@echo "  make index-project PROJECT='...' NAME='...' - Index project for semantic search"
 	@echo "  make code-search QUERY='...' PROJECT='...'  - Semantic code search"
 	@echo "  make code-debate TOPIC='...' PROJECT='...'  - Code-intelligent AI debate"
 	@echo ""
-	@echo "🚀 Unified Backend (FastAPI MCP Integration):"
+	@echo "[START] Unified Backend (FastAPI MCP Integration):"
 	@echo "  make unified-start             - Start unified backend with all core services"
 	@echo "  make unified-status           - Check unified backend health" 
 	@echo "  make unified-logs             - View unified backend logs"
@@ -60,7 +60,7 @@ help:
 	@echo "  make intelligent-code-review FILE='...' PROJECT='...' - AI code review"
 	@echo "  make setup-code-intelligence   - Setup and test code intelligence"
 	@echo ""
-	@echo "🧠 Claude Code Memory (Advanced Semantic Analysis):"
+	@echo "[AI] Claude Code Memory (Advanced Semantic Analysis):"
 	@echo "  make memory-index PROJECT='...' NAME='...'   - Index project for semantic memory"
 	@echo "  make memory-search QUERY='...' PROJECT='...' - Semantic code search with memory"
 	@echo "  make memory-analyze FILE='...' PROJECT='...' - Advanced pattern analysis"
@@ -69,7 +69,7 @@ help:
 	@echo "  make memory-explore                          - Interactive memory exploration"
 	@echo "  make memory-help                             - Full memory commands guide"
 	@echo ""
-	@echo "🚀 VoyageAI Hybrid Search (Enterprise-Grade Embeddings + Privacy-First):"
+	@echo "[START] VoyageAI Hybrid Search (Enterprise-Grade Embeddings + Privacy-First):"
 	@echo "  make voyage-search QUERY='...' [PRIVACY='...'] [MODE='...']  - Enhanced semantic search"
 	@echo "  make voyage-code-search QUERY='...' [LANGUAGE='...']          - Code-optimized search"
 	@echo "  make voyage-privacy-search QUERY='...'                        - Local-only search"
@@ -79,18 +79,63 @@ help:
 	@echo "  make voyage-health                                             - Check VoyageAI services"
 	@echo "  make voyage-help                                               - Full VoyageAI guide"
 	@echo ""
-	@echo "🔗 Ref Tools Documentation (Internal/External Doc Intelligence):"
+	@echo "[LINK] Ref Tools Documentation (Internal/External Doc Intelligence):"
 	@echo "  make ref-search QUERY='...' [SOURCE='...'] [PRIVACY='...']    - Search all documentation"
 	@echo "  make ref-internal-search QUERY='...' PROJECT='...' ORG='...'  - Internal docs only"
 	@echo "  make ref-external-search QUERY='...' PROJECT='...'            - External docs only"
 	@echo "  make ref-read-url URL='...' [CODE=true]                       - Extract URL content"
 	@echo ""
-	@echo "🌟 Unified Documentation Intelligence (Complete Ecosystem):"
+	@echo "[SHINE] Unified Documentation Intelligence (Complete Ecosystem):"
 	@echo "  make docs-unified-search QUERY='...' [TYPE='...'] [INTELLIGENCE='...']  - Search all sources"
 	@echo "  make docs-code-search QUERY='...' PROJECT='...'               - Code-focused search"
 	@echo "  make docs-help                                                 - Complete docs guide"
 	@echo ""
-	@echo "🎭 External Actions Execution (Enterprise Integration):"
+	@echo "[CLAUDIA] Claudia MCP Integration (Visual Multi-LLM Platform):"
+	@echo "  make claudia-start                                             - Start all Claudia MCP servers"
+	@echo "  make claudia-system-start                                      - Start complete Claudia system"
+	@echo "  make claudia-frontend                                          - Start Claudia frontend dev server"
+	@echo "  make claudia-status                                            - Check Claudia MCP servers status"
+	@echo "  make claudia-test                                              - Test Claudia MCP integration"
+	@echo "  make claudia-help                                              - Full Claudia integration guide"
+	@echo "  make cod-mcp-server                                            - Start Chain-of-Debate MCP Server"
+	@echo ""
+	@echo "🧠 ContextBuilderAgent 2.0 (Semantic Coherence Platform):"
+	@echo "  make context-start                                             - Start ContextBuilder ecosystem"
+	@echo "  make context-stop                                              - Stop ContextBuilder services"
+	@echo "  make context-status                                            - Check ContextBuilder status"
+	@echo "  make context-validate                                          - Validate semantic coherence"
+	@echo "  make context-mutate MUTATION='...'                             - Apply context mutation"
+	@echo "  make context-analyze SESSION='...'                             - Analyze session for insights"
+	@echo "  make context-optimize                                          - Optimize context thresholds"
+	@echo "  make context-restart                                           - Restart ContextBuilder system"
+	@echo "  make context-test                                              - Test ContextBuilder integration"
+	@echo "  make context-logs                                              - View ContextBuilder logs"
+	@echo "  make context-help                                              - ContextBuilder usage guide"
+	@echo ""
+	@echo "🎯 PromptAssemblerAgent (Next-Gen Dynamic Prompts):"
+	@echo "  make prompt-assemble TYPE='...' OBJECTIVE='...'                - Assemble dynamic prompt"
+	@echo "  make prompt-optimize PROMPT='...'                              - Optimize existing prompt"
+	@echo "  make prompt-templates                                          - List available templates"
+	@echo "  make prompt-analyze PROMPT='...'                               - Analyze prompt quality"
+	@echo "  make prompt-status                                             - Check PromptAssembler status"
+	@echo ""
+	@echo "🔭 ContextObservatory (Enterprise Monitoring):"
+	@echo "  make observatory-dashboard TYPE='...'                          - View monitoring dashboard"
+	@echo "  make observatory-health                                        - Comprehensive health check"
+	@echo "  make observatory-alerts                                        - View system alerts"
+	@echo "  make observatory-metrics                                       - Get performance metrics"
+	@echo "  make observatory-start-monitoring                              - Start background monitoring"
+	@echo ""
+	@echo "🐛 DeterministicDebugMode (Reproducible Testing):"
+	@echo "  make debug-start-session NAME='...'                           - Start debug session"
+	@echo "  make debug-capture-snapshot                                    - Capture system snapshot"
+	@echo "  make debug-trace-operation TYPE='...'                          - Trace operation"
+	@echo "  make debug-sessions                                            - List debug sessions"
+	@echo "  make debug-status                                              - Check debug mode status"
+	@echo "  make local-mcp-server                                          - Start Local Models MCP Server"
+	@echo "  make hybrid-mcp-server                                         - Start Hybrid Decision MCP Server"
+	@echo ""
+	@echo "[CLAUDIA] External Actions Execution (Enterprise Integration):"
 	@echo "  make actions-list                                              - List all available external actions"
 	@echo "  make actions-escalate MESSAGE='...' [PRIORITY='...']          - Escalate to human approval"
 	@echo "  make actions-notify RECIPIENT='...' MESSAGE='...' [CHANNEL='...'] - Send notification"
@@ -101,6 +146,28 @@ help:
 	@echo "  make actions-history ACTION='...' [LIMIT='...']               - Get action execution history"
 	@echo "  make actions-stats                                             - Get execution statistics"
 	@echo "  make actions-health                                            - Check actions service health"
+	@echo ""
+	@echo "[LINK] GitIngest Repository Analysis (Code Context for LLMs):"
+	@echo "  make gitingest-analyze-repo URL='...' [NAME='...']           - Analyze GitHub repository"
+	@echo "  make gitingest-analyze-local PATH='...' [NAME='...']         - Analyze local directory"
+	@echo "  make gitingest-list [LIMIT='...']                            - List recent analyses"
+	@echo "  make gitingest-get NAME='...'                                - Get specific analysis"
+	@echo "  make gitingest-delete NAME='...'                             - Delete analysis"
+	@echo "  make gitingest-server                                        - Start GitIngest MCP server"
+	@echo "  make gitingest-status                                        - Check GitIngest service status"
+	@echo "  make gitingest-help                                          - GitIngest integration guide"
+	@echo ""
+	@echo "[BUILD] ContextBuilderAgent 2.0 (Semantic Coherence Platform):"
+	@echo "  make context-start                                           - Start ContextBuilderAgent system"
+	@echo "  make context-stop                                            - Stop all ContextBuilder services"
+	@echo "  make context-restart                                         - Restart ContextBuilder system"
+	@echo "  make context-status                                          - Check ContextBuilder services status"
+	@echo "  make context-validate                                        - Validate semantic coherence"
+	@echo "  make context-mutate DOMAIN='...' FIELD='...' VALUE='...'     - Apply context mutation"
+	@echo "  make context-optimize                                        - Optimize thresholds and parameters"
+	@echo "  make context-analyze SESSION='...'                           - Analyze session transcript"
+	@echo "  make context-test                                            - Test ContextBuilder integration"
+	@echo "  make context-help                                            - ContextBuilder integration guide"
 	@echo ""
 	@echo "System Operations:"
 	@echo "  make web-scrape URL='...'      - Scrape website"
@@ -137,16 +204,16 @@ help:
 # =============================================================================
 
 setup:
-	@echo "🔧 Setting up UltraMCP Hybrid System..."
+	@echo "[TOOLS] Setting up UltraMCP Hybrid System..."
 	@mkdir -p logs data/state data/backups scripts
 	@mkdir -p data/scrapes data/debates data/monitoring
 	@npm install
 	@pip3 install -r requirements.txt
 	@chmod +x scripts/*.sh
-	@echo "✅ System ready"
+	@echo "[OK] System ready"
 
 status:
-	@echo "📊 UltraMCP System Status"
+	@echo "[DATA] UltraMCP System Status"
 	@echo "========================="
 	@./scripts/system-status.sh
 
@@ -159,7 +226,7 @@ logs-tail:
 	@tail -f logs/combined.log | jq -r '. | "\(.timestamp) [\(.level)] \(.service): \(.message)"' 2>/dev/null || tail -f logs/combined.log
 
 logs-search:
-	@echo "🔍 Searching logs for: $(QUERY)"
+	@echo "[SEARCH] Searching logs for: $(QUERY)"
 	@grep -i "$(QUERY)" logs/combined.log 2>/dev/null | tail -n 50 | jq -r '. | "\(.timestamp) [\(.level)] \(.service): \(.message)"' 2>/dev/null || grep -i "$(QUERY)" logs/combined.log 2>/dev/null | tail -n 50 || echo "No matches found"
 
 clean:
@@ -167,7 +234,7 @@ clean:
 	@pkill -f "ultramcp" 2>/dev/null || true
 	@pkill -f "cod-service" 2>/dev/null || true
 	@rm -f logs/*.log
-	@echo "✅ Cleanup complete"
+	@echo "[OK] Cleanup complete"
 
 # =============================================================================
 # AI OPERATIONS
@@ -178,15 +245,15 @@ chat:
 	@./scripts/simple-chat.sh "$(TEXT)"
 
 debate:
-	@echo "🎭 Starting CoD Protocol debate on: $(TOPIC)"
+	@echo "[CLAUDIA] Starting CoD Protocol debate on: $(TOPIC)"
 	@./scripts/cod-debate.sh "$(TOPIC)"
 
 research:
-	@echo "🔍 Researching: $(URL)"
+	@echo "[SEARCH] Researching: $(URL)"
 	@./scripts/web-research.sh "$(URL)"
 
 analyze:
-	@echo "🧠 Analyzing: $(FILE)"
+	@echo "[AI] Analyzing: $(FILE)"
 	@./scripts/analyze-data.sh "$(FILE)"
 
 # =============================================================================
@@ -194,7 +261,7 @@ analyze:
 # =============================================================================
 
 local-chat:
-	@echo "🤖 Starting local LLM chat..."
+	@echo "[DEEPCLAUDE] Starting local LLM chat..."
 	@./scripts/local-llm-chat.sh "$(TEXT)"
 
 local-models:
@@ -210,7 +277,7 @@ local-remove:
 	@ollama rm "$(MODEL)"
 
 local-status:
-	@echo "🔍 Local LLM system status:"
+	@echo "[SEARCH] Local LLM system status:"
 	@ollama ps
 
 # =============================================================================
@@ -238,7 +305,7 @@ health-check:
 	@./scripts/health-check.sh
 
 verify-integration:
-	@echo "🔍 Verifying complete service integration..."
+	@echo "[SEARCH] Verifying complete service integration..."
 	@./scripts/verify-integration.sh
 
 backup:
@@ -250,11 +317,11 @@ backup-list:
 	@python3 scripts/rollback-manager.py --list-backups
 
 rollback:
-	@echo "🔄 Creating rollback plan for: $(SNAPSHOT)"
+	@echo "[SYNC] Creating rollback plan for: $(SNAPSHOT)"
 	@python3 scripts/rollback-manager.py --plan "$(SNAPSHOT)"
 
 rollback-execute:
-	@echo "⚠️  Executing rollback to: $(SNAPSHOT)"
+	@echo "[WARNING]  Executing rollback to: $(SNAPSHOT)"
 	@python3 scripts/rollback-manager.py --rollback "$(SNAPSHOT)"
 
 rollback-dry-run:
@@ -266,7 +333,7 @@ fallback-status:
 	@python3 scripts/fallback-manager.py --health
 
 service-discovery:
-	@echo "🔍 Service discovery status:"
+	@echo "[SEARCH] Service discovery status:"
 	@python3 scripts/service-discovery.py --status
 
 register-services:
@@ -278,16 +345,16 @@ register-services:
 # =============================================================================
 
 dev-start:
-	@echo "🚀 Starting development environment..."
+	@echo "[START] Starting development environment..."
 	@npm run dev &
 	@python3 scripts/cod-service.py --dev &
-	@echo "✅ Development environment started"
+	@echo "[OK] Development environment started"
 
 dev-stop:
 	@echo "🛑 Stopping development environment..."
 	@pkill -f "npm run dev" 2>/dev/null || true
 	@pkill -f "cod-service.py" 2>/dev/null || true
-	@echo "✅ Development environment stopped"
+	@echo "[OK] Development environment stopped"
 
 # =============================================================================
 # DOCKER OPERATIONS
@@ -298,7 +365,7 @@ docker-build:
 	@docker-compose build
 
 docker-up:
-	@echo "🚀 Starting Docker containers..."
+	@echo "[START] Starting Docker containers..."
 	@docker-compose up -d
 
 docker-down:
@@ -310,15 +377,15 @@ docker-logs:
 	@docker-compose logs -f
 
 docker-dev:
-	@echo "🔧 Starting development Docker stack..."
+	@echo "[TOOLS] Starting development Docker stack..."
 	@docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 docker-hybrid:
-	@echo "🎯 Starting UltraMCP Hybrid stack (optimized)..."
+	@echo "[TARGET] Starting UltraMCP Hybrid stack (optimized)..."
 	@docker-compose -f docker-compose.hybrid.yml up -d
 
 docker-rebuild:
-	@echo "🔄 Rebuilding and restarting Docker services..."
+	@echo "[SYNC] Rebuilding and restarting Docker services..."
 	@docker-compose down
 	@docker-compose build --no-cache
 	@docker-compose up -d
@@ -333,7 +400,7 @@ docker-clean:
 # =============================================================================
 
 start:
-	@echo "🚀 UltraMCP Hybrid System Startup"
+	@echo "[START] UltraMCP Hybrid System Startup"
 	@./scripts/hybrid-startup.sh
 
 # =============================================================================
@@ -346,21 +413,21 @@ claude-init:
 
 # Full verification and acknowledgment
 claude-verify:
-	@echo "🔍 Running comprehensive Claude Code verification..."
+	@echo "[SEARCH] Running comprehensive Claude Code verification..."
 	@./scripts/claude-startup-verification.sh
 
 # Quick session start
 claude-start:
-	@echo "🚀 Starting Claude Code session..."
+	@echo "[START] Starting Claude Code session..."
 	@./scripts/claude-session-init.sh
 	@make status
 
 claude-demo:
-	@echo "🤖 Running Claude Code integration demo..."
+	@echo "[DEEPCLAUDE] Running Claude Code integration demo..."
 	@./scripts/claude-code-demo.sh
 
 claude-help:
-	@echo "💡 Claude Code Integration Help"
+	@echo "[IDEA] Claude Code Integration Help"
 	@echo "==============================="
 	@echo ""
 	@echo "Session Management:"
@@ -390,7 +457,7 @@ claude-help:
 	@echo "📖 Full documentation: cat CLAUDE.md"
 
 claude-setup:
-	@echo "🤖 Setting up Claude Code integration..."
+	@echo "[DEEPCLAUDE] Setting up Claude Code integration..."
 	@./scripts/claude-code-setup.sh
 
 claude-test:
@@ -402,26 +469,26 @@ claude-test:
 # =============================================================================
 
 control-tower:
-	@echo "🎛️ Starting UltraMCP Control Tower..."
+	@echo "[CONTROL] Starting UltraMCP Control Tower..."
 	@./scripts/launch-control-tower.sh
 
 control-tower-backend:
-	@echo "🔧 Starting Control Tower WebSocket Server..."
+	@echo "[TOOLS] Starting Control Tower WebSocket Server..."
 	@cd services/control-tower && npm install --silent && npm start
 
 control-tower-frontend:
-	@echo "🎨 Starting Control Tower UI..."
+	@echo "[DESIGN] Starting Control Tower UI..."
 	@cd apps/frontend && npm run dev -- --port 5173
 
 control-tower-build:
-	@echo "🏗️ Building Control Tower UI..."
+	@echo "[BUILD] Building Control Tower UI..."
 	@cd services/control-tower && npm install --silent
 	@cd apps/frontend && npm run build
 
 control-tower-status:
-	@echo "📊 Control Tower Status:"
-	@curl -s http://localhost:8001/api/status 2>/dev/null | jq . || echo "❌ Control Tower backend not running"
-	@curl -s http://localhost:5173 >/dev/null 2>&1 && echo "✅ Frontend running on http://localhost:5173" || echo "❌ Frontend not running"
+	@echo "[DATA] Control Tower Status:"
+	@curl -s http://localhost:8001/api/status 2>/dev/null | jq . || echo "[ERROR] Control Tower backend not running"
+	@curl -s http://localhost:5173 >/dev/null 2>&1 && echo "[OK] Frontend running on http://localhost:5173" || echo "[ERROR] Frontend not running"
 	@make chat TEXT="Hello from UltraMCP Hybrid System!"
 # =============================================================================
 # CONTEXT7 REAL-TIME DOCUMENTATION
@@ -434,7 +501,7 @@ context7-docs:
 
 # Search documentation
 context7-search:
-	@echo "🔍 Searching documentation: $(QUERY) in $(LIBRARY)..."
+	@echo "[SEARCH] Searching documentation: $(QUERY) in $(LIBRARY)..."
 	@python3 services/context7-mcp/context7_client.py search "$(LIBRARY)" "$(QUERY)"
 
 # Enhance prompt with Context7
@@ -444,7 +511,7 @@ context7-enhance:
 
 # Detect libraries in code
 context7-detect:
-	@echo "🔍 Detecting libraries in code..."
+	@echo "[SEARCH] Detecting libraries in code..."
 	@python3 services/context7-mcp/context7_client.py detect "$(CODE)"
 
 # Context7 health check
@@ -454,7 +521,7 @@ context7-health:
 
 # Context7 statistics
 context7-stats:
-	@echo "📊 Context7 service statistics..."
+	@echo "[DATA] Context7 service statistics..."
 	@curl -s http://localhost:8003/api/stats | jq . || echo "Context7 service not available"
 
 # Test Context7 integration
@@ -464,7 +531,7 @@ context7-test:
 
 # Claude Code with Context7 enhancement
 claude-context7-chat:
-	@echo "🤖 Claude Code chat with Context7 enhancement..."
+	@echo "[DEEPCLAUDE] Claude Code chat with Context7 enhancement..."
 	@python3 services/context7-mcp/context7_client.py enhance "$(TEXT). use context7" | make chat TEXT="$(shell cat -)"
 
 # AI chat with automatic documentation context
@@ -475,7 +542,7 @@ context7-chat:
 
 # Local LLM chat with Context7
 context7-local-chat:
-	@echo "🤖 Local LLM chat with Context7 documentation..."
+	@echo "[DEEPCLAUDE] Local LLM chat with Context7 documentation..."
 	@enhanced_prompt=$$(python3 services/context7-mcp/context7_client.py enhance "$(TEXT). use context7") && \
 	make local-chat TEXT="$$enhanced_prompt"
 
@@ -485,15 +552,15 @@ context7-local-chat:
 
 # Local model CoD debates
 cod-local:
-	@echo "🎭 Starting LOCAL-ONLY CoD debate..."
+	@echo "[CLAUDIA] Starting LOCAL-ONLY CoD debate..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=local_only
 
 cod-hybrid:
-	@echo "🎭 Starting HYBRID CoD debate..."
+	@echo "[CLAUDIA] Starting HYBRID CoD debate..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=hybrid
 
 cod-privacy:
-	@echo "🔒 Starting PRIVACY-FIRST debate..."
+	@echo "[SECURITY] Starting PRIVACY-FIRST debate..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=privacy_first
 
 cod-cost-optimized:
@@ -502,17 +569,17 @@ cod-cost-optimized:
 
 # Quick local debates for development
 dev-decision:
-	@echo "🚀 Quick development decision..."
+	@echo "[START] Quick development decision..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="$(DECISION)" --mode=local_only --rounds=2
 
 # Claude Code integration
 claude-debate:
-	@echo "🤖 Claude Code CoD integration..."
+	@echo "[DEEPCLAUDE] Claude Code CoD integration..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="$(TOPIC)" --mode=hybrid --verbose
 
 # Model performance testing
 test-cod-performance:
-	@echo "📊 Testing CoD performance with local models..."
+	@echo "[DATA] Testing CoD performance with local models..."
 	@python3 scripts/enhanced-cod-terminal.py --topic="Test performance and response quality" --mode=local_only --rounds=1
 
 # =============================================================================
@@ -525,8 +592,8 @@ security-scan:
 	@python3 services/asterisk-mcp/asterisk_security_client.py --scan-type=codebase --path=.
 
 # Secure code review with multi-layer analysis
-secure-code-review FILE:
-	@echo "🔍 Secure code review pipeline for $(FILE)..."
+secure-code-review:
+	@echo "[SEARCH] Secure code review pipeline for $(FILE)..."
 	@echo "1. Security vulnerability scanning..."
 	@python3 services/asterisk-mcp/asterisk_security_client.py --scan-type=snippet --file="$(FILE)"
 	@echo "2. AI-powered security analysis..."
@@ -534,23 +601,23 @@ secure-code-review FILE:
 	@echo "3. Generating security report..."
 
 # Security-focused CoD Protocol debates
-security-debate TOPIC:
-	@echo "🔒 Security-focused debate: $(TOPIC)..."
+security-debate:
+	@echo "[SECURITY] Security-focused debate: $(TOPIC)..."
 	@python3 services/cod-protocol/security_enhanced_cod.py --mode=security_first --topic="$(TOPIC)" \
 		--participants="asterisk:security,deepclaude:analyst,local:qwen2.5:14b,local:deepseek-coder:6.7b"
 
 # Vulnerability analysis debate
-vulnerability-analysis FILE:
-	@echo "🔍 Vulnerability analysis debate for $(FILE)..."
+vulnerability-analysis:
+	@echo "[SEARCH] Vulnerability analysis debate for $(FILE)..."
 	@python3 services/cod-protocol/security_enhanced_cod.py --mode=vulnerability_analysis --file="$(FILE)"
 
 # Threat modeling session
-threat-modeling SCOPE:
-	@echo "🎯 Threat modeling session for $(SCOPE)..."
+threat-modeling:
+	@echo "[TARGET] Threat modeling session for $(SCOPE)..."
 	@python3 services/cod-protocol/security_enhanced_cod.py --mode=threat_modeling --scope="$(SCOPE)"
 
 # Compliance analysis
-compliance-check STANDARD:
+compliance-check:
 	@echo "📋 Compliance check for $(STANDARD)..."
 	@python3 services/cod-protocol/security_enhanced_cod.py --mode=compliance_review --standard="$(STANDARD)"
 
@@ -576,12 +643,12 @@ security-health-check:
 
 # Generate comprehensive security report
 generate-security-report:
-	@echo "📊 Generating security report..."
+	@echo "[DATA] Generating security report..."
 	@python3 scripts/generate-security-report.py --output=data/security_reports/
 
 # Security incident response
 security-incident-response INCIDENT:
-	@echo "🚨 Security incident response for: $(INCIDENT)..."
+	@echo "[ALERT] Security incident response for: $(INCIDENT)..."
 	@python3 services/cod-protocol/security_enhanced_cod.py --mode=incident_response --incident="$(INCIDENT)"
 
 # =============================================================================
@@ -590,7 +657,7 @@ security-incident-response INCIDENT:
 
 # Secure code generation with AI
 secure-code-gen REQUIREMENT:
-	@echo "🤖 Secure code generation: $(REQUIREMENT)..."
+	@echo "[DEEPCLAUDE] Secure code generation: $(REQUIREMENT)..."
 	@echo "1. Generating code with security considerations..."
 	@make local-chat TEXT="Generate secure code for: $(REQUIREMENT). Include security best practices, input validation, and error handling."
 	@echo "2. Security scanning generated code..."
@@ -598,13 +665,13 @@ secure-code-gen REQUIREMENT:
 	@echo "3. Security review if needed..."
 
 # AI-powered security training
-security-training TOPIC:
+security-training:
 	@echo "🎓 AI-powered security training: $(TOPIC)..."
 	@make cod-local TOPIC="Security training session: $(TOPIC). Provide comprehensive security education with practical examples."
 
 # Secure architecture review
-secure-architecture-review COMPONENT:
-	@echo "🏗️ Secure architecture review for $(COMPONENT)..."
+secure-architecture-review:
+	@echo "[BUILD] Secure architecture review for $(COMPONENT)..."
 	@make security-debate TOPIC="Architecture security review for $(COMPONENT)"
 
 # =============================================================================
@@ -623,7 +690,7 @@ gdpr-compliance:
 
 # ISO27001 compliance assessment
 iso27001-compliance:
-	@echo "🌐 ISO27001 compliance assessment..."
+	@echo "[GATEWAY] ISO27001 compliance assessment..."
 	@make compliance-check STANDARD="ISO27001"
 
 # HIPAA compliance assessment
@@ -650,18 +717,18 @@ compliance-audit:
 
 # Security dashboard (Claudia integration)
 security-dashboard:
-	@echo "📊 Opening security dashboard..."
+	@echo "[DATA] Opening security dashboard..."
 	@echo "Security dashboard available at: http://localhost:3000/security"
 	@echo "Use Claudia interface for visual security management"
 
 # Security metrics collection
 security-metrics:
-	@echo "📈 Collecting security metrics..."
+	@echo "[METRICS] Collecting security metrics..."
 	@python3 scripts/collect-security-metrics.py
 
 # Security alerting setup
 security-alerts:
-	@echo "🚨 Setting up security alerts..."
+	@echo "[ALERT] Setting up security alerts..."
 	@python3 scripts/setup-security-alerts.py
 
 # Security backup and recovery
@@ -675,22 +742,22 @@ security-backup:
 
 # Index project for semantic search
 index-project:
-	@echo "🔍 Indexing project $(PROJECT) as $(NAME)..."
+	@echo "[SEARCH] Indexing project $(PROJECT) as $(NAME)..."
 	@python3 services/blockoli-mcp/blockoli_client.py index "$(PROJECT)" "$(NAME)"
 
 # Semantic code search
 code-search:
-	@echo "🔍 Semantic search: $(QUERY) in $(PROJECT)"
+	@echo "[SEARCH] Semantic search: $(QUERY) in $(PROJECT)"
 	@python3 services/blockoli-mcp/blockoli_client.py search "$(QUERY)" "$(PROJECT)"
 
 # Code-intelligent debates
 code-debate:
-	@echo "🧠 Code-intelligent debate: $(TOPIC)"
+	@echo "[AI] Code-intelligent debate: $(TOPIC)"
 	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="$(TOPIC)" --project="$(PROJECT)" --mode=basic
 
 # Architecture analysis with AI
 architecture-analysis:
-	@echo "🏗️ Architecture analysis: $(FOCUS) in $(PROJECT)"
+	@echo "[BUILD] Architecture analysis: $(FOCUS) in $(PROJECT)"
 	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Architecture analysis: $(FOCUS)" --project="$(PROJECT)" --mode=architecture_focused
 
 # Security analysis with code context
@@ -700,22 +767,22 @@ code-security-analysis:
 
 # Code pattern analysis
 pattern-analysis:
-	@echo "🔍 Pattern analysis: $(PATTERN) in $(PROJECT)"
+	@echo "[SEARCH] Pattern analysis: $(PATTERN) in $(PROJECT)"
 	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Pattern analysis: $(PATTERN)" --project="$(PROJECT)" --mode=pattern_analysis
 
 # Intelligent code review
 intelligent-code-review:
-	@echo "🧠 Intelligent code review for $(FILE)"
+	@echo "[AI] Intelligent code review for $(FILE)"
 	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Code review for $(FILE)" --project="$(PROJECT)" --query="$(FILE)" --mode=deep_analysis
 
 # Code similarity analysis
 similarity-analysis:
-	@echo "🔗 Similarity analysis: $(FUNCTION) in $(PROJECT)"
+	@echo "[LINK] Similarity analysis: $(FUNCTION) in $(PROJECT)"
 	@python3 services/blockoli-mcp/blockoli_client.py search "$(FUNCTION)" "$(PROJECT)"
 
 # Refactoring analysis with code intelligence
 refactoring-analysis:
-	@echo "🔄 Refactoring analysis: $(TOPIC) in $(PROJECT)"
+	@echo "[SYNC] Refactoring analysis: $(TOPIC) in $(PROJECT)"
 	@python3 services/blockoli-mcp/code_intelligent_cod.py --topic="Refactoring analysis: $(TOPIC)" --project="$(PROJECT)" --mode=refactoring_focused
 
 # Deep code context analysis
@@ -735,7 +802,7 @@ list-indexed-projects:
 
 # Project statistics
 project-stats:
-	@echo "📊 Project statistics for $(PROJECT)..."
+	@echo "[DATA] Project statistics for $(PROJECT)..."
 	@curl -s http://localhost:8080/projects/$(PROJECT)/stats 2>/dev/null | jq . || echo "Project not found or Blockoli service not available"
 
 # =============================================================================
@@ -753,7 +820,7 @@ secure-code-intelligence:
 
 # Development workflow with code intelligence
 dev-workflow-intelligent:
-	@echo "🚀 Intelligent development workflow..."
+	@echo "[START] Intelligent development workflow..."
 	@echo "1. Indexing current project..."
 	@make index-project PROJECT="." NAME="current_project"
 	@echo "2. Running code health check..."
@@ -764,7 +831,7 @@ dev-workflow-intelligent:
 
 # AI-powered code review workflow
 ai-code-review-workflow:
-	@echo "🤖 AI-powered code review workflow..."
+	@echo "[DEEPCLAUDE] AI-powered code review workflow..."
 	@echo "1. Security scan..."
 	@make security-scan
 	@echo "2. Intelligent code review..."
@@ -775,14 +842,14 @@ ai-code-review-workflow:
 
 # Complete code intelligence setup
 setup-code-intelligence:
-	@echo "🔧 Setting up code intelligence..."
+	@echo "[TOOLS] Setting up code intelligence..."
 	@echo "1. Checking Blockoli service..."
 	@make blockoli-health
 	@echo "2. Indexing current project..."
 	@make index-project PROJECT="." NAME="ultramcp"
 	@echo "3. Testing code search..."
 	@make code-search QUERY="authentication" PROJECT="ultramcp"
-	@echo "✅ Code intelligence setup complete"
+	@echo "[OK] Code intelligence setup complete"
 
 # =============================================================================
 # CLAUDE CODE MEMORY - Advanced Semantic Code Analysis
@@ -790,12 +857,12 @@ setup-code-intelligence:
 
 # Project indexing with memory
 memory-index:
-	@echo "🧠 Indexing project for Claude Code Memory..."
+	@echo "[AI] Indexing project for Claude Code Memory..."
 	@python3 services/claude-code-memory/claude_memory_client.py index "$(PROJECT)" "$(NAME)" $(if $(FORCE),--force)
 
 # Semantic code search
 memory-search:
-	@echo "🔍 Searching code with semantic memory..."
+	@echo "[SEARCH] Searching code with semantic memory..."
 	@python3 services/claude-code-memory/claude_memory_client.py search "$(QUERY)" $(if $(PROJECT),--project "$(PROJECT)") $(if $(LANGUAGE),--language "$(LANGUAGE)") --limit $(or $(LIMIT),10)
 
 # Advanced pattern analysis
@@ -805,7 +872,7 @@ memory-analyze:
 
 # Memory service status
 memory-status:
-	@echo "📊 Claude Code Memory Status"
+	@echo "[DATA] Claude Code Memory Status"
 	@python3 services/claude-code-memory/claude_memory_client.py status
 
 # List memory projects
@@ -829,7 +896,7 @@ memory-find-similar:
 
 # Memory-enhanced CoD Protocol
 memory-debate:
-	@echo "🎭 Memory-enhanced CoD Protocol debate..."
+	@echo "[CLAUDIA] Memory-enhanced CoD Protocol debate..."
 	@echo "1. Gathering relevant code context..."
 	@make memory-search QUERY="$(TOPIC)" PROJECT="$(PROJECT)" LIMIT=3
 	@echo "2. Starting intelligent debate with code context..."
@@ -837,7 +904,7 @@ memory-debate:
 
 # Quality assessment with memory
 memory-quality-check:
-	@echo "💎 Memory-enhanced quality assessment..."
+	@echo "[PREMIUM] Memory-enhanced quality assessment..."
 	@echo "1. Pattern analysis..."
 	@make memory-analyze FILE="$(FILE)" PROJECT="$(PROJECT)"
 	@echo "2. Finding similar implementations..."
@@ -865,24 +932,16 @@ test-memory-integration:
 	@make memory-search QUERY="test" PROJECT="test_project" LIMIT=3
 	@echo "4. Pattern analysis test..."
 	@make memory-analyze FILE="Makefile" PROJECT="test_project"
-	@echo "✅ Memory integration test complete"
+	@echo "[OK] Memory integration test complete"
 
 # Memory cleanup
 memory-clean:
 	@echo "🧹 Cleaning Claude Code Memory..."
-	@python3 -c "
-import asyncio
-from services.claude_code_memory.claude_memory_client import ClaudeCodeMemoryClient
-async def clean():
-    async with ClaudeCodeMemoryClient() as client:
-        await client.clear_memory(confirm=True)
-        print('Memory cleared successfully')
-asyncio.run(clean())
-"
+	@python3 -c "import asyncio; from services.claude_code_memory.claude_memory_client import ClaudeCodeMemoryClient; asyncio.run((lambda: ClaudeCodeMemoryClient().clear_memory(confirm=True))())"
 
 # Enhanced help for memory commands
 memory-help:
-	@echo "🧠 Claude Code Memory Commands"
+	@echo "[AI] Claude Code Memory Commands"
 	@echo "=============================="
 	@echo ""
 	@echo "Project Management:"
@@ -916,24 +975,24 @@ memory-help:
 
 # Enhanced semantic search with VoyageAI
 voyage-search:
-	@echo "🚀 VoyageAI Enhanced Semantic Search..."
+	@echo "[START] VoyageAI Enhanced Semantic Search..."
 	@curl -X POST http://localhost:8009/memory/search/enhanced \
 		-H "Content-Type: application/json" \
 		-d '{"query": "$(QUERY)", "limit": $(or $(LIMIT),10), "privacy_level": "$(or $(PRIVACY),PUBLIC)", "domain": $(if $(DOMAIN),"$(DOMAIN)",null), "search_mode": "$(or $(MODE),AUTO)", "project_name": $(if $(PROJECT),"$(PROJECT)",null)}' | jq .
 
 # Code-optimized search with VoyageAI code embeddings
 voyage-code-search:
-	@echo "💻 VoyageAI Code-Optimized Search..."
+	@echo "[DESKTOP] VoyageAI Code-Optimized Search..."
 	@curl -X POST "http://localhost:8009/memory/search/code?query=$(QUERY)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),INTERNAL)$(if $(PROJECT),&project_name=$(PROJECT))$(if $(LANGUAGE),&language=$(LANGUAGE))" | jq .
 
 # Privacy-first search (local only)
 voyage-privacy-search:
-	@echo "🔒 Privacy-First Local Search..."
+	@echo "[SECURITY] Privacy-First Local Search..."
 	@curl -X POST "http://localhost:8009/memory/search/privacy-first?query=$(QUERY)&limit=$(or $(LIMIT),10)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
 
 # Domain-specialized search (finance, healthcare, legal, etc.)
 voyage-domain-search:
-	@echo "🎯 Domain-Specialized Search ($(DOMAIN))..."
+	@echo "[TARGET] Domain-Specialized Search ($(DOMAIN))..."
 	@curl -X POST "http://localhost:8009/memory/search/domain?query=$(QUERY)&domain=$(DOMAIN)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),PUBLIC)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
 
 # Enhanced project indexing with VoyageAI
@@ -955,7 +1014,7 @@ voyage-health:
 
 # Get VoyageAI service statistics
 voyage-stats:
-	@echo "📊 VoyageAI Service Statistics..."
+	@echo "[DATA] VoyageAI Service Statistics..."
 	@echo "1. Enhanced Search Stats:"
 	@curl -s http://localhost:8009/memory/stats/enhanced | jq .search_stats
 	@echo "2. Service Health:"
@@ -965,7 +1024,7 @@ voyage-stats:
 
 # List available VoyageAI models and capabilities
 voyage-models:
-	@echo "🤖 Available VoyageAI Models..."
+	@echo "[DEEPCLAUDE] Available VoyageAI Models..."
 	@curl -s http://localhost:8009/memory/models | jq .
 
 # Domain-specific workflows
@@ -983,7 +1042,7 @@ voyage-legal-search:
 
 # Advanced hybrid workflows
 voyage-hybrid-analysis:
-	@echo "🔄 Hybrid Analysis Workflow..."
+	@echo "[SYNC] Hybrid Analysis Workflow..."
 	@echo "1. Privacy-first search for sensitive content..."
 	@make voyage-privacy-search QUERY="$(QUERY)" PROJECT="$(PROJECT)" LIMIT=5
 	@echo "2. VoyageAI enhanced search for public context..."
@@ -1016,11 +1075,11 @@ test-voyage-integration:
 	@make voyage-code-search QUERY="docker" PROJECT="ultramcp" LIMIT=3
 	@echo "5. Enhanced search test..."
 	@make voyage-search QUERY="integration" PROJECT="ultramcp" MODE="HYBRID" LIMIT=3
-	@echo "✅ VoyageAI integration test complete"
+	@echo "[OK] VoyageAI integration test complete"
 
 # VoyageAI help
 voyage-help:
-	@echo "🚀 VoyageAI Hybrid Search Commands"
+	@echo "[START] VoyageAI Hybrid Search Commands"
 	@echo "================================="
 	@echo ""
 	@echo "Basic Search:"
@@ -1069,7 +1128,7 @@ voyage-help:
 
 # Ref Tools documentation search
 ref-search:
-	@echo "🔗 Ref Tools Documentation Search..."
+	@echo "[LINK] Ref Tools Documentation Search..."
 	@curl -X POST http://localhost:8011/ref/search \
 		-H "Content-Type: application/json" \
 		-d '{"query": "$(QUERY)", "source_type": "$(or $(SOURCE),AUTO)", "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_code_examples": $(or $(CODE),true), "max_results": $(or $(LIMIT),10), "organization": $(if $(ORG),"$(ORG)",null), "project_context": $(if $(PROJECT),"$(PROJECT)",null)}' | jq .
@@ -1088,24 +1147,24 @@ ref-internal-search:
 
 # External documentation search
 ref-external-search:
-	@echo "🌐 External Documentation Search..."
+	@echo "[GATEWAY] External Documentation Search..."
 	@make ref-search QUERY="$(QUERY)" SOURCE="EXTERNAL" PRIVACY="PUBLIC" PROJECT="$(PROJECT)"
 
 # Unified documentation search combining all sources
 docs-unified-search:
-	@echo "🌟 Unified Documentation Intelligence Search..."
+	@echo "[SHINE] Unified Documentation Intelligence Search..."
 	@curl -X POST http://localhost:8012/docs/unified-search \
 		-H "Content-Type: application/json" \
 		-d '{"query": "$(QUERY)", "documentation_type": "$(or $(TYPE),HYBRID)", "intelligence_level": "$(or $(INTELLIGENCE),ENHANCED)", "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_code": $(or $(CODE),true), "include_examples": $(or $(EXAMPLES),true), "max_results_per_source": $(or $(LIMIT),5), "project_context": $(if $(PROJECT),"$(PROJECT)",null), "organization": $(if $(ORG),"$(ORG)",null)}' | jq .
 
 # Code-focused unified search
 docs-code-search:
-	@echo "💻 Unified Code Documentation Search..."
+	@echo "[DESKTOP] Unified Code Documentation Search..."
 	@make docs-unified-search QUERY="$(QUERY)" TYPE="CODE_SNIPPETS" INTELLIGENCE="ENHANCED" PROJECT="$(PROJECT)"
 
 # Documentation intelligence help
 docs-help:
-	@echo "🌟 Complete Documentation Intelligence Commands"
+	@echo "[SHINE] Complete Documentation Intelligence Commands"
 	@echo "============================================="
 	@echo ""
 	@echo "Ref Tools Commands:"
@@ -1130,28 +1189,28 @@ docs-help:
 
 # Start unified backend with all core services
 unified-start:
-	@echo "🚀 Starting UltraMCP Unified Backend..."
+	@echo "[START] Starting UltraMCP Unified Backend..."
 	@docker-compose -f docker-compose.unified.yml up -d ultramcp-unified-backend
-	@echo "✅ Unified backend started at http://localhost:8000"
+	@echo "[OK] Unified backend started at http://localhost:8000"
 	@echo "📚 Documentation: http://localhost:8000/docs"
-	@echo "🔗 MCP Tools: http://localhost:8000/mcp/tools"
+	@echo "[LINK] MCP Tools: http://localhost:8000/mcp/tools"
 
 # Start complete unified system (backend + specialized services)
 unified-system-start:
-	@echo "🌟 Starting Complete Unified System..."
+	@echo "[SHINE] Starting Complete Unified System..."
 	@docker-compose -f docker-compose.unified.yml up -d
-	@echo "✅ Complete system started"
+	@echo "[OK] Complete system started"
 	@make unified-status
 
 # Check unified backend health
 unified-status:
 	@echo "🏥 Unified Backend Health Check..."
 	@echo "1. Global Health:"
-	@curl -s http://localhost:8000/health 2>/dev/null | jq . || echo "❌ Unified backend not available"
+	@curl -s http://localhost:8000/health 2>/dev/null | jq . || echo "[ERROR] Unified backend not available"
 	@echo "2. Component Health:"
-	@curl -s http://localhost:8000/health/detailed 2>/dev/null | jq .components || echo "❌ Component health check failed"
+	@curl -s http://localhost:8000/health/detailed 2>/dev/null | jq .components || echo "[ERROR] Component health check failed"
 	@echo "3. MCP Tools:"
-	@curl -s http://localhost:8000/mcp/tools 2>/dev/null | jq .total_tools || echo "❌ MCP tools not available"
+	@curl -s http://localhost:8000/mcp/tools 2>/dev/null | jq .total_tools || echo "[ERROR] MCP tools not available"
 
 # View unified backend logs
 unified-logs:
@@ -1166,12 +1225,12 @@ unified-test:
 	@echo "2. Testing CoD endpoint..."
 	@curl -X POST http://localhost:8000/cod/local-debate \
 		-H "Content-Type: application/json" \
-		-d '{"topic": "Test unified backend debate", "participants": 2, "rounds": 1}' 2>/dev/null | jq .debate_id || echo "❌ CoD test failed"
+		-d '{"topic": "Test unified backend debate", "participants": 2, "rounds": 1}' 2>/dev/null | jq .debate_id || echo "[ERROR] CoD test failed"
 	@echo "3. Testing Memory endpoint..."
-	@curl -X POST "http://localhost:8000/memory/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "❌ Memory test failed"
+	@curl -X POST "http://localhost:8000/memory/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "[ERROR] Memory test failed"
 	@echo "4. Testing VoyageAI endpoint..."
-	@curl -X POST "http://localhost:8000/voyage/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "❌ Voyage test failed"
-	@echo "✅ Unified backend tests complete"
+	@curl -X POST "http://localhost:8000/voyage/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "[ERROR] Voyage test failed"
+	@echo "[OK] Unified backend tests complete"
 
 # Open unified backend documentation
 unified-docs:
@@ -1190,7 +1249,7 @@ unified-docs:
 
 # Test MCP protocol endpoints
 unified-mcp-test:
-	@echo "🔗 Testing MCP Protocol Integration..."
+	@echo "[LINK] Testing MCP Protocol Integration..."
 	@echo "1. List MCP tools..."
 	@curl -s http://localhost:8000/mcp/tools | jq .total_tools
 	@echo "2. Get MCP capabilities..."
@@ -1199,33 +1258,33 @@ unified-mcp-test:
 	@curl -X POST http://localhost:8000/mcp/execute/cod_local_debate \
 		-H "Content-Type: application/json" \
 		-d '{"topic": "MCP integration test", "participants": 2}' | jq .result.debate_id
-	@echo "✅ MCP integration test complete"
+	@echo "[OK] MCP integration test complete"
 
 # Unified backend development mode
 unified-dev:
-	@echo "🔧 Starting Unified Backend in Development Mode..."
+	@echo "[TOOLS] Starting Unified Backend in Development Mode..."
 	@cd services/ultramcp-unified-backend && \
 		pip install -r requirements.txt && \
 		python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 # Rebuild unified backend
 unified-rebuild:
-	@echo "🔄 Rebuilding Unified Backend..."
+	@echo "[SYNC] Rebuilding Unified Backend..."
 	@docker-compose -f docker-compose.unified.yml down ultramcp-unified-backend
 	@docker-compose -f docker-compose.unified.yml build --no-cache ultramcp-unified-backend
 	@docker-compose -f docker-compose.unified.yml up -d ultramcp-unified-backend
-	@echo "✅ Unified backend rebuilt and restarted"
+	@echo "[OK] Unified backend rebuilt and restarted"
 
 # Migration from microservices to unified backend
 unified-migrate:
-	@echo "🔄 Migrating from Microservices to Unified Backend..."
+	@echo "[SYNC] Migrating from Microservices to Unified Backend..."
 	@echo "1. Stopping individual microservices..."
 	@docker-compose down cod-service memory-service voyage-service ref-service docs-service 2>/dev/null || true
 	@echo "2. Starting unified backend..."
 	@make unified-start
 	@echo "3. Testing migration..."
 	@make unified-test
-	@echo "✅ Migration complete. Individual services consolidated into unified backend."
+	@echo "[OK] Migration complete. Individual services consolidated into unified backend."
 
 # Stop unified backend
 unified-stop:
@@ -1239,7 +1298,7 @@ unified-system-stop:
 
 # Performance test for unified backend
 unified-performance-test:
-	@echo "⚡ Unified Backend Performance Test..."
+	@echo "[FAST] Unified Backend Performance Test..."
 	@echo "1. Concurrent CoD requests..."
 	@for i in $$(seq 1 3); do \
 		curl -X POST http://localhost:8000/cod/local-debate \
@@ -1252,11 +1311,11 @@ unified-performance-test:
 		curl -X POST "http://localhost:8000/memory/search/privacy-first?query=performance$$i&limit=2" \
 			-w "Response time: %{time_total}s\n" -o /dev/null -s & \
 	done; wait
-	@echo "✅ Performance test complete"
+	@echo "[OK] Performance test complete"
 
 # Complete unified backend help
 unified-help:
-	@echo "🚀 UltraMCP Unified Backend Commands"
+	@echo "[START] UltraMCP Unified Backend Commands"
 	@echo "===================================="
 	@echo ""
 	@echo "Basic Operations:"
@@ -1293,14 +1352,154 @@ unified-help:
 	@echo "  - voyage_domain_search            - Domain-specialized search"
 	@echo "  - ref_search_documentation        - Documentation search"
 	@echo "  - ref_read_url                    - URL content extraction"
-	@echo "  - docs_unified_search             - Supreme documentation intelligence
-  - actions_list                    - List available external actions
-  - actions_execute                 - Execute external action
-  - actions_escalate_human          - Escalate to human approval
-  - actions_send_notification       - Send notifications
-  - actions_trigger_workflow        - Trigger external workflows
-  - actions_create_ticket           - Create external tickets
-  - actions_security_scan           - Run security scans
+	@echo "  - docs_unified_search             - Supreme documentation intelligence"
+	@echo "  - actions_list                    - List available external actions"
+	@echo "  - actions_execute                 - Execute external action"
+	@echo "  - actions_escalate_human          - Escalate to human approval"
+	@echo "  - actions_send_notification       - Send notifications"
+	@echo "  - actions_trigger_workflow        - Trigger external workflows"
+	@echo "  - actions_create_ticket           - Create external tickets"
+	@echo "  - actions_security_scan           - Run security scans"
+
+# =============================================================================
+# CLAUDIA MCP INTEGRATION - Visual Multi-LLM Platform
+# =============================================================================
+
+# Start Claudia MCP servers
+claudia-start:
+	@echo "[CLAUDIA] Starting Claudia MCP Integration..."
+	@echo "1. Starting Chain-of-Debate MCP Server..."
+	@cd services/claudia-mcp && python3 cod_mcp_server.py &
+	@echo "2. Starting Local Models MCP Server..."
+	@cd services/claudia-mcp && python3 local_mcp_server.py &
+	@echo "3. Starting Hybrid Decision MCP Server..."
+	@cd services/claudia-mcp && python3 hybrid_mcp_server.py &
+	@echo "[OK] Claudia MCP servers started"
+
+# Start individual Claudia MCP servers
+cod-mcp-server:
+	@echo "[CLAUDIA] Starting Chain-of-Debate MCP Server..."
+	@cd services/claudia-mcp && python3 cod_mcp_server.py
+
+local-mcp-server:
+	@echo "[DEEPCLAUDE] Starting Local Models MCP Server..."
+	@cd services/claudia-mcp && python3 local_mcp_server.py
+
+hybrid-mcp-server:
+	@echo "[AI] Starting Hybrid Decision MCP Server..."
+	@cd services/claudia-mcp && python3 hybrid_mcp_server.py
+
+# Test Claudia MCP integration
+claudia-test:
+	@echo "🧪 Testing Claudia MCP Integration..."
+	@echo "1. Testing Chain-of-Debate MCP Server files..."
+	@test -f services/claudia-mcp/cod_mcp_server.py && echo "[OK] Chain-of-Debate MCP Server exists" || echo "[ERROR] Chain-of-Debate MCP Server missing"
+	@echo "2. Testing Local Models MCP Server files..."
+	@test -f services/claudia-mcp/local_mcp_server.py && echo "[OK] Local Models MCP Server exists" || echo "[ERROR] Local Models MCP Server missing"
+	@echo "3. Testing Hybrid Decision MCP Server files..."
+	@test -f services/claudia-mcp/hybrid_mcp_server.py && echo "[OK] Hybrid Decision MCP Server exists" || echo "[ERROR] Hybrid Decision MCP Server missing"
+	@echo "4. Testing requirements..."
+	@test -f services/claudia-mcp/requirements.txt && echo "[OK] Claudia MCP requirements exist" || echo "[ERROR] Claudia MCP requirements missing"
+	@echo "[OK] Claudia MCP integration tests complete"
+
+# Stop Claudia MCP servers
+claudia-stop:
+	@echo "🛑 Stopping Claudia MCP servers..."
+	@pkill -f "cod_mcp_server.py" 2>/dev/null || true
+	@pkill -f "local_mcp_server.py" 2>/dev/null || true
+	@pkill -f "hybrid_mcp_server.py" 2>/dev/null || true
+	@echo "[OK] Claudia MCP servers stopped"
+
+# Check Claudia MCP servers status
+claudia-status:
+	@echo "[DATA] Claudia MCP Servers Status"
+	@echo "============================="
+	@pgrep -f "cod_mcp_server.py" >/dev/null && echo "[OK] Chain-of-Debate MCP Server: Running" || echo "[ERROR] Chain-of-Debate MCP Server: Stopped"
+	@pgrep -f "local_mcp_server.py" >/dev/null && echo "[OK] Local Models MCP Server: Running" || echo "[ERROR] Local Models MCP Server: Stopped"
+	@pgrep -f "hybrid_mcp_server.py" >/dev/null && echo "[OK] Hybrid Decision MCP Server: Running" || echo "[ERROR] Hybrid Decision MCP Server: Stopped"
+
+# Claudia frontend development server
+claudia-frontend:
+	@echo "[DESIGN] Starting Claudia Frontend Development Server..."
+	@cd apps/frontend && npm run dev -- --port 3001
+
+# Claudia integration help
+claudia-help:
+	@echo "[CLAUDIA] Claudia MCP Integration Commands"
+	@echo "=================================="
+	@echo ""
+	@echo "MCP Server Management:"
+	@echo "  make claudia-start              - Start all Claudia MCP servers"
+	@echo "  make claudia-stop               - Stop all Claudia MCP servers"
+	@echo "  make claudia-status             - Check MCP servers status"
+	@echo "  make claudia-test               - Test MCP integration"
+	@echo ""
+	@echo "Individual MCP Servers:"
+	@echo "  make cod-mcp-server             - Start Chain-of-Debate MCP Server"
+	@echo "  make local-mcp-server           - Start Local Models MCP Server"
+	@echo "  make hybrid-mcp-server          - Start Hybrid Decision MCP Server"
+	@echo ""
+	@echo "Frontend Development:"
+	@echo "  make claudia-frontend           - Start Claudia frontend dev server"
+	@echo ""
+	@echo "Integration Workflow:"
+	@echo "  1. make claudia-start           - Start MCP servers"
+	@echo "  2. make claudia-frontend        - Start frontend"
+	@echo "  3. Navigate to http://localhost:3001"
+	@echo "  4. Use Claudia visual interface for multi-LLM debates"
+	@echo ""
+	@echo "MCP Tools Available:"
+	@echo "  Chain-of-Debate Server:"
+	@echo "    - cod_debate                  - Start multi-LLM debate"
+	@echo "    - get_local_models           - List available local models"
+	@echo "    - local_chat                 - Chat with specific local model"
+	@echo "    - cost_analysis              - Analyze debate costs"
+	@echo "    - optimize_costs             - Optimize model selection for cost"
+	@echo ""
+	@echo "  Local Models Server:"
+	@echo "    - qwen25_14b_chat            - Chat with Qwen 2.5 14B"
+	@echo "    - llama31_8b_chat            - Chat with Llama 3.1 8B"
+	@echo "    - qwen_coder_7b_chat         - Chat with Qwen Coder 7B"
+	@echo "    - mistral_7b_chat            - Chat with Mistral 7B"
+	@echo "    - deepseek_coder_chat        - Chat with DeepSeek Coder"
+	@echo "    - auto_select_model          - Auto-select best model for task"
+	@echo ""
+	@echo "  Hybrid Decision Server:"
+	@echo "    - hybrid_decision            - Make hybrid local/API decision"
+	@echo "    - cost_optimize_route        - Optimize routing for costs"
+	@echo "    - privacy_optimize_route     - Optimize routing for privacy"
+	@echo "    - quality_optimize_route     - Optimize routing for quality"
+	@echo "    - batch_process              - Process multiple requests efficiently"
+	@echo ""
+	@echo "Frontend Components:"
+	@echo "  - Real-time debate visualization with participant circles"
+	@echo "  - Local model management interface"
+	@echo "  - Performance monitoring and analytics"
+	@echo "  - Cost and privacy optimization controls"
+	@echo "  - Integration with UltraMCP backend services"
+
+# Complete Claudia system startup
+claudia-system-start:
+	@echo "[SHINE] Starting Complete Claudia System..."
+	@echo "1. Starting Claudia MCP servers..."
+	@make claudia-start
+	@echo "2. Starting Claudia frontend..."
+	@echo "Starting frontend in background..."
+	@cd apps/frontend && npm run dev -- --port 3001 > /dev/null 2>&1 &
+	@sleep 3
+	@echo ""
+	@echo "[OK] Complete Claudia system started!"
+	@echo "[CLAUDIA] Claudia Interface: http://localhost:3001"
+	@echo "📖 Use 'make claudia-help' for available commands"
+	@make claudia-status
+
+# Simple Claudia startup (MCP servers only)
+claudia-simple-start:
+	@echo "[CLAUDIA] Starting Claudia MCP Servers Only..."
+	@make claudia-start
+	@echo "[OK] Claudia MCP servers started!"
+	@echo "📖 Use 'make claudia-frontend' to start the UI"
+	@make claudia-status
 
 # =============================================================================
 # Actions MCP Service Commands (External Actions Execution)
@@ -1308,17 +1507,17 @@ unified-help:
 
 # Actions service status
 actions-health:
-	@echo "🎭 Checking Actions MCP Service Health..."
-	@curl -s http://localhost:8010/health/ | jq . || echo "❌ Actions service not available"
+	@echo "[CLAUDIA] Checking Actions MCP Service Health..."
+	@curl -s http://localhost:8010/health/ | jq . || echo "[ERROR] Actions service not available"
 
 # List all available actions
 actions-list:
 	@echo "📋 Available External Actions:"
-	@curl -s http://localhost:8010/actions/ | jq . || echo "❌ Failed to get actions list"
+	@curl -s http://localhost:8010/actions/ | jq . || echo "[ERROR] Failed to get actions list"
 
 # Escalate to human approval
 actions-escalate:
-	@echo "🚨 Escalating to Human: $(MESSAGE)"
+	@echo "[ALERT] Escalating to Human: $(MESSAGE)"
 	@curl -X POST http://localhost:8010/actions/escalate_to_human/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"message": "$(MESSAGE)", "priority": "$(if $(PRIORITY),$(PRIORITY),medium)"}}' | jq .
@@ -1333,7 +1532,7 @@ actions-notify:
 
 # Trigger external workflow
 actions-workflow:
-	@echo "⚡ Triggering Workflow: $(JOB)"
+	@echo "[FAST] Triggering Workflow: $(JOB)"
 	@curl -X POST http://localhost:8010/actions/trigger_workflow/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"job_name": "$(JOB)", "workflow_type": "$(if $(TYPE),$(TYPE),jenkins)", "parameters": $(if $(PARAMS),$(PARAMS),{})}}' | jq .
@@ -1348,14 +1547,14 @@ actions-ticket:
 
 # Run security scan
 actions-security-scan:
-	@echo "🔒 Running Security Scan on $(TARGET)"
+	@echo "[SECURITY] Running Security Scan on $(TARGET)"
 	@curl -X POST http://localhost:8010/actions/run_security_scan/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"target": "$(TARGET)", "scan_type": "$(if $(TYPE),$(TYPE),vulnerability)", "tool": "$(if $(TOOL),$(TOOL),sonarqube)"}}' | jq .
 
 # Validate action parameters
 actions-validate:
-	@echo "✅ Validating Parameters for Action: $(ACTION)"
+	@echo "[OK] Validating Parameters for Action: $(ACTION)"
 	@curl -X POST http://localhost:8010/actions/$(ACTION)/validate \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": $(PARAMS)}' | jq .
@@ -1367,12 +1566,12 @@ actions-history:
 
 # Get execution statistics
 actions-stats:
-	@echo "📊 Actions Execution Statistics:"
+	@echo "[DATA] Actions Execution Statistics:"
 	@curl -s http://localhost:8010/actions/stats/summary | jq .
 
 # Execute any action directly
 actions-execute:
-	@echo "🎭 Executing Action: $(ACTION)"
+	@echo "[CLAUDIA] Executing Action: $(ACTION)"
 	@curl -X POST http://localhost:8010/actions/$(ACTION)/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": $(PARAMS)}' | jq .
@@ -1389,11 +1588,11 @@ actions-test:
 	@echo "3. Validate parameters..."
 	@make actions-validate ACTION=escalate_to_human PARAMS='{"message":"test","priority":"low"}'
 	@echo ""
-	@echo "✅ Actions integration test complete"
+	@echo "[OK] Actions integration test complete"
 
 # Actions service help
 actions-help:
-	@echo "🎭 Actions MCP Service Commands"
+	@echo "[CLAUDIA] Actions MCP Service Commands"
 	@echo "================================"
 	@echo ""
 	@echo "Basic Operations:"
@@ -1432,3 +1631,566 @@ actions-help:
 	@echo ""
 	@echo "Service URL: http://localhost:8010"
 	@echo "Documentation: http://localhost:8010/docs"
+
+# =============================================================================
+# GITINGEST REPOSITORY ANALYSIS - Code Context for LLMs
+# =============================================================================
+
+# Analyze GitHub repository
+gitingest-analyze-repo:
+	@echo "[LINK] Analyzing GitHub repository: $(URL)"
+	@/bin/mkdir -p data/gitingest
+	@if [ -n "$(NAME)" ]; then \
+		/usr/local/bin/gitingest "$(URL)" --output "data/gitingest/$(NAME).txt" $(if $(TOKEN),--token "$(TOKEN)") $(if $(BRANCH),--branch "$(BRANCH)") $(if $(MAX_SIZE),--max-size "$(MAX_SIZE)") $(if $(EXCLUDE),--exclude-pattern "$(EXCLUDE)") $(if $(INCLUDE),--include-pattern "$(INCLUDE)"); \
+	else \
+		/usr/local/bin/gitingest "$(URL)" --output "data/gitingest/repo_$(shell date +%Y%m%d_%H%M%S).txt" $(if $(TOKEN),--token "$(TOKEN)") $(if $(BRANCH),--branch "$(BRANCH)") $(if $(MAX_SIZE),--max-size "$(MAX_SIZE)") $(if $(EXCLUDE),--exclude-pattern "$(EXCLUDE)") $(if $(INCLUDE),--include-pattern "$(INCLUDE)"); \
+	fi
+	@echo "[OK] Repository analysis complete"
+
+# Analyze local directory
+gitingest-analyze-local:
+	@echo "[LINK] Analyzing local directory: $(PATH)"
+	@/bin/mkdir -p data/gitingest
+	@if [ -n "$(NAME)" ]; then \
+		/usr/local/bin/gitingest "$(PATH)" --output "data/gitingest/$(NAME).txt" $(if $(MAX_SIZE),--max-size "$(MAX_SIZE)") $(if $(EXCLUDE),--exclude-pattern "$(EXCLUDE)") $(if $(INCLUDE),--include-pattern "$(INCLUDE)"); \
+	else \
+		/usr/local/bin/gitingest "$(PATH)" --output "data/gitingest/local_$(shell date +%Y%m%d_%H%M%S).txt" $(if $(MAX_SIZE),--max-size "$(MAX_SIZE)") $(if $(EXCLUDE),--exclude-pattern "$(EXCLUDE)") $(if $(INCLUDE),--include-pattern "$(INCLUDE)"); \
+	fi
+	@echo "[OK] Local directory analysis complete"
+
+# List recent analyses
+gitingest-list:
+	@echo "[DATA] Recent GitIngest Analyses"
+	@echo "================================"
+	@ls -la data/gitingest/*.txt 2>/dev/null | head -$(or $(LIMIT),10) || echo "No analyses found"
+
+# Get specific analysis
+gitingest-get:
+	@echo "[LINK] Analysis: $(NAME)"
+	@echo "===================="
+	@if [ -f "data/gitingest/$(NAME).txt" ]; then \
+		head -50 "data/gitingest/$(NAME).txt"; \
+		echo ""; \
+		echo "... (showing first 50 lines)"; \
+		echo "Full file: data/gitingest/$(NAME).txt"; \
+	else \
+		echo "[ERROR] Analysis not found: $(NAME)"; \
+		echo "Available analyses:"; \
+		ls data/gitingest/*.txt 2>/dev/null || echo "No analyses found"; \
+	fi
+
+# Delete analysis
+gitingest-delete:
+	@echo "[WARNING] Deleting analysis: $(NAME)"
+	@if [ -f "data/gitingest/$(NAME).txt" ]; then \
+		rm -f "data/gitingest/$(NAME).txt"; \
+		rm -f "data/gitingest/$(NAME)_metadata.json"; \
+		echo "[OK] Analysis deleted: $(NAME)"; \
+	else \
+		echo "[ERROR] Analysis not found: $(NAME)"; \
+	fi
+
+# Start GitIngest MCP server
+gitingest-server:
+	@echo "[LINK] Starting GitIngest MCP Server..."
+	@cd services/gitingest-mcp && python3 gitingest_mcp_server.py &
+	@echo "[OK] GitIngest MCP server started on port 8010"
+
+# Check GitIngest service status
+gitingest-status:
+	@echo "[DATA] GitIngest Service Status"
+	@echo "==============================="
+	@echo "GitIngest CLI: $(shell which gitingest && echo 'Installed' || echo 'Not found')"
+	@echo "MCP Server: $(shell pgrep -f gitingest_mcp_server.py && echo 'Running' || echo 'Not running')"
+	@echo "Data Directory: $(shell ls -la data/gitingest/ 2>/dev/null | wc -l || echo '0') analyses"
+	@echo "Recent Activity:"
+	@ls -lt data/gitingest/*.txt 2>/dev/null | head -3 || echo "No recent analyses"
+
+# GitIngest help
+gitingest-help:
+	@echo "[LINK] GitIngest Integration Guide"
+	@echo "=================================="
+	@echo ""
+	@echo "Repository Analysis:"
+	@echo "  make gitingest-analyze-repo URL='https://github.com/user/repo' [NAME='my_analysis']"
+	@echo "  make gitingest-analyze-repo URL='https://github.com/user/repo' TOKEN='github_pat_...' BRANCH='main'"
+	@echo "  make gitingest-analyze-repo URL='https://github.com/user/repo' MAX_SIZE='1000000' EXCLUDE='*.log'"
+	@echo ""
+	@echo "Local Directory Analysis:"
+	@echo "  make gitingest-analyze-local PATH='/path/to/code' [NAME='my_analysis']"
+	@echo "  make gitingest-analyze-local PATH='.' NAME='current_project'"
+	@echo "  make gitingest-analyze-local PATH='/src' EXCLUDE='node_modules/*' INCLUDE='*.js'"
+	@echo ""
+	@echo "Analysis Management:"
+	@echo "  make gitingest-list [LIMIT=5]                    # List recent analyses"
+	@echo "  make gitingest-get NAME='my_analysis'            # View specific analysis"
+	@echo "  make gitingest-delete NAME='my_analysis'         # Delete analysis"
+	@echo ""
+	@echo "Service Management:"
+	@echo "  make gitingest-server                            # Start MCP server"
+	@echo "  make gitingest-status                            # Check service status"
+	@echo ""
+	@echo "Parameters:"
+	@echo "  URL         Repository URL (GitHub, GitLab, etc.)"
+	@echo "  PATH        Local directory path"
+	@echo "  NAME        Custom name for analysis output"
+	@echo "  TOKEN       GitHub personal access token"
+	@echo "  BRANCH      Specific branch to analyze"
+	@echo "  MAX_SIZE    Maximum file size in bytes"
+	@echo "  EXCLUDE     Patterns to exclude (e.g., '*.log')"
+	@echo "  INCLUDE     Patterns to include (e.g., '*.py')"
+	@echo ""
+	@echo "Examples:"
+	@echo "  # Analyze this repository"
+	@echo "  make gitingest-analyze-local PATH='.' NAME='ultramcp'"
+	@echo ""
+	@echo "  # Analyze external repository"
+	@echo "  make gitingest-analyze-repo URL='https://github.com/cyclotruc/gitingest' NAME='gitingest_source'"
+	@echo ""
+	@echo "  # List and view analyses"
+	@echo "  make gitingest-list"
+	@echo "  make gitingest-get NAME='ultramcp'"
+	@echo ""
+	@echo "Output: data/gitingest/[NAME].txt"
+
+# =============================================================================
+# CONTEXTBUILDERAGENT 2.0 - Semantic Coherence Platform
+# =============================================================================
+
+# Start ContextBuilderAgent system
+context-start:
+	@echo "[BUILD] Starting ContextBuilderAgent 2.0 system..."
+	@./scripts/bootstrap_context_builder.sh start
+
+# Stop ContextBuilderAgent system
+context-stop:
+	@echo "[BUILD] Stopping ContextBuilderAgent services..."
+	@./scripts/bootstrap_context_builder.sh stop
+
+# Restart ContextBuilderAgent system
+context-restart:
+	@echo "[BUILD] Restarting ContextBuilderAgent system..."
+	@./scripts/bootstrap_context_builder.sh restart
+
+# Check ContextBuilderAgent status
+context-status:
+	@echo "[DATA] ContextBuilderAgent Services Status"
+	@echo "========================================="
+	@./scripts/bootstrap_context_builder.sh status
+
+# Validate semantic coherence
+context-validate:
+	@echo "[BUILD] Validating semantic coherence..."
+	@curl -s -X POST http://localhost:8025/validate_coherence | jq . || echo "ContextBuilder not running - use 'make context-start'"
+
+# Apply context mutation
+context-mutate:
+	@echo "[BUILD] Applying context mutation: $(DOMAIN).$(FIELD) -> $(VALUE)"
+	@curl -s -X POST http://localhost:8025/apply_mutation \
+		-H "Content-Type: application/json" \
+		-d '{"target_domain":"$(DOMAIN).$(FIELD)","new_value":"$(VALUE)","source":"makefile"}' | jq . || echo "ContextBuilder not running"
+
+# Optimize thresholds and parameters
+context-optimize:
+	@echo "[BUILD] Optimizing ContextBuilder thresholds..."
+	@curl -s -X POST http://localhost:8025/process_context \
+		-H "Content-Type: application/json" \
+		-d '{"context_data":{},"operation":"optimize","parameters":{"target_performance":0.85}}' | jq . || echo "ContextBuilder not running"
+
+# Analyze session transcript
+context-analyze:
+	@echo "[BUILD] Analyzing session transcript..."
+	@if [ -z "$(SESSION)" ]; then \
+		echo "Usage: make context-analyze SESSION='transcript text here'"; \
+	else \
+		curl -s -X POST http://localhost:8025/analyze_session \
+			-H "Content-Type: application/json" \
+			-d '{"meeting_transcript":"$(SESSION)","analysis_depth":"standard"}' | jq .; \
+	fi
+
+# Test ContextBuilder integration
+context-test:
+	@echo "[BUILD] Testing ContextBuilder integration..."
+	@./scripts/bootstrap_context_builder.sh test
+
+# Get system status
+context-system-status:
+	@echo "[DATA] Complete ContextBuilder System Status"
+	@echo "==========================================="
+	@curl -s http://localhost:8025/system_status | jq . || echo "ContextBuilder not running"
+
+# Get knowledge tree
+context-knowledge-tree:
+	@echo "[DATA] Current Knowledge Tree"
+	@echo "============================"
+	@curl -s http://localhost:8025/knowledge_tree | jq . || echo "ContextBuilder not running"
+
+# Get performance metrics
+context-metrics:
+	@echo "[DATA] ContextBuilder Performance Metrics"
+	@echo "========================================"
+	@curl -s http://localhost:8025/metrics | jq . || echo "ContextBuilder not running"
+
+# ContextBuilder help
+# Start ContextBuilder ecosystem
+context-start:
+	@echo "🚀 Starting ContextBuilderAgent 2.0 ecosystem..."
+	@./scripts/bootstrap_context_builder.sh start
+
+# Stop ContextBuilder services
+context-stop:
+	@echo "🛑 Stopping ContextBuilderAgent services..."
+	@./scripts/bootstrap_context_builder.sh stop
+
+# Check ContextBuilder status
+context-status:
+	@echo "📊 ContextBuilderAgent Status:"
+	@./scripts/bootstrap_context_builder.sh status
+
+# Restart ContextBuilder system
+context-restart:
+	@echo "🔄 Restarting ContextBuilderAgent system..."
+	@./scripts/bootstrap_context_builder.sh restart
+
+# Test ContextBuilder integration
+context-test:
+	@echo "🧪 Testing ContextBuilderAgent integration..."
+	@./scripts/bootstrap_context_builder.sh test
+
+# View ContextBuilder logs
+context-logs:
+	@echo "📝 ContextBuilderAgent Service Logs:"
+	@for log in /root/ultramcp/logs/context_builder_*.log; do [ -f "$$log" ] && echo "=== $$(basename $$log) ===" && tail -20 "$$log"; done
+
+# Validate semantic coherence
+context-validate:
+	@echo "🔍 Validating semantic coherence..."
+	@curl -X POST http://localhost:8025/validate_coherence \
+		-H "Content-Type: application/json" | jq .
+
+# Apply context mutation
+context-mutate:
+	@echo "🔄 Applying context mutation..."
+	@curl -X POST http://localhost:8025/apply_mutation \
+		-H "Content-Type: application/json" \
+		-d '{"target_domain": "$(DOMAIN)", "field": "$(FIELD)", "new_value": "$(VALUE)", "source": "makefile"}' | jq .
+
+# Analyze session for insights
+context-analyze:
+	@echo "🧠 Analyzing session for insights..."
+	@curl -X POST http://localhost:8025/analyze_session \
+		-H "Content-Type: application/json" \
+		-d '{"meeting_transcript": "$(SESSION)", "context_domain": "$(or $(DOMAIN),general)", "analysis_depth": "$(or $(DEPTH),standard)"}' | jq .
+
+# Optimize context thresholds
+context-optimize:
+	@echo "⚡ Optimizing context thresholds..."
+	@curl -X POST http://localhost:8025/process_context \
+		-H "Content-Type: application/json" \
+		-d '{"context_data": {}, "operation": "optimize", "parameters": {"target_performance": 0.85}}' | jq .
+
+# Get system status
+context-system-status:
+	@echo "🏥 Complete system status..."
+	@curl -s http://localhost:8025/system_status | jq .
+
+# Get knowledge tree
+context-knowledge-tree:
+	@echo "🌳 Current knowledge tree:"
+	@curl -s http://localhost:8025/knowledge_tree | jq .
+
+# Get performance metrics
+context-metrics:
+	@echo "📊 Performance metrics:"
+	@curl -s http://localhost:8025/metrics | jq .
+
+# Process context with custom operation
+context-process:
+	@echo "⚙️ Processing context with operation: $(OPERATION)"
+	@curl -X POST http://localhost:8025/process_context \
+		-H "Content-Type: application/json" \
+		-d '{"context_data": $(DATA), "operation": "$(OPERATION)", "parameters": $(or $(PARAMS),{})}' | jq .
+
+# Quick context health check
+context-health:
+	@echo "🏥 ContextBuilder Health Check:"
+	@curl -s http://localhost:8025/health | jq .
+
+# Enhanced context help
+context-help:
+	@echo "🧠 ContextBuilderAgent 2.0 - Complete Usage Guide"
+	@echo "=================================================="
+	@echo ""
+	@echo "System Management:"
+	@echo "  make context-start                              - Start complete ecosystem"
+	@echo "  make context-stop                               - Stop all services"
+	@echo "  make context-restart                            - Restart system"
+	@echo "  make context-status                             - Check service status"
+	@echo "  make context-health                             - Quick health check"
+	@echo "  make context-test                               - Integration test"
+	@echo ""
+	@echo "Context Operations:"
+	@echo "  make context-validate                           - Validate semantic coherence"
+	@echo "  make context-analyze SESSION='transcript'       - Analyze session insights"
+	@echo "  make context-mutate DOMAIN='...' FIELD='...'   - Apply context mutation"
+	@echo "  make context-optimize                           - Optimize thresholds"
+	@echo "  make context-process OPERATION='...' DATA='{}'  - Custom context operation"
+	@echo ""
+	@echo "Information & Monitoring:"
+	@echo "  make context-knowledge-tree                     - View knowledge tree"
+	@echo "  make context-system-status                      - Complete system status"
+	@echo "  make context-metrics                            - Performance metrics"
+	@echo "  make context-logs                               - View service logs"
+	@echo ""
+	@echo "Service Endpoints:"
+	@echo "  • Orchestrator:        http://localhost:8025"
+	@echo "  • Drift Detector:      http://localhost:8020"
+	@echo "  • Contradiction Resolver: http://localhost:8021"
+	@echo "  • Belief Reviser:      http://localhost:8022"
+	@echo "  • Utility Predictor:   http://localhost:8023"
+	@echo "  • Memory Tuner:        http://localhost:8026"
+	@echo ""
+	@echo "Example Workflows:"
+	@echo "  1. Complete startup:   make context-start"
+	@echo "  2. Analyze transcript: make context-analyze SESSION='We need better scaling'"
+	@echo "  3. Apply insight:      make context-mutate DOMAIN='PAIN_POINTS' FIELD='problemas_actuales' VALUE='Scaling challenges'"
+	@echo "  4. Validate changes:   make context-validate"
+	@echo "  5. View knowledge:     make context-knowledge-tree"
+
+# =============================================================================
+# PROMPTASSEMBLERAGENT - NEXT-GENERATION DYNAMIC PROMPTS
+# =============================================================================
+
+# Assemble dynamic prompt
+prompt-assemble:
+	@echo "🎯 Assembling dynamic prompt..."
+	@curl -X POST http://localhost:8027/assemble_prompt \
+		-H "Content-Type: application/json" \
+		-d '{"prompt_type": "$(TYPE)", "objective": "$(OBJECTIVE)", "complexity": "$(or $(COMPLEXITY),medium)", "context_domains": [$(if $(DOMAINS),"$(DOMAINS)",[])], "template_variables": $(or $(VARS),{})}' | jq .
+
+# Optimize existing prompt
+prompt-optimize:
+	@echo "⚡ Optimizing prompt..."
+	@curl -X POST http://localhost:8027/optimize_prompt \
+		-H "Content-Type: application/json" \
+		-d '{"original_prompt": "$(PROMPT)", "performance_metrics": $(or $(METRICS),{}), "target_improvement": "$(or $(TARGET),effectiveness)"}' | jq .
+
+# List prompt templates
+prompt-templates:
+	@echo "📋 Available prompt templates:"
+	@curl -s http://localhost:8027/templates | jq .
+
+# Analyze prompt quality
+prompt-analyze:
+	@echo "🔍 Analyzing prompt quality..."
+	@curl -X POST http://localhost:8027/analyze_prompt \
+		-H "Content-Type: application/json" \
+		-d '{"prompt": "$(PROMPT)", "context_domains": [$(if $(DOMAINS),"$(DOMAINS)",[])]}' | jq .
+
+# Check PromptAssembler status
+prompt-status:
+	@echo "📊 PromptAssembler Status:"
+	@curl -s http://localhost:8027/health | jq .
+
+# Get PromptAssembler performance analytics
+prompt-analytics:
+	@echo "📈 PromptAssembler Analytics:"
+	@curl -s http://localhost:8027/performance_analytics | jq .
+
+# Create new prompt template
+prompt-create-template:
+	@echo "📝 Creating prompt template..."
+	@curl -X POST http://localhost:8027/create_template \
+		-H "Content-Type: application/json" \
+		-d '{"template_name": "$(NAME)", "template_content": "$(CONTENT)", "variables": [$(VARS)], "context_domains": [$(DOMAINS)], "description": "$(DESC)"}' | jq .
+
+# =============================================================================
+# CONTEXTOBSERVATORY - ENTERPRISE MONITORING
+# =============================================================================
+
+# View monitoring dashboard
+observatory-dashboard:
+	@echo "🔭 Context Observatory Dashboard ($(TYPE))..."
+	@curl -s "http://localhost:8028/dashboard/$(or $(TYPE),overview)" | jq .
+
+# Comprehensive health check
+observatory-health:
+	@echo "🏥 Comprehensive health check..."
+	@curl -X GET http://localhost:8028/health_check \
+		-H "Content-Type: application/json" | jq .
+
+# View system alerts
+observatory-alerts:
+	@echo "🚨 System alerts..."
+	@curl -X GET http://localhost:8028/alerts \
+		-H "Content-Type: application/json" | jq .
+
+# Get performance metrics
+observatory-metrics:
+	@echo "📊 Performance metrics..."
+	@curl -X GET http://localhost:8028/metrics \
+		-H "Content-Type: application/json" | jq .
+
+# Start background monitoring
+observatory-start-monitoring:
+	@echo "▶️ Starting background monitoring..."
+	@curl -X POST http://localhost:8028/start_monitoring | jq .
+
+# Stop background monitoring
+observatory-stop-monitoring:
+	@echo "⏹️ Stopping background monitoring..."
+	@curl -X POST http://localhost:8028/stop_monitoring | jq .
+
+# System overview
+observatory-overview:
+	@echo "🌐 System overview..."
+	@curl -s http://localhost:8028/system_overview | jq .
+
+# Performance trends
+observatory-trends:
+	@echo "📈 Performance trends..."
+	@curl -s http://localhost:8028/performance_trends | jq .
+
+# Coherence analytics
+observatory-coherence:
+	@echo "🧠 Coherence analytics..."
+	@curl -s http://localhost:8028/coherence_analytics | jq .
+
+# Resolve alert
+observatory-resolve-alert:
+	@echo "✅ Resolving alert $(ALERT_ID)..."
+	@curl -X POST "http://localhost:8028/alert/$(ALERT_ID)/resolve" | jq .
+
+# =============================================================================
+# DETERMINISTICDEBUGMODE - REPRODUCIBLE TESTING
+# =============================================================================
+
+# Start debug session
+debug-start-session:
+	@echo "🐛 Starting debug session: $(NAME)..."
+	@curl -X POST http://localhost:8029/start_debug_session \
+		-H "Content-Type: application/json" \
+		-d '{"session_name": "$(NAME)", "debug_level": "$(or $(LEVEL),standard)", "reproducibility_mode": "$(or $(MODE),semantic)", "random_seed": $(or $(SEED),42)}' | jq .
+
+# Stop debug session
+debug-stop-session:
+	@echo "🛑 Stopping debug session: $(SESSION_ID)..."
+	@curl -X POST "http://localhost:8029/stop_debug_session/$(SESSION_ID)" | jq .
+
+# Capture system snapshot
+debug-capture-snapshot:
+	@echo "📸 Capturing system snapshot..."
+	@curl -X POST http://localhost:8029/capture_snapshot \
+		-H "Content-Type: application/json" \
+		-d '{"session_id": "$(or $(SESSION_ID),)"}' | jq .
+
+# Trace operation
+debug-trace-operation:
+	@echo "🔍 Tracing operation: $(TYPE)..."
+	@curl -X POST http://localhost:8029/trace_operation \
+		-H "Content-Type: application/json" \
+		-d '{"operation_type": "$(TYPE)", "input_parameters": $(or $(PARAMS),{}), "target_service": "$(or $(SERVICE),orchestrator)"}' | jq .
+
+# List debug sessions
+debug-sessions:
+	@echo "📋 Debug sessions:"
+	@curl -s http://localhost:8029/debug_sessions | jq .
+
+# Get snapshots for session
+debug-snapshots:
+	@echo "📸 Snapshots for session $(SESSION_ID):"
+	@curl -s "http://localhost:8029/snapshots/$(SESSION_ID)" | jq .
+
+# Get operations for session
+debug-operations:
+	@echo "⚙️ Operations for session $(SESSION_ID):"
+	@curl -s "http://localhost:8029/operations/$(SESSION_ID)" | jq .
+
+# Check debug mode status
+debug-status:
+	@echo "🐛 Debug Mode Status:"
+	@curl -s http://localhost:8029/health | jq .
+
+# Debug analytics
+debug-analytics:
+	@echo "📊 Debug Analytics:"
+	@curl -s http://localhost:8029/debug_analytics | jq .
+
+# Reproducibility report
+debug-reproducibility-report:
+	@echo "📋 Reproducibility report for session $(SESSION_ID):"
+	@curl -s "http://localhost:8029/reproducibility_report/$(SESSION_ID)" | jq .
+
+# Enhanced help for new services
+prompt-help:
+	@echo "🎯 PromptAssemblerAgent - Next-Generation Dynamic Prompts"
+	@echo "======================================================="
+	@echo ""
+	@echo "Prompt Assembly:"
+	@echo "  make prompt-assemble TYPE='system' OBJECTIVE='...'     - Assemble dynamic prompt"
+	@echo "  make prompt-optimize PROMPT='...' TARGET='clarity'     - Optimize existing prompt"
+	@echo "  make prompt-analyze PROMPT='...' DOMAINS='BUSINESS'    - Analyze prompt quality"
+	@echo ""
+	@echo "Template Management:"
+	@echo "  make prompt-templates                                   - List available templates"
+	@echo "  make prompt-create-template NAME='...' CONTENT='...'   - Create new template"
+	@echo ""
+	@echo "Monitoring:"
+	@echo "  make prompt-status                                      - Check service status"
+	@echo "  make prompt-analytics                                   - Performance analytics"
+	@echo ""
+	@echo "Example:"
+	@echo "  make prompt-assemble TYPE='system' OBJECTIVE='Help with coding' COMPLEXITY='complex'"
+
+observatory-help:
+	@echo "🔭 ContextObservatory - Enterprise Monitoring Platform"
+	@echo "====================================================="
+	@echo ""
+	@echo "Dashboards:"
+	@echo "  make observatory-dashboard TYPE='overview'              - System overview dashboard"
+	@echo "  make observatory-dashboard TYPE='performance'           - Performance dashboard"
+	@echo "  make observatory-dashboard TYPE='coherence'             - Coherence dashboard"
+	@echo "  make observatory-dashboard TYPE='errors'                - Error tracking dashboard"
+	@echo ""
+	@echo "Health & Monitoring:"
+	@echo "  make observatory-health                                 - Comprehensive health check"
+	@echo "  make observatory-start-monitoring                       - Start background monitoring"
+	@echo "  make observatory-stop-monitoring                        - Stop background monitoring"
+	@echo ""
+	@echo "Alerts & Metrics:"
+	@echo "  make observatory-alerts                                 - View system alerts"
+	@echo "  make observatory-metrics                                - Performance metrics"
+	@echo "  make observatory-resolve-alert ALERT_ID='...'          - Resolve specific alert"
+	@echo ""
+	@echo "Analytics:"
+	@echo "  make observatory-trends                                 - Performance trends"
+	@echo "  make observatory-coherence                              - Coherence analytics"
+	@echo "  make observatory-overview                               - System overview"
+
+debug-help:
+	@echo "🐛 DeterministicDebugMode - Reproducible Testing Framework"
+	@echo "========================================================="
+	@echo ""
+	@echo "Session Management:"
+	@echo "  make debug-start-session NAME='test1' LEVEL='verbose'  - Start debug session"
+	@echo "  make debug-stop-session SESSION_ID='...'               - Stop debug session"
+	@echo "  make debug-sessions                                     - List all sessions"
+	@echo ""
+	@echo "State Capture:"
+	@echo "  make debug-capture-snapshot SESSION_ID='...'           - Capture system snapshot"
+	@echo "  make debug-snapshots SESSION_ID='...'                  - List session snapshots"
+	@echo ""
+	@echo "Operation Tracing:"
+	@echo "  make debug-trace-operation TYPE='validate' SERVICE='...' - Trace operation"
+	@echo "  make debug-operations SESSION_ID='...'                 - List traced operations"
+	@echo ""
+	@echo "Analysis:"
+	@echo "  make debug-status                                       - Debug mode status"
+	@echo "  make debug-analytics                                    - Debug analytics"
+	@echo "  make debug-reproducibility-report SESSION_ID='...'     - Reproducibility report"
+	@echo ""
+	@echo "Example workflow:"
+	@echo "  1. make debug-start-session NAME='coherence_test'"
+	@echo "  2. make debug-trace-operation TYPE='validate_coherence'"
+	@echo "  3. make debug-capture-snapshot"
+	@echo "  4. make debug-reproducibility-report SESSION_ID='...'"

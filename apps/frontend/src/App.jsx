@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
-import { Dashboard, Build, Psychology, Assessment } from '@mui/icons-material';
+import { Dashboard, Build, Psychology, Assessment, AutoAwesome } from '@mui/icons-material';
 
 import MCPToolSelector from './components/code/MCPToolSelector';
 import SimpleOrchestrationTest from './components/SimpleOrchestrationTest';
 import UltraMCPControlTower from './components/UltraMCPControlTower';
+import ClaudiaIntegration from './components/claudia/ClaudiaIntegration';
 
 // Material-UI theme
 const theme = createTheme({
@@ -33,7 +34,7 @@ const theme = createTheme({
 
 function App() {
   const [message, setMessage] = useState('');
-  const [currentView, setCurrentView] = useState('control-tower'); // 'control-tower', 'orchestration', 'tools'
+  const [currentView, setCurrentView] = useState('control-tower'); // 'control-tower', 'orchestration', 'tools', 'claudia'
 
   // Fetch backend status on load
   useEffect(() => {
@@ -97,6 +98,19 @@ function App() {
               >
                 MCP Tools
               </Button>
+              
+              <Button
+                color="inherit"
+                startIcon={<AutoAwesome />}
+                onClick={() => handleViewChange('claudia')}
+                variant={currentView === 'claudia' ? 'outlined' : 'text'}
+                sx={{ 
+                  backgroundColor: currentView === 'claudia' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: currentView === 'claudia' ? '1px solid rgba(255,255,255,0.3)' : 'none'
+                }}
+              >
+                Claudia
+              </Button>
             </Box>
             
             <Typography variant="caption" sx={{ ml: 2, opacity: 0.8 }}>
@@ -130,6 +144,8 @@ function App() {
               </Box>
             </Container>
           )}
+          
+          {currentView === 'claudia' && <ClaudiaIntegration />}
         </Box>
       </Box>
     </ThemeProvider>

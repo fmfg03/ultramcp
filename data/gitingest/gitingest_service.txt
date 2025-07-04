@@ -1,0 +1,713 @@
+Directory structure:
+└── gitingest-mcp/
+    ├── README.md
+    ├── Dockerfile
+    ├── gitingest_mcp_server.py
+    └── requirements.txt
+
+================================================
+FILE: README.md
+================================================
+# GitIngest MCP Server
+
+Repository analysis and code extraction service for the UltraMCP Supreme Stack.
+
+## Overview
+
+The GitIngest MCP Server provides comprehensive repository analysis capabilities using the GitIngest library, which converts Git repositories into LLM-friendly text formats. This service is designed to integrate seamlessly with the UltraMCP ecosystem.
+
+## Features
+
+- **Repository Analysis**: Analyze any Git repository (public or private)
+- **Local Directory Analysis**: Analyze local codebases
+- **Smart Filtering**: Include/exclude patterns for targeted analysis
+- **Multiple Output Formats**: Text dumps optimized for LLM consumption
+- **Metadata Management**: Track analysis history and parameters
+- **MCP Integration**: Full Model Context Protocol support
+- **Asynchronous Processing**: Handle large repositories efficiently
+
+## Installation
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Or use Docker
+docker build -t gitingest-mcp .
+docker run -p 8010:8010 gitingest-mcp
+```
+
+## Usage
+
+### MCP Tools
+
+1. **analyze_repository**: Analyze a Git repository
+   ```python
+   await mcp.call_tool("analyze_repository", {
+       "url": "https://github.com/user/repo",
+       "output_name": "my_analysis",
+       "max_size": 1000000,
+       "exclude_patterns": ["*.log", "node_modules/"],
+       "include_patterns": ["*.py", "*.js"],
+       "branch": "main",
+       "include_gitignored": false,
+       "token": "github_pat_..."
+   })
+   ```
+
+2. **analyze_local_directory**: Analyze a local directory
+   ```python
+   await mcp.call_tool("analyze_local_directory", {
+       "path": "/path/to/code",
+       "output_name": "local_analysis",
+       "max_size": 500000,
+       "exclude_patterns": ["*.pyc", "__pycache__/"]
+   })
+   ```
+
+3. **list_analyses**: List recent analyses
+   ```python
+   await mcp.call_tool("list_analyses", {"limit": 10})
+   ```
+
+4. **get_analysis**: Retrieve specific analysis
+   ```python
+   await mcp.call_tool("get_analysis", {"output_name": "my_analysis"})
+   ```
+
+5. **delete_analysis**: Delete analysis
+   ```python
+   await mcp.call_tool("delete_analysis", {"output_name": "my_analysis"})
+   ```
+
+### MCP Resources
+
+- `gitingest://analyses`: List all analyses
+- `gitingest://analysis/{output_name}`: Get specific analysis
+
+### MCP Prompts
+
+- `repository-analysis`: Generate repository analysis prompt
+- `code-review`: Generate code review prompt
+
+### Command Line Usage
+
+```bash
+# Analyze a repository
+gitingest https://github.com/user/repo
+
+# Analyze local directory
+gitingest /path/to/code
+
+# With options
+gitingest https://github.com/user/repo \
+  --output my_analysis.txt \
+  --max-size 1000000 \
+  --exclude-pattern "*.log" \
+  --include-pattern "*.py" \
+  --branch main
+```
+
+## Configuration
+
+### Environment Variables
+
+- `GITHUB_TOKEN`: GitHub Personal Access Token for private repositories
+- `GITINGEST_DATA_DIR`: Directory for storing analysis results (default: `/root/ultramcp/data/gitingest`)
+
+### Analysis Parameters
+
+- **url/path**: Repository URL or local directory path
+- **output_name**: Custom name for the analysis output
+- **max_size**: Maximum file size in bytes to process
+- **exclude_patterns**: Glob patterns to exclude from analysis
+- **include_patterns**: Glob patterns to include in analysis
+- **branch**: Specific branch to analyze (for Git repositories)
+- **include_gitignored**: Include files normally ignored by .gitignore
+- **token**: GitHub Personal Access Token for private repositories
+
+## Integration with UltraMCP
+
+The GitIngest MCP Server integrates with the UltraMCP ecosystem through:
+
+1. **Unified Backend**: Accessible via `/mcp/gitingest/*` endpoints
+2. **Control Tower**: Coordinated with other services for complex workflows
+3. **Claude Code Memory**: Analysis results can be indexed for semantic search
+4. **Chain-of-Debate**: Repository insights can inform AI debates
+5. **Actions Service**: Trigger repository analysis from external systems
+
+## Data Storage
+
+Analysis results are stored in `/root/ultramcp/data/gitingest/` with:
+- `{output_name}.txt`: Main analysis content
+- `{output_name}_metadata.json`: Analysis metadata and parameters
+
+## Error Handling
+
+The service includes comprehensive error handling for:
+- Invalid repository URLs
+- Missing directories
+- Authentication failures
+- Network timeouts
+- File system errors
+
+## Performance Considerations
+
+- Large repositories are processed asynchronously
+- File size limits prevent memory exhaustion
+- Pattern matching optimizes processing time
+- Metadata caching improves response times
+
+## Security
+
+- GitHub tokens are handled securely
+- Local file access is restricted to specified directories
+- Input validation prevents directory traversal attacks
+- Analysis results are stored with appropriate permissions
+
+## Monitoring
+
+The service provides health checks and metrics through:
+- MCP health endpoints
+- Structured logging
+- Error tracking
+- Performance monitoring
+
+## Contributing
+
+1. Follow the existing code style
+2. Add tests for new features
+3. Update documentation
+4. Ensure MCP compatibility
+
+## License
+
+Part of the UltraMCP Supreme Stack - see main project license.
+
+
+================================================
+FILE: Dockerfile
+================================================
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Create data directory
+RUN mkdir -p /app/data
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 8010
+
+# Run the GitIngest MCP server
+CMD ["python", "gitingest_mcp_server.py"]
+
+
+================================================
+FILE: gitingest_mcp_server.py
+================================================
+#!/usr/bin/env python3
+"""
+GitIngest MCP Server
+Repository analysis and code extraction for LLM prompts
+"""
+
+import asyncio
+import logging
+from typing import Dict, List, Optional, Any
+from pathlib import Path
+import json
+import tempfile
+import os
+from datetime import datetime
+
+from mcp.server.fastmcp import FastMCP
+from mcp.server.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.server.models import Tool, Resource, ResourceTemplate, Prompt
+from mcp.server.models import TextContent, ImageContent, EmbeddedResource
+from mcp.server.models import CallToolRequest, GetResourceRequest, GetPromptRequest
+from mcp.server.models import CallToolResult, GetResourceResult, GetPromptResult
+from mcp.server.models import Capability, ServerCapabilities
+from mcp.server.models import InitializeRequest, InitializeResult
+from mcp.server.models import ListResourcesRequest, ListResourcesResult
+from mcp.server.models import ListToolsRequest, ListToolsResult  
+from mcp.server.models import ListPromptsRequest, ListPromptsResult
+
+# GitIngest imports
+from gitingest import ingest, ingest_async
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class GitIngestMCPServer:
+    """GitIngest MCP Server for repository analysis and code extraction"""
+    
+    def __init__(self):
+        self.server = FastMCP("GitIngest MCP Server")
+        self.data_dir = Path("/root/ultramcp/data/gitingest")
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Register tools
+        self._register_tools()
+        
+        # Register resources
+        self._register_resources()
+        
+        # Register prompts
+        self._register_prompts()
+        
+    def _register_tools(self):
+        """Register available tools"""
+        
+        @self.server.tool()
+        async def analyze_repository(url: str, output_name: Optional[str] = None, 
+                                   max_size: Optional[int] = None,
+                                   exclude_patterns: Optional[List[str]] = None,
+                                   include_patterns: Optional[List[str]] = None,
+                                   branch: Optional[str] = None,
+                                   include_gitignored: bool = False,
+                                   token: Optional[str] = None) -> Dict[str, Any]:
+            """
+            Analyze a Git repository and extract code context for LLM prompts
+            
+            Args:
+                url: Repository URL or local path
+                output_name: Name for output file (optional)
+                max_size: Maximum file size in bytes to process
+                exclude_patterns: Patterns to exclude from analysis
+                include_patterns: Patterns to include in analysis
+                branch: Specific branch to analyze
+                include_gitignored: Include files ignored by .gitignore
+                token: GitHub personal access token for private repos
+            
+            Returns:
+                Dictionary with analysis results
+            """
+            try:
+                logger.info(f"Analyzing repository: {url}")
+                
+                # Set up parameters
+                params = {}
+                if max_size:
+                    params['max_size'] = max_size
+                if exclude_patterns:
+                    params['exclude_patterns'] = exclude_patterns
+                if include_patterns:
+                    params['include_patterns'] = include_patterns
+                if branch:
+                    params['branch'] = branch
+                if include_gitignored:
+                    params['include_gitignored'] = include_gitignored
+                if token:
+                    params['token'] = token
+                
+                # Generate output filename
+                if not output_name:
+                    if url.startswith('http'):
+                        repo_name = url.split('/')[-1].replace('.git', '')
+                    else:
+                        repo_name = Path(url).name
+                    output_name = f"{repo_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                
+                # Run GitIngest analysis
+                result = await ingest_async(url, **params)
+                
+                # Save results
+                output_file = self.data_dir / f"{output_name}.txt"
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(result['content'])
+                
+                # Save metadata
+                metadata = {
+                    'url': url,
+                    'output_name': output_name,
+                    'timestamp': datetime.now().isoformat(),
+                    'parameters': params,
+                    'summary': result.get('summary', ''),
+                    'tree': result.get('tree', ''),
+                    'file_count': result.get('file_count', 0),
+                    'token_count': result.get('token_count', 0),
+                    'output_file': str(output_file)
+                }
+                
+                metadata_file = self.data_dir / f"{output_name}_metadata.json"
+                with open(metadata_file, 'w', encoding='utf-8') as f:
+                    json.dump(metadata, f, indent=2)
+                
+                logger.info(f"Analysis complete: {output_file}")
+                
+                return {
+                    'success': True,
+                    'output_file': str(output_file),
+                    'metadata_file': str(metadata_file),
+                    'summary': result.get('summary', ''),
+                    'tree': result.get('tree', ''),
+                    'file_count': result.get('file_count', 0),
+                    'token_count': result.get('token_count', 0),
+                    'message': f"Repository analyzed successfully: {output_name}"
+                }
+                
+            except Exception as e:
+                logger.error(f"Error analyzing repository {url}: {str(e)}")
+                return {
+                    'success': False,
+                    'error': str(e),
+                    'message': f"Failed to analyze repository: {url}"
+                }
+        
+        @self.server.tool()
+        async def analyze_local_directory(path: str, output_name: Optional[str] = None,
+                                        max_size: Optional[int] = None,
+                                        exclude_patterns: Optional[List[str]] = None,
+                                        include_patterns: Optional[List[str]] = None,
+                                        include_gitignored: bool = False) -> Dict[str, Any]:
+            """
+            Analyze a local directory and extract code context for LLM prompts
+            
+            Args:
+                path: Local directory path
+                output_name: Name for output file (optional)
+                max_size: Maximum file size in bytes to process
+                exclude_patterns: Patterns to exclude from analysis
+                include_patterns: Patterns to include in analysis
+                include_gitignored: Include files ignored by .gitignore
+            
+            Returns:
+                Dictionary with analysis results
+            """
+            try:
+                logger.info(f"Analyzing local directory: {path}")
+                
+                # Verify path exists
+                if not Path(path).exists():
+                    raise FileNotFoundError(f"Directory not found: {path}")
+                
+                # Set up parameters
+                params = {}
+                if max_size:
+                    params['max_size'] = max_size
+                if exclude_patterns:
+                    params['exclude_patterns'] = exclude_patterns
+                if include_patterns:
+                    params['include_patterns'] = include_patterns
+                if include_gitignored:
+                    params['include_gitignored'] = include_gitignored
+                
+                # Generate output filename
+                if not output_name:
+                    dir_name = Path(path).name
+                    output_name = f"{dir_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                
+                # Run GitIngest analysis
+                result = await ingest_async(path, **params)
+                
+                # Save results
+                output_file = self.data_dir / f"{output_name}.txt"
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(result['content'])
+                
+                # Save metadata
+                metadata = {
+                    'path': path,
+                    'output_name': output_name,
+                    'timestamp': datetime.now().isoformat(),
+                    'parameters': params,
+                    'summary': result.get('summary', ''),
+                    'tree': result.get('tree', ''),
+                    'file_count': result.get('file_count', 0),
+                    'token_count': result.get('token_count', 0),
+                    'output_file': str(output_file)
+                }
+                
+                metadata_file = self.data_dir / f"{output_name}_metadata.json"
+                with open(metadata_file, 'w', encoding='utf-8') as f:
+                    json.dump(metadata, f, indent=2)
+                
+                logger.info(f"Analysis complete: {output_file}")
+                
+                return {
+                    'success': True,
+                    'output_file': str(output_file),
+                    'metadata_file': str(metadata_file),
+                    'summary': result.get('summary', ''),
+                    'tree': result.get('tree', ''),
+                    'file_count': result.get('file_count', 0),
+                    'token_count': result.get('token_count', 0),
+                    'message': f"Directory analyzed successfully: {output_name}"
+                }
+                
+            except Exception as e:
+                logger.error(f"Error analyzing directory {path}: {str(e)}")
+                return {
+                    'success': False,
+                    'error': str(e),
+                    'message': f"Failed to analyze directory: {path}"
+                }
+        
+        @self.server.tool()
+        async def list_analyses(limit: int = 10) -> Dict[str, Any]:
+            """
+            List recent GitIngest analyses
+            
+            Args:
+                limit: Maximum number of analyses to return
+            
+            Returns:
+                List of recent analyses with metadata
+            """
+            try:
+                analyses = []
+                
+                # Get all metadata files
+                metadata_files = list(self.data_dir.glob("*_metadata.json"))
+                metadata_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+                
+                for metadata_file in metadata_files[:limit]:
+                    try:
+                        with open(metadata_file, 'r', encoding='utf-8') as f:
+                            metadata = json.load(f)
+                            analyses.append(metadata)
+                    except Exception as e:
+                        logger.warning(f"Error reading metadata file {metadata_file}: {str(e)}")
+                
+                return {
+                    'success': True,
+                    'analyses': analyses,
+                    'total': len(analyses),
+                    'message': f"Found {len(analyses)} recent analyses"
+                }
+                
+            except Exception as e:
+                logger.error(f"Error listing analyses: {str(e)}")
+                return {
+                    'success': False,
+                    'error': str(e),
+                    'message': "Failed to list analyses"
+                }
+        
+        @self.server.tool()
+        async def get_analysis(output_name: str) -> Dict[str, Any]:
+            """
+            Get the content of a specific analysis
+            
+            Args:
+                output_name: Name of the analysis to retrieve
+            
+            Returns:
+                Analysis content and metadata
+            """
+            try:
+                output_file = self.data_dir / f"{output_name}.txt"
+                metadata_file = self.data_dir / f"{output_name}_metadata.json"
+                
+                if not output_file.exists():
+                    raise FileNotFoundError(f"Analysis not found: {output_name}")
+                
+                # Read content
+                with open(output_file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # Read metadata if available
+                metadata = {}
+                if metadata_file.exists():
+                    with open(metadata_file, 'r', encoding='utf-8') as f:
+                        metadata = json.load(f)
+                
+                return {
+                    'success': True,
+                    'output_name': output_name,
+                    'content': content,
+                    'metadata': metadata,
+                    'message': f"Analysis retrieved successfully: {output_name}"
+                }
+                
+            except Exception as e:
+                logger.error(f"Error getting analysis {output_name}: {str(e)}")
+                return {
+                    'success': False,
+                    'error': str(e),
+                    'message': f"Failed to get analysis: {output_name}"
+                }
+        
+        @self.server.tool()
+        async def delete_analysis(output_name: str) -> Dict[str, Any]:
+            """
+            Delete a specific analysis
+            
+            Args:
+                output_name: Name of the analysis to delete
+            
+            Returns:
+                Deletion status
+            """
+            try:
+                output_file = self.data_dir / f"{output_name}.txt"
+                metadata_file = self.data_dir / f"{output_name}_metadata.json"
+                
+                deleted_files = []
+                
+                if output_file.exists():
+                    output_file.unlink()
+                    deleted_files.append(str(output_file))
+                
+                if metadata_file.exists():
+                    metadata_file.unlink()
+                    deleted_files.append(str(metadata_file))
+                
+                if not deleted_files:
+                    raise FileNotFoundError(f"Analysis not found: {output_name}")
+                
+                return {
+                    'success': True,
+                    'output_name': output_name,
+                    'deleted_files': deleted_files,
+                    'message': f"Analysis deleted successfully: {output_name}"
+                }
+                
+            except Exception as e:
+                logger.error(f"Error deleting analysis {output_name}: {str(e)}")
+                return {
+                    'success': False,
+                    'error': str(e),
+                    'message': f"Failed to delete analysis: {output_name}"
+                }
+    
+    def _register_resources(self):
+        """Register available resources"""
+        
+        @self.server.resource("gitingest://analyses")
+        async def get_analyses_resource() -> str:
+            """Get list of all analyses as a resource"""
+            try:
+                result = await self.server.call_tool("list_analyses", {"limit": 100})
+                return json.dumps(result, indent=2)
+            except Exception as e:
+                return f"Error getting analyses: {str(e)}"
+        
+        @self.server.resource("gitingest://analysis/{output_name}")
+        async def get_analysis_resource(output_name: str) -> str:
+            """Get specific analysis as a resource"""
+            try:
+                result = await self.server.call_tool("get_analysis", {"output_name": output_name})
+                return json.dumps(result, indent=2)
+            except Exception as e:
+                return f"Error getting analysis {output_name}: {str(e)}"
+    
+    def _register_prompts(self):
+        """Register available prompts"""
+        
+        @self.server.prompt("repository-analysis")
+        async def repository_analysis_prompt(url: str, focus: str = "general") -> str:
+            """Generate a prompt for repository analysis"""
+            return f"""
+# Repository Analysis Request
+
+Please analyze the following repository: {url}
+
+## Focus Area
+{focus}
+
+## Analysis Requirements
+- Provide a comprehensive overview of the codebase structure
+- Identify key components and their relationships
+- Highlight important patterns and architectural decisions
+- Suggest areas for improvement or potential issues
+- Summarize the main functionality and purpose
+
+## Output Format
+Please provide a structured analysis with:
+1. **Summary**: Brief overview of the repository
+2. **Architecture**: High-level structure and components
+3. **Key Features**: Main functionality and capabilities
+4. **Code Quality**: Assessment of code organization and practices
+5. **Recommendations**: Suggestions for improvements
+
+Use the GitIngest analysis to provide detailed insights into the codebase.
+"""
+        
+        @self.server.prompt("code-review")
+        async def code_review_prompt(output_name: str, focus: str = "general") -> str:
+            """Generate a prompt for code review based on GitIngest analysis"""
+            return f"""
+# Code Review Request
+
+Please review the code analysis: {output_name}
+
+## Review Focus
+{focus}
+
+## Review Criteria
+- Code quality and maintainability
+- Security considerations
+- Performance implications
+- Best practices adherence
+- Documentation quality
+- Test coverage
+
+## Output Format
+Please provide a structured review with:
+1. **Overall Assessment**: General code quality rating
+2. **Strengths**: What's done well
+3. **Issues**: Problems or concerns identified
+4. **Recommendations**: Specific improvements suggested
+5. **Priority**: Which issues should be addressed first
+
+Use the GitIngest analysis to provide detailed code insights.
+"""
+
+    async def run(self):
+        """Run the MCP server"""
+        try:
+            await self.server.run()
+        except Exception as e:
+            logger.error(f"Server error: {str(e)}")
+            raise
+
+async def main():
+    """Main entry point"""
+    server = GitIngestMCPServer()
+    await server.run()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+================================================
+FILE: requirements.txt
+================================================
+# GitIngest MCP Server Requirements
+
+# Core MCP dependencies
+mcp>=1.10.0
+fastapi>=0.109.1
+uvicorn>=0.27.0
+pydantic>=2.0.0
+
+# GitIngest dependencies
+gitingest>=0.1.5
+click>=8.0.0
+tiktoken>=0.7.0
+pathspec>=0.12.1
+tomli>=2.0.0
+
+# Additional utilities
+python-dotenv>=1.0.0
+aiofiles>=23.0.0
+
