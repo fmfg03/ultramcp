@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class BlockoliCodeContext:
     """Client for Blockoli code intelligence engine"""
     
-    def __init__(self, endpoint: str = "http://localhost:8080", api_key: Optional[str] = None):
+    def __init__(self, endpoint: str = "http://sam.chat:8080", api_key: Optional[str] = None):
         self.endpoint = endpoint.rstrip('/')
         self.api_key = api_key
         self.session = None
@@ -427,7 +427,7 @@ class BlockoliAPIError(Exception):
 # Utility functions for integration
 
 async def quick_code_search(query: str, project_name: str, 
-                          blockoli_endpoint: str = "http://localhost:8080") -> Dict:
+                          blockoli_endpoint: str = "http://sam.chat:8080") -> Dict:
     """Quick code search utility function"""
     
     async with BlockoliCodeContext(blockoli_endpoint) as blockoli:
@@ -435,7 +435,7 @@ async def quick_code_search(query: str, project_name: str,
 
 
 async def index_project_quickly(project_path: str, project_name: str,
-                              blockoli_endpoint: str = "http://localhost:8080") -> Dict:
+                              blockoli_endpoint: str = "http://sam.chat:8080") -> Dict:
     """Quick project indexing utility function"""
     
     async with BlockoliCodeContext(blockoli_endpoint) as blockoli:

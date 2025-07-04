@@ -52,11 +52,11 @@ class ContextBuilderOrchestrator:
         self.app = FastAPI(title="ContextBuilderAgent Orchestrator", version="2.0.0")
         self.semantic_bus = None
         self.service_endpoints = {
-            "drift_detector": "http://localhost:8020",
-            "contradiction_resolver": "http://localhost:8021", 
-            "belief_reviser": "http://localhost:8022",
-            "utility_predictor": "http://localhost:8023",
-            "memory_tuner": "http://localhost:8026"
+            "drift_detector": "http://sam.chat:8020",
+            "contradiction_resolver": "http://sam.chat:8021", 
+            "belief_reviser": "http://sam.chat:8022",
+            "utility_predictor": "http://sam.chat:8023",
+            "memory_tuner": "http://sam.chat:8026"
         }
         self.knowledge_tree_path = "/root/ultramcp/.context/core/knowledge_tree.yaml"
         self.performance_metrics = {

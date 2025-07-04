@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 // Configuración CORS mejorada
 const corsOptions = {
   origin: [
-    'http://localhost:5173',
+    'http://sam.chat:5173',
     'http://127.0.0.1:5173',
     'http://sam.chat:5173',
     'http://sam.chat',
@@ -395,7 +395,7 @@ echo "🧪 TESTING NUEVO ENDPOINT /api/tools/execute"
 echo "==========================================="
 
 echo "🔍 Test de endpoints disponibles:"
-curl -s http://localhost:3000/ | python3 -c "
+curl -s http://sam.chat:3000/ | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
@@ -408,7 +408,7 @@ echo ""
 echo "🧪 Test de ejecución de herramienta Telegram:"
 response=$(curl -s -X POST -H "Content-Type: application/json" \
     -d '{"tool":"telegram","action":"send_message","params":{"message":"Test from MCP"}}' \
-    "http://localhost:3000/api/tools/execute")
+    "http://sam.chat:3000/api/tools/execute")
 
 if echo "$response" | grep -q "success"; then
     echo "✅ Endpoint /api/tools/execute funcionando:"

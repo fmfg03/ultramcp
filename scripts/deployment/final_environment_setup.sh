@@ -46,10 +46,10 @@ DASHBOARD_PORT=8126
 VALIDATION_PORT=8127
 
 # Database Configuration
-DATABASE_URL=postgresql://postgres:password@localhost:5432/mcp_enterprise
+DATABASE_URL=postgresql://postgres:password@sam.chat:5432/mcp_enterprise
 
 # Redis Configuration  
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://sam.chat:6379
 REDIS_PASSWORD=
 REDIS_DB=0
 
@@ -223,10 +223,10 @@ check_service() {
     fi
 }
 
-check_service "Memory Analyzer" "http://localhost:$PORT/health"
-check_service "Active Monitor" "http://localhost:$MONITOR_PORT/health"  
-check_service "Dashboard" "http://localhost:$DASHBOARD_PORT/health"
-check_service "Validation" "http://localhost:$VALIDATION_PORT/health"
+check_service "Memory Analyzer" "http://sam.chat:$PORT/health"
+check_service "Active Monitor" "http://sam.chat:$MONITOR_PORT/health"  
+check_service "Dashboard" "http://sam.chat:$DASHBOARD_PORT/health"
+check_service "Validation" "http://sam.chat:$VALIDATION_PORT/health"
 
 echo ""
 echo "🎉 MCP ENTERPRISE SYSTEM STARTED!"

@@ -45,7 +45,7 @@ class WebAutomationDebateHandler:
     Combines multiple LLM perspectives to optimize automation strategies
     """
     
-    def __init__(self, mcp_base_url: str = "http://localhost:3000", cod_base_url: str = "http://localhost:5000"):
+    def __init__(self, mcp_base_url: str = "http://sam.chat:3000", cod_base_url: str = "http://sam.chat:5000"):
         self.mcp_base_url = mcp_base_url
         self.cod_base_url = cod_base_url
         self.debate_history = []

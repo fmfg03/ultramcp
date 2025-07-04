@@ -14,7 +14,7 @@ const ora = require('ora');
 class MCPAdminCLI {
     constructor() {
         this.config = {
-            baseUrl: process.env.MCP_BASE_URL || 'http://localhost:3000',
+            baseUrl: process.env.MCP_BASE_URL || 'http://sam.chat:3000',
             apiKey: process.env.MCP_API_KEY || 'test-key-123',
             studioSecret: process.env.STUDIO_SECRET || 'test-studio-secret',
             timeout: 30000

@@ -112,7 +112,7 @@ const CodeIntelligenceDashboard: React.FC = () => {
   // API interaction functions
   const checkBlockoliHealth = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:8080/health');
+      const response = await fetch('http://sam.chat:8080/health');
       if (response.ok) {
         setBlockoliStatus('connected');
       } else {
@@ -125,7 +125,7 @@ const CodeIntelligenceDashboard: React.FC = () => {
 
   const loadProjects = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:8080/projects');
+      const response = await fetch('http://sam.chat:8080/projects');
       if (response.ok) {
         const data = await response.json();
         setProjects(data.projects || []);
@@ -146,7 +146,7 @@ const CodeIntelligenceDashboard: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:8080/projects/${selectedProject}/search?query=${encodeURIComponent(searchQuery)}&limit=20`);
+      const response = await fetch(`http://sam.chat:8080/projects/${selectedProject}/search?query=${encodeURIComponent(searchQuery)}&limit=20`);
       if (response.ok) {
         const data = await response.json();
         setSearchResults(data.matches || []);

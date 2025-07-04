@@ -6,7 +6,7 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://sam.chat:3000';
 const A2A_BASE_URL = `${BASE_URL}/api/a2a`;
 
 // Test configuration

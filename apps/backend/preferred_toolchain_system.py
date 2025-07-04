@@ -63,7 +63,7 @@ class PreferredToolchainSystem:
             ModelConfig(
                 name="qwen2.5-coder:7b",
                 model_type=ModelType.LOCAL_OLLAMA,
-                endpoint="http://localhost:11434/api/generate",
+                endpoint="http://sam.chat:11434/api/generate",
                 priority=1,
                 specialties=[TaskType.CODING, TaskType.ANALYSIS],
                 max_tokens=8192
@@ -71,7 +71,7 @@ class PreferredToolchainSystem:
             ModelConfig(
                 name="deepseek-coder:6.7b",
                 model_type=ModelType.LOCAL_OLLAMA,
-                endpoint="http://localhost:11434/api/generate",
+                endpoint="http://sam.chat:11434/api/generate",
                 priority=2,
                 specialties=[TaskType.CODING],
                 max_tokens=4096
@@ -79,7 +79,7 @@ class PreferredToolchainSystem:
             ModelConfig(
                 name="qwen2.5:14b",
                 model_type=ModelType.LOCAL_OLLAMA,
-                endpoint="http://localhost:11434/api/generate",
+                endpoint="http://sam.chat:11434/api/generate",
                 priority=3,
                 specialties=[TaskType.REASONING, TaskType.ANALYSIS],
                 max_tokens=8192
@@ -87,7 +87,7 @@ class PreferredToolchainSystem:
             ModelConfig(
                 name="llama3.1:8b",
                 model_type=ModelType.LOCAL_OLLAMA,
-                endpoint="http://localhost:11434/api/generate",
+                endpoint="http://sam.chat:11434/api/generate",
                 priority=4,
                 specialties=[TaskType.REASONING, TaskType.CREATIVE],
                 max_tokens=4096
@@ -95,7 +95,7 @@ class PreferredToolchainSystem:
             ModelConfig(
                 name="mistral:7b",
                 model_type=ModelType.LOCAL_OLLAMA,
-                endpoint="http://localhost:11434/api/generate",
+                endpoint="http://sam.chat:11434/api/generate",
                 priority=5,
                 specialties=[TaskType.CREATIVE, TaskType.REASONING],
                 max_tokens=4096
@@ -177,7 +177,7 @@ class PreferredToolchainSystem:
         """
         try:
             import requests
-            response = requests.get("http://localhost:11434/api/tags", timeout=5)
+            response = requests.get("http://sam.chat:11434/api/tags", timeout=5)
             if response.status_code == 200:
                 models = response.json().get("models", [])
                 return any(model["name"].startswith(model_name) for model in models)

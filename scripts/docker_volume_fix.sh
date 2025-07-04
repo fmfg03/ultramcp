@@ -166,9 +166,9 @@ ANTHROPIC_API_KEY=
 MCP_API_KEYS=dev-key-123,test-key-456
 
 # Frontend URLs
-VITE_API_BASE_URL=http://localhost:3000
-VITE_STUDIO_BASE_URL=http://localhost:8123
-VITE_WS_BASE_URL=ws://localhost:3000
+VITE_API_BASE_URL=http://sam.chat:3000
+VITE_STUDIO_BASE_URL=http://sam.chat:8123
+VITE_WS_BASE_URL=ws://sam.chat:3000
 EOF
         log_success "Created .env file"
     else

@@ -600,10 +600,10 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log('🚀 MCP Backend Server v3.0.0 - PRODUCTION READY');
     console.log('================================================');
     console.log(`📡 Server: http://0.0.0.0:${PORT}`);
-    console.log(`🔍 Health: http://localhost:${PORT}/health`);
-    console.log(`🛠️  Tools: http://localhost:${PORT}/api/tools`);
-    console.log(`⚡ Execute: http://localhost:${PORT}/api/tools/execute`);
-    console.log(`📊 Metrics: http://localhost:${PORT}/api/metrics`);
+    console.log(`🔍 Health: http://sam.chat:${PORT}/health`);
+    console.log(`🛠️  Tools: http://sam.chat:${PORT}/api/tools`);
+    console.log(`⚡ Execute: http://sam.chat:${PORT}/api/tools/execute`);
+    console.log(`📊 Metrics: http://sam.chat:${PORT}/api/metrics`);
     console.log('');
     console.log('🔧 Available Tools:');
     mcpState.tools.forEach(tool => {

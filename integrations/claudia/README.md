@@ -321,7 +321,7 @@ CREATE TABLE model_performance (
       "args": ["local-mcp-server"],
       "cwd": "/root/ultramcp",
       "env": {
-        "OLLAMA_HOST": "localhost:11434"
+        "OLLAMA_HOST": "sam.chat:11434"
       }
     },
     "ultramcp-hybrid": {

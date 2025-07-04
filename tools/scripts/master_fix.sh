@@ -495,7 +495,7 @@ check_service() {
     local name=$2
     
     if netstat -tlnp | grep -q ":$port"; then
-        if curl -s --max-time 3 "http://localhost:$port" > /dev/null 2>&1; then
+        if curl -s --max-time 3 "http://sam.chat:$port" > /dev/null 2>&1; then
             echo "✅ $name (Puerto $port): FUNCIONANDO"
             return 0
         else

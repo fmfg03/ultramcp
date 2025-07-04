@@ -176,7 +176,7 @@ class EnhancedManusAgent:
             # Graphiti Knowledge Graph (if available)
             if GRAPHITI_AVAILABLE and self.config.get('OPENAI_API_KEY'):
                 self.graphiti = Graphiti(
-                    neo4j_uri=self.config.get('NEO4J_URI', 'bolt://localhost:7687'),
+                    neo4j_uri=self.config.get('NEO4J_URI', 'bolt://sam.chat:7687'),
                     neo4j_user=self.config.get('NEO4J_USERNAME', 'neo4j'),
                     neo4j_password=self.config.get('NEO4J_PASSWORD', 'neo4j_password'),
                     llm_client_type="openai",

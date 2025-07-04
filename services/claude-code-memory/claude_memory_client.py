@@ -50,7 +50,7 @@ class PatternAnalysisResult:
 class ClaudeCodeMemoryClient:
     """Client for Claude Code Memory Service"""
     
-    def __init__(self, base_url: str = "http://localhost:8009"):
+    def __init__(self, base_url: str = "http://sam.chat:8009"):
         self.base_url = base_url.rstrip('/')
         self.session: Optional[aiohttp.ClientSession] = None
     

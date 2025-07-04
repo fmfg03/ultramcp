@@ -179,15 +179,15 @@ ls -la services/control-tower/Dockerfile
 
 ```bash
 # Check API Gateway health aggregation
-curl http://localhost:3001/api/health
+curl http://sam.chat:3001/api/health
 
 # Check individual service health
-curl http://localhost:8001/health  # CoD Service
-curl http://localhost:8002/health  # Security Service
-curl http://localhost:8003/health  # Blockoli Service
-curl http://localhost:8004/health  # Voice Service
-curl http://localhost:8006/health  # DeepClaude Service
-curl http://localhost:8007/health  # Control Tower
+curl http://sam.chat:8001/health  # CoD Service
+curl http://sam.chat:8002/health  # Security Service
+curl http://sam.chat:8003/health  # Blockoli Service
+curl http://sam.chat:8004/health  # Voice Service
+curl http://sam.chat:8006/health  # DeepClaude Service
+curl http://sam.chat:8007/health  # Control Tower
 ```
 
 ### Expected Health Response
@@ -213,37 +213,37 @@ curl http://localhost:8007/health  # Control Tower
 
 ```bash
 # Test security service routing
-curl -X POST http://localhost:3001/api/security/scan \
+curl -X POST http://sam.chat:3001/api/security/scan \
   -H "Content-Type: application/json" \
   -d '{"target_path": "/test", "scan_type": "quick"}'
 
 # Test code intelligence routing
-curl -X POST http://localhost:3001/api/blockoli/search \
+curl -X POST http://sam.chat:3001/api/blockoli/search \
   -H "Content-Type: application/json" \
   -d '{"project_name": "test", "query": "test"}'
 
 # Test voice service routing
-curl -X POST http://localhost:3001/api/voice/sessions \
+curl -X POST http://sam.chat:3001/api/voice/sessions \
   -H "Content-Type: application/json" \
   -d '{"session_type": "test"}'
 
 # Test reasoning service routing
-curl -X POST http://localhost:3001/api/deepclaude/reason \
+curl -X POST http://sam.chat:3001/api/deepclaude/reason \
   -H "Content-Type: application/json" \
   -d '{"topic": "test reasoning"}'
 
 # Test orchestration routing
-curl http://localhost:3001/api/orchestrate/status
+curl http://sam.chat:3001/api/orchestrate/status
 ```
 
 ### WebSocket Connection Tests
 
 ```bash
 # Test Control Tower WebSocket
-wscat -c ws://localhost:8008
+wscat -c ws://sam.chat:8008
 
 # Test Voice System WebSocket (requires active session)
-wscat -c ws://localhost:8005/voice/test-session
+wscat -c ws://sam.chat:8005/voice/test-session
 ```
 
 ## 🚨 Common Integration Issues & Solutions
@@ -298,7 +298,7 @@ docker restart ultramcp-service-name
 grep -A 10 "service_name_table" database/schemas/init.sql
 
 # Apply database schema
-psql -h localhost -U ultramcp -d ultramcp -f database/schemas/init.sql
+psql -h sam.chat -U ultramcp -d ultramcp -f database/schemas/init.sql
 ```
 
 ### Issue 5: Environment Configuration Missing
@@ -349,7 +349,7 @@ jobs:
           
       - name: Test API Gateway
         run: |
-          curl -f http://localhost:3001/api/health
+          curl -f http://sam.chat:3001/api/health
           
       - name: Test Cross-Service Communication
         run: |
@@ -392,7 +392,7 @@ make test-cross-services
 watch -n 5 'make health-check'
 
 # Monitor service status
-watch -n 10 'curl -s http://localhost:3001/api/status | jq .services'
+watch -n 10 'curl -s http://sam.chat:3001/api/status | jq .services'
 
 # Monitor integration status
 watch -n 30 'make verify-integration'

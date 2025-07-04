@@ -262,16 +262,16 @@ class ServiceDiscoveryManager:
         core_services = [
             ServiceConfig(
                 name="cod-protocol",
-                endpoint="http://localhost:8001",
-                health_check="http://localhost:8001/health",
+                endpoint="http://sam.chat:8001",
+                health_check="http://sam.chat:8001/health",
                 port=8001,
                 tags=["core", "orchestration"],
                 metadata={"description": "Chain-of-Debate Protocol Service"}
             ),
             ServiceConfig(
                 name="postgres",
-                endpoint="postgresql://localhost:5432/ultramcp",
-                health_check="http://localhost:5432",  # This will fail, but we handle it
+                endpoint="postgresql://sam.chat:5432/ultramcp",
+                health_check="http://sam.chat:5432",  # This will fail, but we handle it
                 port=5432,
                 protocol="postgresql",
                 tags=["database", "core"],
@@ -279,8 +279,8 @@ class ServiceDiscoveryManager:
             ),
             ServiceConfig(
                 name="redis",
-                endpoint="redis://localhost:6379",
-                health_check="http://localhost:6379",  # This will fail, but we handle it
+                endpoint="redis://sam.chat:6379",
+                health_check="http://sam.chat:6379",  # This will fail, but we handle it
                 port=6379,
                 protocol="redis",
                 tags=["cache", "core"],
@@ -288,8 +288,8 @@ class ServiceDiscoveryManager:
             ),
             ServiceConfig(
                 name="web-dashboard",
-                endpoint="http://localhost:3000",
-                health_check="http://localhost:3000/health",
+                endpoint="http://sam.chat:3000",
+                health_check="http://sam.chat:3000/health",
                 port=3000,
                 tags=["web", "optional"],
                 metadata={"description": "Web Dashboard"}
@@ -327,8 +327,8 @@ class ServiceDiscoveryManager:
                                 external_port = port_parts[0].split(":")[-1]
                                 return ServiceConfig(
                                     name=service_name,
-                                    endpoint=f"http://localhost:{external_port}",
-                                    health_check=f"http://localhost:{external_port}/health",
+                                    endpoint=f"http://sam.chat:{external_port}",
+                                    health_check=f"http://sam.chat:{external_port}/health",
                                     port=int(external_port),
                                     tags=["docker-compose"],
                                     metadata={"source": "docker-compose"}
@@ -383,8 +383,8 @@ class ServiceDiscoveryManager:
         ports_to_scan = service_ports.get(service_name, [])
         
         for port in ports_to_scan:
-            if self._is_port_open("localhost", port):
-                endpoint = f"http://localhost:{port}"
+            if self._is_port_open("sam.chat", port):
+                endpoint = f"http://sam.chat:{port}"
                 return ServiceConfig(
                     name=service_name,
                     endpoint=endpoint,

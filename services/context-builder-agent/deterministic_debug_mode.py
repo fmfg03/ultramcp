@@ -136,14 +136,14 @@ class DeterministicDebugMode:
         
         # Service endpoints for state collection
         self.service_endpoints = {
-            "orchestrator": "http://localhost:8025",
-            "drift_detector": "http://localhost:8020",
-            "contradiction_resolver": "http://localhost:8021",
-            "belief_reviser": "http://localhost:8022",
-            "utility_predictor": "http://localhost:8023",
-            "memory_tuner": "http://localhost:8026",
-            "prompt_assembler": "http://localhost:8027",
-            "observatory": "http://localhost:8028"
+            "orchestrator": "http://sam.chat:8025",
+            "drift_detector": "http://sam.chat:8020",
+            "contradiction_resolver": "http://sam.chat:8021",
+            "belief_reviser": "http://sam.chat:8022",
+            "utility_predictor": "http://sam.chat:8023",
+            "memory_tuner": "http://sam.chat:8026",
+            "prompt_assembler": "http://sam.chat:8027",
+            "observatory": "http://sam.chat:8028"
         }
         
         # Context paths

@@ -261,10 +261,10 @@ make unified-stop
 
 ## 📚 Documentation Links
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **MCP Tools**: http://localhost:8000/mcp/tools
-- **Health Check**: http://localhost:8000/health
+- **Swagger UI**: http://sam.chat:8000/docs
+- **ReDoc**: http://sam.chat:8000/redoc
+- **MCP Tools**: http://sam.chat:8000/mcp/tools
+- **Health Check**: http://sam.chat:8000/health
 - **Architecture Guide**: `CLAUDE.md`
 
 ## 🏆 Success Metrics

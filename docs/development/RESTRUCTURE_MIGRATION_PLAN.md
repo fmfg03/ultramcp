@@ -283,8 +283,8 @@ echo "✅ Dependencies OK"
 echo "🔍 Verificando servicios..."
 docker-compose -f infrastructure/docker/docker-compose.test.yml up -d
 sleep 10
-curl -f http://localhost:3000/health || { echo "❌ Backend down"; exit 1; }
-curl -f http://localhost:5555/health || { echo "❌ Chain-of-Debate down"; exit 1; }
+curl -f http://sam.chat:3000/health || { echo "❌ Backend down"; exit 1; }
+curl -f http://sam.chat:5555/health || { echo "❌ Chain-of-Debate down"; exit 1; }
 echo "✅ Servicios OK"
 
 echo "🎉 MIGRACIÓN VALIDADA EXITOSAMENTE"
@@ -295,19 +295,19 @@ echo "🎉 MIGRACIÓN VALIDADA EXITOSAMENTE"
 // tests/e2e/critical-path.test.js
 describe('Critical Path After Migration', () => {
   test('Backend API responds', async () => {
-    const response = await fetch('http://localhost:3000/api/health');
+    const response = await fetch('http://sam.chat:3000/api/health');
     expect(response.status).toBe(200);
   });
   
   test('MCP Adapters work', async () => {
-    const response = await fetch('http://localhost:3000/api/mcp/adapters');
+    const response = await fetch('http://sam.chat:3000/api/mcp/adapters');
     expect(response.status).toBe(200);
     const adapters = await response.json();
     expect(adapters.length).toBeGreaterThan(0);
   });
   
   test('Voice system responds', async () => {
-    const response = await fetch('http://localhost:8001/health');
+    const response = await fetch('http://sam.chat:8001/health');
     expect(response.status).toBe(200);
   });
 });

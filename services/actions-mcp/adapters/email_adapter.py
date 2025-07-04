@@ -45,7 +45,7 @@ class EmailAdapter:
     async def _load_smtp_config(self):
         """Load SMTP configuration"""
         self.smtp_config = {
-            "host": os.getenv("SMTP_HOST", "localhost"),
+            "host": os.getenv("SMTP_HOST", "sam.chat"),
             "port": int(os.getenv("SMTP_PORT", "587")),
             "username": os.getenv("SMTP_USERNAME", ""),
             "password": os.getenv("SMTP_PASSWORD", ""),

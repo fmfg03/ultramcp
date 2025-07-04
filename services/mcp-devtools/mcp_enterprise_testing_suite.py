@@ -288,10 +288,10 @@ class MCPTestSuite:
     async def _test_service_health(self) -> Dict[str, Any]:
         """Test health checks de todos los servicios"""
         health_endpoints = [
-            ('backend', 'http://localhost:3000/health'),
-            ('frontend', 'http://localhost:80/health'),
-            ('prometheus', 'http://localhost:9091/-/healthy'),
-            ('grafana', 'http://localhost:3001/api/health')
+            ('backend', 'http://sam.chat:3000/health'),
+            ('frontend', 'http://sam.chat:80/health'),
+            ('prometheus', 'http://sam.chat:9091/-/healthy'),
+            ('grafana', 'http://sam.chat:3001/api/health')
         ]
         
         results = {}
@@ -324,7 +324,7 @@ class MCPTestSuite:
         """Test conexión a PostgreSQL"""
         try:
             conn = psycopg2.connect(
-                host=self.config.get('postgres_host', 'localhost'),
+                host=self.config.get('postgres_host', 'sam.chat'),
                 port=self.config.get('postgres_port', 5432),
                 database=self.config.get('postgres_db', 'mcp_enterprise'),
                 user=self.config.get('postgres_user', 'mcp_user'),
@@ -352,7 +352,7 @@ class MCPTestSuite:
         """Test extensión pgvector"""
         try:
             conn = psycopg2.connect(
-                host=self.config.get('postgres_host', 'localhost'),
+                host=self.config.get('postgres_host', 'sam.chat'),
                 port=self.config.get('postgres_port', 5432),
                 database=self.config.get('postgres_db', 'mcp_enterprise'),
                 user=self.config.get('postgres_user', 'mcp_user'),
@@ -382,7 +382,7 @@ class MCPTestSuite:
         """Test conexión a Redis"""
         try:
             r = redis.Redis(
-                host=self.config.get('redis_host', 'localhost'),
+                host=self.config.get('redis_host', 'sam.chat'),
                 port=self.config.get('redis_port', 6379),
                 password=self.config.get('redis_password', 'redis_secure_password_2024'),
                 decode_responses=True
@@ -408,7 +408,7 @@ class MCPTestSuite:
         """Test esquema de base de datos"""
         try:
             conn = psycopg2.connect(
-                host=self.config.get('postgres_host', 'localhost'),
+                host=self.config.get('postgres_host', 'sam.chat'),
                 port=self.config.get('postgres_port', 5432),
                 database=self.config.get('postgres_db', 'mcp_enterprise'),
                 user=self.config.get('postgres_user', 'mcp_user'),
@@ -460,11 +460,11 @@ class MCPTestSuite:
     async def _test_health_endpoints(self) -> Dict[str, Any]:
         """Test endpoints de health check"""
         endpoints = [
-            'http://localhost:3000/health',
-            'http://localhost:3000/api/health',
-            'http://localhost:8080/health',  # webhooks
-            'http://localhost:8766/health',  # notifications
-            'http://localhost:8767/health'   # memory
+            'http://sam.chat:3000/health',
+            'http://sam.chat:3000/api/health',
+            'http://sam.chat:8080/health',  # webhooks
+            'http://sam.chat:8766/health',  # notifications
+            'http://sam.chat:8767/health'   # memory
         ]
         
         results = {}
@@ -534,16 +534,16 @@ class MCPTestSuite:
 async def main():
     """Función principal para ejecutar tests"""
     config = {
-        'postgres_host': os.getenv('POSTGRES_HOST', 'localhost'),
+        'postgres_host': os.getenv('POSTGRES_HOST', 'sam.chat'),
         'postgres_port': int(os.getenv('POSTGRES_PORT', 5432)),
         'postgres_db': os.getenv('POSTGRES_DB', 'mcp_enterprise'),
         'postgres_user': os.getenv('POSTGRES_USER', 'mcp_user'),
         'postgres_password': os.getenv('POSTGRES_PASSWORD', 'mcp_secure_password_2024'),
-        'redis_host': os.getenv('REDIS_HOST', 'localhost'),
+        'redis_host': os.getenv('REDIS_HOST', 'sam.chat'),
         'redis_port': int(os.getenv('REDIS_PORT', 6379)),
         'redis_password': os.getenv('REDIS_PASSWORD', 'redis_secure_password_2024'),
-        'backend_url': os.getenv('BACKEND_URL', 'http://localhost:3000'),
-        'frontend_url': os.getenv('FRONTEND_URL', 'http://localhost:80')
+        'backend_url': os.getenv('BACKEND_URL', 'http://sam.chat:3000'),
+        'frontend_url': os.getenv('FRONTEND_URL', 'http://sam.chat:80')
     }
     
     suite = MCPTestSuite(config)

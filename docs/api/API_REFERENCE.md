@@ -17,14 +17,14 @@ SuperMCP provides multiple API interfaces for different services and use cases:
 
 ## 🏢 Backend API
 
-**Base URL:** `http://localhost:3001/api`  
+**Base URL:** `http://sam.chat:3001/api`  
 **Authentication:** Bearer Token
 
 ### Authentication
 
 ```bash
 # Get authentication token
-curl -X POST http://localhost:3001/api/auth/login \
+curl -X POST http://sam.chat:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "your-password"}'
 
@@ -260,7 +260,7 @@ Query Parameters:
 
 ## 🎭 CoD Protocol API
 
-**Base URL:** `http://localhost:8000/api`  
+**Base URL:** `http://sam.chat:8000/api`  
 **Authentication:** Bearer Token or API Key
 
 ### Quick Debate
@@ -336,7 +336,7 @@ Content-Type: application/json
     "stage": "model_responses",
     "completion_percentage": 20
   },
-  "websocket_url": "ws://localhost:8080/debate/session_456"
+  "websocket_url": "ws://sam.chat:8080/debate/session_456"
 }
 ```
 
@@ -436,8 +436,8 @@ Content-Type: application/json
 
 ## 🗣️ Voice System API
 
-**Base URL:** `http://localhost:3003/api`  
-**WebSocket:** `ws://localhost:3003/ws`
+**Base URL:** `http://sam.chat:3003/api`  
+**WebSocket:** `ws://sam.chat:3003/ws`
 
 ### Start Voice Conversation
 
@@ -473,7 +473,7 @@ Content-Type: application/json
 {
   "conversation_id": "conv_456",
   "status": "active",
-  "websocket_url": "ws://localhost:3003/ws/voice/conv_456",
+  "websocket_url": "ws://sam.chat:3003/ws/voice/conv_456",
   "configuration": {
     "sample_rate": 16000,
     "channels": 1,
@@ -537,7 +537,7 @@ Authorization: Bearer <token>
 
 ## 📊 Observatory API
 
-**Base URL:** `http://localhost:3002/api`
+**Base URL:** `http://sam.chat:3002/api`
 
 ### System Overview
 
@@ -592,7 +592,7 @@ Authorization: Bearer <token>
 
 ```javascript
 // WebSocket connection for real-time metrics
-const ws = new WebSocket('ws://localhost:3002/ws/metrics');
+const ws = new WebSocket('ws://sam.chat:3002/ws/metrics');
 
 ws.onmessage = (event) => {
   const metrics = JSON.parse(event.data);
@@ -665,7 +665,7 @@ Query Parameters:
 
 ## 🔧 DevTools API
 
-**Base URL:** `http://localhost:3004/api`
+**Base URL:** `http://sam.chat:3004/api`
 
 ### Execute Debug Command
 
@@ -768,11 +768,11 @@ Authorization: Bearer <token>
 
 ```bash
 # Using API Key in header
-curl -X GET http://localhost:3001/api/mcp/adapters \
+curl -X GET http://sam.chat:3001/api/mcp/adapters \
   -H "X-API-Key: your-api-key-here"
 
 # Using API Key in query parameter
-curl -X GET "http://localhost:3001/api/mcp/adapters?api_key=your-api-key-here"
+curl -X GET "http://sam.chat:3001/api/mcp/adapters?api_key=your-api-key-here"
 ```
 
 ### OAuth 2.0 Flow
@@ -782,7 +782,7 @@ curl -X GET "http://localhost:3001/api/mcp/adapters?api_key=your-api-key-here"
 GET /api/auth/oauth/authorize
   ?client_id=your-client-id
   &response_type=code
-  &redirect_uri=http://localhost:3000/callback
+  &redirect_uri=http://sam.chat:3000/callback
   &scope=read write admin
 
 # Step 2: Exchange code for token
@@ -793,7 +793,7 @@ grant_type=authorization_code
 &client_id=your-client-id
 &client_secret=your-client-secret
 &code=authorization-code-from-step-1
-&redirect_uri=http://localhost:3000/callback
+&redirect_uri=http://sam.chat:3000/callback
 ```
 
 ### Rate Limiting
@@ -867,7 +867,7 @@ X-RateLimit-Retry-After: 3600
 
 ```javascript
 // Connect to debate session
-const ws = new WebSocket('ws://localhost:8080/debate/session_456');
+const ws = new WebSocket('ws://sam.chat:8080/debate/session_456');
 
 ws.onmessage = (event) => {
   const update = JSON.parse(event.data);
@@ -890,7 +890,7 @@ ws.onmessage = (event) => {
 
 ```javascript
 // Real-time voice processing
-const voiceWs = new WebSocket('ws://localhost:3003/ws/voice/conv_456');
+const voiceWs = new WebSocket('ws://sam.chat:3003/ws/voice/conv_456');
 
 // Send audio chunks
 const sendAudioChunk = (audioData) => {
@@ -923,7 +923,7 @@ from supermcp import SuperMCPClient
 
 # Initialize client
 client = SuperMCPClient(
-    base_url="http://localhost:3001",
+    base_url="http://sam.chat:3001",
     api_key="your-api-key"
 )
 
@@ -950,7 +950,7 @@ print(f"Confidence: {debate.confidence_score}%")
 import { SuperMCPClient } from '@supermcp/client';
 
 const client = new SuperMCPClient({
-  baseUrl: 'http://localhost:3001',
+  baseUrl: 'http://sam.chat:3001',
   apiKey: 'your-api-key'
 });
 

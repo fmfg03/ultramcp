@@ -182,7 +182,7 @@ setup_monitoring() {
     # Test PostgreSQL exporter
     local postgres_exporter_health=0
     for i in {1..5}; do
-        if curl -f http://localhost:9187/metrics &> /dev/null; then
+        if curl -f http://sam.chat:9187/metrics &> /dev/null; then
             postgres_exporter_health=1
             break
         fi
@@ -199,7 +199,7 @@ setup_monitoring() {
     # Test Redis exporter
     local redis_exporter_health=0
     for i in {1..5}; do
-        if curl -f http://localhost:9121/metrics &> /dev/null; then
+        if curl -f http://sam.chat:9121/metrics &> /dev/null; then
             redis_exporter_health=1
             break
         fi
@@ -317,7 +317,7 @@ show_status() {
     fi
     
     # Connection Pooler
-    if nc -z localhost 6432 &> /dev/null; then
+    if nc -z sam.chat 6432 &> /dev/null; then
         echo -e "  PgBouncer: ${GREEN}✓ Healthy${NC}"
     else
         echo -e "  PgBouncer: ${RED}✗ Unhealthy${NC}"
@@ -325,10 +325,10 @@ show_status() {
     
     echo
     log "Management Interfaces:"
-    echo "  PgAdmin: http://localhost:5050"
-    echo "  Redis Commander: http://localhost:8081"
-    echo "  PostgreSQL Metrics: http://localhost:9187/metrics"
-    echo "  Redis Metrics: http://localhost:9121/metrics"
+    echo "  PgAdmin: http://sam.chat:5050"
+    echo "  Redis Commander: http://sam.chat:8081"
+    echo "  PostgreSQL Metrics: http://sam.chat:9187/metrics"
+    echo "  Redis Metrics: http://sam.chat:9121/metrics"
 }
 
 # Main setup function

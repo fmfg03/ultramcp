@@ -28,7 +28,7 @@ services:
       - '--web.enable-admin-api'
       - '--log.level=info'
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://sam.chat:9090/-/healthy"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -53,9 +53,9 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=contextbuilder_grafana_2024
       - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_DOMAIN=localhost
+      - GF_SERVER_DOMAIN=sam.chat
       - GF_SMTP_ENABLED=true
-      - GF_SMTP_HOST=localhost:587
+      - GF_SMTP_HOST=sam.chat:587
       - GF_SMTP_USER=grafana@contextbuilder.local
       - GF_SMTP_PASSWORD=grafana_smtp_2024
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel
@@ -64,7 +64,7 @@ services:
     depends_on:
       - prometheus
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://sam.chat:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -88,10 +88,10 @@ services:
     command:
       - '--config.file=/etc/alertmanager/alertmanager.yml'
       - '--storage.path=/alertmanager'
-      - '--web.external-url=http://localhost:9093'
+      - '--web.external-url=http://sam.chat:9093'
       - '--log.level=info'
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://sam.chat:9093/-/healthy"]
       interval: 30s
       timeout: 10s
       retries: 3

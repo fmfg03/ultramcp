@@ -412,32 +412,32 @@ All services are accessible through the unified API Gateway:
 
 ```bash
 # Security service (Asterisk)
-curl http://localhost:3001/api/security/scan
-curl http://localhost:3001/api/security/compliance
+curl http://sam.chat:3001/api/security/scan
+curl http://sam.chat:3001/api/security/compliance
 
 # Code intelligence (Blockoli)
-curl http://localhost:3001/api/blockoli/search
-curl http://localhost:3001/api/blockoli/analyze
+curl http://sam.chat:3001/api/blockoli/search
+curl http://sam.chat:3001/api/blockoli/analyze
 
 # Voice system
-curl http://localhost:3001/api/voice/sessions
-curl http://localhost:3001/api/voice/transcribe
+curl http://sam.chat:3001/api/voice/sessions
+curl http://sam.chat:3001/api/voice/transcribe
 
 # DeepClaude reasoning
-curl http://localhost:3001/api/deepclaude/reason
-curl http://localhost:3001/api/deepclaude/insights
+curl http://sam.chat:3001/api/deepclaude/reason
+curl http://sam.chat:3001/api/deepclaude/insights
 
 # Chain-of-Debate
-curl http://localhost:3001/api/cod/debate
-curl http://localhost:3001/api/cod/status
+curl http://sam.chat:3001/api/cod/debate
+curl http://sam.chat:3001/api/cod/status
 
 # Control Tower orchestration
-curl http://localhost:3001/api/orchestrate/workflow
-curl http://localhost:3001/api/orchestrate/status
+curl http://sam.chat:3001/api/orchestrate/workflow
+curl http://sam.chat:3001/api/orchestrate/status
 
 # System health aggregation
-curl http://localhost:3001/api/health
-curl http://localhost:3001/api/status
+curl http://sam.chat:3001/api/health
+curl http://sam.chat:3001/api/status
 ```
 
 ### 🎭 Enhanced Chain-of-Debate Usage
@@ -600,10 +600,10 @@ make websocket-status                     # Real-time connection status
 
 ### Real-time Monitoring Dashboard
 Access the integrated monitoring at:
-- **System Health**: `http://localhost:3001/api/health`
-- **Service Status**: `http://localhost:3001/api/status`
-- **Observatory Dashboard**: `http://localhost:3000`
-- **Control Tower**: `http://localhost:8007` (WebSocket: `ws://localhost:8008`)
+- **System Health**: `http://sam.chat:3001/api/health`
+- **Service Status**: `http://sam.chat:3001/api/status`
+- **Observatory Dashboard**: `http://sam.chat:3000`
+- **Control Tower**: `http://sam.chat:8007` (WebSocket: `ws://sam.chat:8008`)
 
 ## 🚀 Production Deployment
 
@@ -631,13 +631,13 @@ kubectl get services -n ultramcp
 
 ### Health Check Endpoints
 All services provide standardized health endpoints:
-- **API Gateway**: `http://localhost:3001/health`
-- **CoD Service**: `http://localhost:8001/health`
-- **Security Service**: `http://localhost:8002/health`
-- **Blockoli Service**: `http://localhost:8003/health`
-- **Voice Service**: `http://localhost:8004/health`
-- **DeepClaude Service**: `http://localhost:8006/health`
-- **Control Tower**: `http://localhost:8007/health`
+- **API Gateway**: `http://sam.chat:3001/health`
+- **CoD Service**: `http://sam.chat:8001/health`
+- **Security Service**: `http://sam.chat:8002/health`
+- **Blockoli Service**: `http://sam.chat:8003/health`
+- **Voice Service**: `http://sam.chat:8004/health`
+- **DeepClaude Service**: `http://sam.chat:8006/health`
+- **Control Tower**: `http://sam.chat:8007/health`
 
 ## 📚 Complete Documentation
 

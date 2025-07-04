@@ -8,7 +8,7 @@
 const http = require('http');
 
 const config = {
-    host: process.env.MCP_SERVER_HOST || 'localhost',
+    host: process.env.MCP_SERVER_HOST || 'sam.chat',
     port: process.env.MCP_SERVER_PORT || 8003,
     timeout: 5000
 };

@@ -76,7 +76,7 @@ const testScenarios = [
     },
     // Scenario 14: User override to a generic Hugging Face endpoint (needs URL)
     {
-        params: { taskType: "custom_model_deployment", payloadSize: 1000, latencyTolerance: "variable", costBudget: "balanced", userOverride: { provider: "huggingface_endpoint", model: "http://localhost:8080/custom-model" } },
+        params: { taskType: "custom_model_deployment", payloadSize: 1000, latencyTolerance: "variable", costBudget: "balanced", userOverride: { provider: "huggingface_endpoint", model: "http://sam.chat:8080/custom-model" } },
         description: "User override to a generic Hugging Face endpoint (simulated URL)"
     },
     // Scenario 15: User override to a specific Hugging Face Hub model

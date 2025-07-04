@@ -839,7 +839,7 @@ def main():
     init_monitoring_system(config)
     
     print("✅ Sistema de monitoreo activo iniciado")
-    print("🌐 API disponible en: http://localhost:8125")
+    print("🌐 API disponible en: http://sam.chat:8125")
     print("📊 Endpoints disponibles:")
     print("   POST /api/webhook/register - Registrar webhook")
     print("   POST /api/task/register - Registrar tarea")

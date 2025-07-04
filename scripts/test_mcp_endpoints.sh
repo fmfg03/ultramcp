@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-MCP_BASE_URL="${MCP_BASE_URL:-http://localhost:3000}"
+MCP_BASE_URL="${MCP_BASE_URL:-http://sam.chat:3000}"
 MCP_API_KEY="${MCP_API_KEY:-test-key-123}"
 STUDIO_SECRET="${STUDIO_SECRET:-test-studio-secret}"
 TEST_TIMEOUT="${TEST_TIMEOUT:-30}"
@@ -302,7 +302,7 @@ fi
 
 # Test 19: CORS Configuration
 log_test "CORS Configuration"
-cors_response=$(curl -s -H "Origin: http://localhost:3000" -H "Access-Control-Request-Method: POST" -X OPTIONS "$MCP_BASE_URL/health" 2>/dev/null)
+cors_response=$(curl -s -H "Origin: http://sam.chat:3000" -H "Access-Control-Request-Method: POST" -X OPTIONS "$MCP_BASE_URL/health" 2>/dev/null)
 if echo "$cors_response" | grep -i "access-control-allow" >/dev/null; then
     log_success "CORS configured correctly"
 else

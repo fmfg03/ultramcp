@@ -215,7 +215,7 @@ context_builder:
 # Integration Configuration
 integrations:
   ultramcp_gateway:
-    host: "localhost"
+    host: "sam.chat"
     port: 3001
     context_routes:
       - "/api/context/tree"
@@ -238,7 +238,7 @@ integrations:
     username: "mcp_user"
     
   ollama:
-    host: "localhost"
+    host: "sam.chat"
     port: 11434
     models:
       - "qwen2.5:14b"

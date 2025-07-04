@@ -27,5 +27,5 @@ echo "📡 Starting FastAPI server on port 8080..."
 python3 -m uvicorn voice_api:app --host 0.0.0.0 --port 8080 --reload
 
 echo "✅ Voice API server started!"
-echo "🌐 API available at: http://localhost:8080"
-echo "📚 Docs available at: http://localhost:8080/docs"
+echo "🌐 API available at: http://sam.chat:8080"
+echo "📚 Docs available at: http://sam.chat:8080/docs"

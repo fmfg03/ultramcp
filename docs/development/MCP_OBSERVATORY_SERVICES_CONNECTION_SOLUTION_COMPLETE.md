@@ -137,9 +137,9 @@ POST /api/webhooks/mcp    - Webhooks para notificaciones
 ✅ Frontend is being served
 ✅ Tool execution is functional
 
-Server: http://localhost:3000
-Frontend: http://localhost:3000/
-API: http://localhost:3000/api/tools
+Server: http://sam.chat:3000
+Frontend: http://sam.chat:3000/
+API: http://sam.chat:3000/api/tools
 ```
 
 ### Métricas de Performance
@@ -241,7 +241,7 @@ npm install
 node server.mjs
 
 # 4. Verificar funcionamiento
-curl http://localhost:3000/health
+curl http://sam.chat:3000/health
 ```
 
 ---
@@ -390,7 +390,7 @@ helmet({
 
 ```bash
 # Verificar estado del servidor
-curl http://localhost:3000/health
+curl http://sam.chat:3000/health
 
 # Ver logs en tiempo real
 tail -f /var/log/mcp-observatory/server.log

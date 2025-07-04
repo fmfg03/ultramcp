@@ -33,7 +33,7 @@ export default defineConfig({
     proxy: {
       // Proxy /api requests to the backend server running on port 3000 (CORREGIDO)
       '/api': {
-        target: 'http://localhost:3000',  // ✅ PUERTO CORREGIDO: 3000 en lugar de 3001
+        target: 'http://sam.chat:3000',  // ✅ PUERTO CORREGIDO: 3000 en lugar de 3001
         changeOrigin: true,
         // secure: false, // Uncomment if backend is not HTTPS
         // rewrite: (path) => path.replace(/^\/api/, '') // Uncomment if backend doesn't expect /api prefix
@@ -98,7 +98,7 @@ tail -10 ../frontend_fixed.log
 # Test manual del proxy
 echo ""
 echo "🧪 Test manual del proxy Vite:"
-curl -s -H "Host: localhost:5173" "http://localhost:5173/api/tools" | head -1 || echo "Proxy aún inicializando..."
+curl -s -H "Host: sam.chat:5173" "http://sam.chat:5173/api/tools" | head -1 || echo "Proxy aún inicializando..."
 
 cd /root/supermcp
 
@@ -141,4 +141,4 @@ echo ""
 echo "💡 Si aún hay problemas, verificar:"
 echo "  • Console del navegador (F12)"
 echo "  • Logs: tail -f frontend_fixed.log"
-echo "  • Test manual: curl http://localhost:5173/api/tools"
+echo "  • Test manual: curl http://sam.chat:5173/api/tools"

@@ -66,7 +66,7 @@ BACKEND_PID=$!
 sleep 3
 
 # Check if backend is running
-if curl -s http://localhost:8001/health > /dev/null; then
+if curl -s http://sam.chat:8001/health > /dev/null; then
     echo "✅ WebSocket server running on port 8001"
 else
     echo "❌ Failed to start WebSocket server"
@@ -84,7 +84,7 @@ FRONTEND_PID=$!
 sleep 5
 
 # Check if frontend is accessible
-if curl -s http://localhost:5173 > /dev/null; then
+if curl -s http://sam.chat:5173 > /dev/null; then
     echo "✅ Frontend running on port 5173"
 else
     echo "❌ Failed to start frontend"
@@ -95,9 +95,9 @@ fi
 echo ""
 echo "🎉 UltraMCP Control Tower is now running!"
 echo ""
-echo "📊 Control Tower UI: http://localhost:5173"
-echo "🔌 WebSocket API: ws://localhost:8001"
-echo "📡 REST API: http://localhost:8001"
+echo "📊 Control Tower UI: http://sam.chat:5173"
+echo "🔌 WebSocket API: ws://sam.chat:8001"
+echo "📡 REST API: http://sam.chat:8001"
 echo ""
 echo "🎯 Quick Test:"
 echo "  make cod-local TOPIC='Test the Control Tower'"

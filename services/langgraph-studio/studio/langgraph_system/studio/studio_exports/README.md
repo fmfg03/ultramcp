@@ -10,7 +10,7 @@ This directory contains LangGraph Studio configuration and exported visualizatio
 
 ## 🔧 Studio Configuration
 - Development Server: ./langgraph_system/studio/studio.sh start
-- Local Access: http://localhost:8123
+- Local Access: http://sam.chat:8123
 - Debug Port: 8124
 
 ## 📈 Monitoring & Analytics

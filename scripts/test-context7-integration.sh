@@ -17,7 +17,7 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Test configuration
-CONTEXT7_URL="http://localhost:8003"
+CONTEXT7_URL="http://sam.chat:8003"
 TEST_LIBRARY="react"
 TEST_QUERY="hooks"
 TEST_PROMPT="Create a React component with useState hook"

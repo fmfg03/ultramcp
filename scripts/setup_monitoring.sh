@@ -226,7 +226,7 @@ modules:
       valid_status_codes: []
       method: GET
       headers:
-        Host: localhost
+        Host: sam.chat
       no_follow_redirects: false
       fail_if_ssl: false
       fail_if_not_ssl: false
@@ -264,7 +264,7 @@ schema_config:
         period: 24h
 
 ruler:
-  alertmanager_url: http://localhost:9093
+  alertmanager_url: http://sam.chat:9093
 
 analytics:
   reporting_enabled: false
@@ -286,7 +286,7 @@ scrape_configs:
   - job_name: containers
     static_configs:
       - targets:
-          - localhost
+          - sam.chat
         labels:
           job: containerlogs
           __path__: /var/lib/docker/containers/*/*log
@@ -294,7 +294,7 @@ scrape_configs:
   - job_name: contextbuilder-logs
     static_configs:
       - targets:
-          - localhost
+          - sam.chat
         labels:
           job: contextbuilder
           __path__: /var/log/contextbuilder/*.log
@@ -322,7 +322,7 @@ deploy_monitoring() {
     # Check Prometheus health
     local prometheus_health=0
     for i in {1..10}; do
-        if curl -f http://localhost:9090/-/healthy &> /dev/null; then
+        if curl -f http://sam.chat:9090/-/healthy &> /dev/null; then
             prometheus_health=1
             break
         fi
@@ -338,7 +338,7 @@ deploy_monitoring() {
     # Check Grafana health
     local grafana_health=0
     for i in {1..10}; do
-        if curl -f http://localhost:3000/api/health &> /dev/null; then
+        if curl -f http://sam.chat:3000/api/health &> /dev/null; then
             grafana_health=1
             break
         fi
@@ -359,14 +359,14 @@ configure_alerting() {
     log "Configuring alerting..."
     
     # Test Alertmanager connection
-    if curl -f http://localhost:9093/-/healthy &> /dev/null; then
+    if curl -f http://sam.chat:9093/-/healthy &> /dev/null; then
         success "Alertmanager is healthy"
     else
         warning "Alertmanager is not responding"
     fi
     
     # Reload Prometheus configuration
-    if curl -X POST http://localhost:9090/-/reload &> /dev/null; then
+    if curl -X POST http://sam.chat:9090/-/reload &> /dev/null; then
         success "Prometheus configuration reloaded"
     else
         warning "Failed to reload Prometheus configuration"
@@ -380,15 +380,15 @@ test_monitoring() {
     log "Testing monitoring integration..."
     
     # Test Prometheus targets
-    local prometheus_targets=$(curl -s http://localhost:9090/api/v1/targets | jq -r '.data.activeTargets | length')
+    local prometheus_targets=$(curl -s http://sam.chat:9090/api/v1/targets | jq -r '.data.activeTargets | length')
     log "Prometheus monitoring $prometheus_targets targets"
     
     # Test Grafana datasources
-    local grafana_datasources=$(curl -s -u admin:contextbuilder_grafana_2024 http://localhost:3000/api/datasources | jq -r '. | length')
+    local grafana_datasources=$(curl -s -u admin:contextbuilder_grafana_2024 http://sam.chat:3000/api/datasources | jq -r '. | length')
     log "Grafana has $grafana_datasources datasources configured"
     
     # Test custom metrics collector
-    if curl -f http://localhost:8000/metrics &> /dev/null; then
+    if curl -f http://sam.chat:8000/metrics &> /dev/null; then
         success "Custom metrics collector is working"
     else
         warning "Custom metrics collector is not responding"
@@ -398,7 +398,7 @@ test_monitoring() {
     log "Testing service health monitoring..."
     local healthy_services=0
     for service in contextbuilder_core belief_reviser prompt_assembler; do
-        if curl -f "http://localhost:9090/api/v1/query?query=contextbuilder_service_health{service=\"$service\"}" &> /dev/null; then
+        if curl -f "http://sam.chat:9090/api/v1/query?query=contextbuilder_service_health{service=\"$service\"}" &> /dev/null; then
             ((healthy_services++))
         fi
     done
@@ -419,21 +419,21 @@ show_status() {
     log "Service Health:"
     
     # Prometheus
-    if curl -f http://localhost:9090/-/healthy &> /dev/null; then
+    if curl -f http://sam.chat:9090/-/healthy &> /dev/null; then
         echo -e "  Prometheus: ${GREEN}✓ Healthy${NC}"
     else
         echo -e "  Prometheus: ${RED}✗ Unhealthy${NC}"
     fi
     
     # Grafana
-    if curl -f http://localhost:3000/api/health &> /dev/null; then
+    if curl -f http://sam.chat:3000/api/health &> /dev/null; then
         echo -e "  Grafana: ${GREEN}✓ Healthy${NC}"
     else
         echo -e "  Grafana: ${RED}✗ Unhealthy${NC}"
     fi
     
     # Alertmanager
-    if curl -f http://localhost:9093/-/healthy &> /dev/null; then
+    if curl -f http://sam.chat:9093/-/healthy &> /dev/null; then
         echo -e "  Alertmanager: ${GREEN}✓ Healthy${NC}"
     else
         echo -e "  Alertmanager: ${RED}✗ Unhealthy${NC}"
@@ -441,10 +441,10 @@ show_status() {
     
     echo
     log "Access URLs:"
-    echo "  Prometheus: http://localhost:9090"
-    echo "  Grafana: http://localhost:3000 (admin/contextbuilder_grafana_2024)"
-    echo "  Alertmanager: http://localhost:9093"
-    echo "  Custom Metrics: http://localhost:8000/metrics"
+    echo "  Prometheus: http://sam.chat:9090"
+    echo "  Grafana: http://sam.chat:3000 (admin/contextbuilder_grafana_2024)"
+    echo "  Alertmanager: http://sam.chat:9093"
+    echo "  Custom Metrics: http://sam.chat:8000/metrics"
 }
 
 # Main setup function

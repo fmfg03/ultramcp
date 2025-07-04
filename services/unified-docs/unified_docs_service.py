@@ -95,10 +95,10 @@ class UnifiedDocumentationOrchestrator:
         self.session = None
         
         # Service endpoints
-        self.context7_url = os.getenv("CONTEXT7_SERVICE_URL", "http://localhost:8003")
-        self.ref_tools_url = os.getenv("REF_TOOLS_SERVICE_URL", "http://localhost:8011")
-        self.voyage_url = os.getenv("VOYAGE_SERVICE_URL", "http://localhost:8010")
-        self.memory_url = os.getenv("MEMORY_SERVICE_URL", "http://localhost:8009")
+        self.context7_url = os.getenv("CONTEXT7_SERVICE_URL", "http://sam.chat:8003")
+        self.ref_tools_url = os.getenv("REF_TOOLS_SERVICE_URL", "http://sam.chat:8011")
+        self.voyage_url = os.getenv("VOYAGE_SERVICE_URL", "http://sam.chat:8010")
+        self.memory_url = os.getenv("MEMORY_SERVICE_URL", "http://sam.chat:8009")
         
         # Service availability
         self.services_available = {

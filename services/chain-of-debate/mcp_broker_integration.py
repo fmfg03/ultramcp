@@ -343,7 +343,7 @@ class MCPBrokerIntegration:
     """
     
     def __init__(self, broker_uri: str = None):
-        self.broker_uri = broker_uri or os.getenv('MCP_BROKER_URI', 'ws://localhost:8080/mcp')
+        self.broker_uri = broker_uri or os.getenv('MCP_BROKER_URI', 'ws://sam.chat:8080/mcp')
         self.connection_id = f"chain_of_debate_{uuid.uuid4().hex[:8]}"
         self.connection = MCPBrokerConnection(self.broker_uri, self.connection_id)
         

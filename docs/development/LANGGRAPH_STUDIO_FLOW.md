@@ -21,9 +21,9 @@ LangGraph Studio es la herramienta de visualización y debugging que proporciona
 ```
 
 ### **Acceso Web:**
-- **Dashboard Principal**: http://localhost:8123
-- **API Documentation**: http://localhost:8123/docs
-- **WebSocket Debug**: ws://localhost:8124
+- **Dashboard Principal**: http://sam.chat:8123
+- **API Documentation**: http://sam.chat:8123/docs
+- **WebSocket Debug**: ws://sam.chat:8124
 
 ---
 

@@ -507,18 +507,18 @@ make test-cross-services
 ### 9. **🎛️ Control Tower Orchestration Workflow**
 ```bash
 # Step 1: Check Control Tower status
-curl http://localhost:3001/api/orchestrate/status
+curl http://sam.chat:3001/api/orchestrate/status
 
 # Step 2: Run complex multi-service workflow
-curl -X POST http://localhost:3001/api/orchestrate/workflow \
+curl -X POST http://sam.chat:3001/api/orchestrate/workflow \
   -H "Content-Type: application/json" \
   -d '{"type": "code-security-analysis", "project": "my-app"}'
 
 # Step 3: Monitor real-time progress via WebSocket
-# Connect to ws://localhost:8008 for live updates
+# Connect to ws://sam.chat:8008 for live updates
 
 # Step 4: Review orchestration results
-curl http://localhost:3001/api/orchestrate/results/workflow-123
+curl http://sam.chat:3001/api/orchestrate/results/workflow-123
 ```
 
 ## 🚀 Performance Optimization with Complete Integration

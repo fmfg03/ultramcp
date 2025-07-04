@@ -119,11 +119,11 @@ class SecurityManager {
   _loadIPWhitelist() {
     const whitelist = new Set();
     
-    // Always allow localhost in development
+    // Always allow sam.chat in development
     if (this.environment === 'development') {
       whitelist.add('127.0.0.1');
       whitelist.add('::1');
-      whitelist.add('localhost');
+      whitelist.add('sam.chat');
     }
 
     // Load from environment variable

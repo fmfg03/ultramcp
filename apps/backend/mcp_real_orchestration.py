@@ -30,7 +30,7 @@ class ManusLightweightOrchestrator:
     def __init__(self):
         self.orchestration_calls = 0
         self.delegation_count = 0
-        self.sam_endpoint = "http://localhost:3001/mcp/sam"
+        self.sam_endpoint = "http://sam.chat:3001/mcp/sam"
         
     async def evaluate_and_delegate(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """

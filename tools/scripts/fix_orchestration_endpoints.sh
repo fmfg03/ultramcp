@@ -43,7 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 // Configuración CORS mejorada
 const corsOptions = {
   origin: [
-    'http://localhost:5173',
+    'http://sam.chat:5173',
     'http://127.0.0.1:5173',
     'http://sam.chat:5173',
     'http://sam.chat',
@@ -531,7 +531,7 @@ echo "🧪 TESTING NUEVOS ENDPOINTS DE ORQUESTACIÓN"
 echo "=========================================="
 
 echo "🔍 Test /api/health:"
-response=$(curl -s "http://localhost:3000/api/health")
+response=$(curl -s "http://sam.chat:3000/api/health")
 if echo "$response" | grep -q "healthy"; then
     echo "✅ /api/health funcionando"
 else
@@ -542,7 +542,7 @@ echo ""
 echo "🔍 Test /api/run-task (capital de japón):"
 response=$(curl -s -X POST -H "Content-Type: application/json" \
     -d '{"task":"capital de japón","description":"¿Cuál es la capital de Japón?"}' \
-    "http://localhost:3000/api/run-task")
+    "http://sam.chat:3000/api/run-task")
 
 if echo "$response" | grep -q "Tokio"; then
     echo "✅ /api/run-task funcionando - respuesta:"

@@ -487,8 +487,8 @@ control-tower-build:
 
 control-tower-status:
 	@echo "[DATA] Control Tower Status:"
-	@curl -s http://localhost:8001/api/status 2>/dev/null | jq . || echo "[ERROR] Control Tower backend not running"
-	@curl -s http://localhost:5173 >/dev/null 2>&1 && echo "[OK] Frontend running on http://localhost:5173" || echo "[ERROR] Frontend not running"
+	@curl -s http://sam.chat:8001/api/status 2>/dev/null | jq . || echo "[ERROR] Control Tower backend not running"
+	@curl -s http://sam.chat:5173 >/dev/null 2>&1 && echo "[OK] Frontend running on http://sam.chat:5173" || echo "[ERROR] Frontend not running"
 	@make chat TEXT="Hello from UltraMCP Hybrid System!"
 # =============================================================================
 # CONTEXT7 REAL-TIME DOCUMENTATION
@@ -517,12 +517,12 @@ context7-detect:
 # Context7 health check
 context7-health:
 	@echo "🏥 Context7 service health check..."
-	@curl -s http://localhost:8003/health | jq . || echo "Context7 service not available"
+	@curl -s http://sam.chat:8003/health | jq . || echo "Context7 service not available"
 
 # Context7 statistics
 context7-stats:
 	@echo "[DATA] Context7 service statistics..."
-	@curl -s http://localhost:8003/api/stats | jq . || echo "Context7 service not available"
+	@curl -s http://sam.chat:8003/api/stats | jq . || echo "Context7 service not available"
 
 # Test Context7 integration
 context7-test:
@@ -718,7 +718,7 @@ compliance-audit:
 # Security dashboard (Claudia integration)
 security-dashboard:
 	@echo "[DATA] Opening security dashboard..."
-	@echo "Security dashboard available at: http://localhost:3000/security"
+	@echo "Security dashboard available at: http://sam.chat:3000/security"
 	@echo "Use Claudia interface for visual security management"
 
 # Security metrics collection
@@ -798,12 +798,12 @@ blockoli-health:
 # List indexed projects
 list-indexed-projects:
 	@echo "📋 Listing indexed projects..."
-	@curl -s http://localhost:8080/projects 2>/dev/null | jq . || echo "Blockoli service not available"
+	@curl -s http://sam.chat:8080/projects 2>/dev/null | jq . || echo "Blockoli service not available"
 
 # Project statistics
 project-stats:
 	@echo "[DATA] Project statistics for $(PROJECT)..."
-	@curl -s http://localhost:8080/projects/$(PROJECT)/stats 2>/dev/null | jq . || echo "Project not found or Blockoli service not available"
+	@curl -s http://sam.chat:8080/projects/$(PROJECT)/stats 2>/dev/null | jq . || echo "Project not found or Blockoli service not available"
 
 # =============================================================================
 # ENHANCED AI DEVELOPMENT WITH CODE INTELLIGENCE
@@ -976,29 +976,29 @@ memory-help:
 # Enhanced semantic search with VoyageAI
 voyage-search:
 	@echo "[START] VoyageAI Enhanced Semantic Search..."
-	@curl -X POST http://localhost:8009/memory/search/enhanced \
+	@curl -X POST http://sam.chat:8009/memory/search/enhanced \
 		-H "Content-Type: application/json" \
 		-d '{"query": "$(QUERY)", "limit": $(or $(LIMIT),10), "privacy_level": "$(or $(PRIVACY),PUBLIC)", "domain": $(if $(DOMAIN),"$(DOMAIN)",null), "search_mode": "$(or $(MODE),AUTO)", "project_name": $(if $(PROJECT),"$(PROJECT)",null)}' | jq .
 
 # Code-optimized search with VoyageAI code embeddings
 voyage-code-search:
 	@echo "[DESKTOP] VoyageAI Code-Optimized Search..."
-	@curl -X POST "http://localhost:8009/memory/search/code?query=$(QUERY)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),INTERNAL)$(if $(PROJECT),&project_name=$(PROJECT))$(if $(LANGUAGE),&language=$(LANGUAGE))" | jq .
+	@curl -X POST "http://sam.chat:8009/memory/search/code?query=$(QUERY)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),INTERNAL)$(if $(PROJECT),&project_name=$(PROJECT))$(if $(LANGUAGE),&language=$(LANGUAGE))" | jq .
 
 # Privacy-first search (local only)
 voyage-privacy-search:
 	@echo "[SECURITY] Privacy-First Local Search..."
-	@curl -X POST "http://localhost:8009/memory/search/privacy-first?query=$(QUERY)&limit=$(or $(LIMIT),10)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
+	@curl -X POST "http://sam.chat:8009/memory/search/privacy-first?query=$(QUERY)&limit=$(or $(LIMIT),10)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
 
 # Domain-specialized search (finance, healthcare, legal, etc.)
 voyage-domain-search:
 	@echo "[TARGET] Domain-Specialized Search ($(DOMAIN))..."
-	@curl -X POST "http://localhost:8009/memory/search/domain?query=$(QUERY)&domain=$(DOMAIN)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),PUBLIC)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
+	@curl -X POST "http://sam.chat:8009/memory/search/domain?query=$(QUERY)&domain=$(DOMAIN)&limit=$(or $(LIMIT),10)&privacy_level=$(or $(PRIVACY),PUBLIC)$(if $(PROJECT),&project_name=$(PROJECT))" | jq .
 
 # Enhanced project indexing with VoyageAI
 voyage-index:
 	@echo "🗂️ Enhanced Project Indexing with VoyageAI..."
-	@curl -X POST http://localhost:8009/memory/projects/index \
+	@curl -X POST http://sam.chat:8009/memory/projects/index \
 		-H "Content-Type: application/json" \
 		-d '{"project_path": "$(PROJECT)", "project_name": "$(NAME)", "domain": $(if $(DOMAIN),"$(DOMAIN)",null), "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_patterns": $(or $(PATTERNS),["*.py", "*.js", "*.ts", "*.java", "*.cpp"]), "exclude_patterns": ["node_modules", ".git", "__pycache__"]}' | jq .
 
@@ -1006,26 +1006,26 @@ voyage-index:
 voyage-health:
 	@echo "🏥 VoyageAI Service Health Check..."
 	@echo "1. VoyageAI Service:"
-	@curl -s http://localhost:8010/health | jq .
+	@curl -s http://sam.chat:8010/health | jq .
 	@echo "2. Enhanced Memory Service:"
-	@curl -s http://localhost:8009/health | jq .
+	@curl -s http://sam.chat:8009/health | jq .
 	@echo "3. Available Models:"
-	@curl -s http://localhost:8010/models | jq .
+	@curl -s http://sam.chat:8010/models | jq .
 
 # Get VoyageAI service statistics
 voyage-stats:
 	@echo "[DATA] VoyageAI Service Statistics..."
 	@echo "1. Enhanced Search Stats:"
-	@curl -s http://localhost:8009/memory/stats/enhanced | jq .search_stats
+	@curl -s http://sam.chat:8009/memory/stats/enhanced | jq .search_stats
 	@echo "2. Service Health:"
-	@curl -s http://localhost:8009/memory/stats/enhanced | jq .service_health
+	@curl -s http://sam.chat:8009/memory/stats/enhanced | jq .service_health
 	@echo "3. Cost Analysis:"
-	@curl -s http://localhost:8010/stats | jq .
+	@curl -s http://sam.chat:8010/stats | jq .
 
 # List available VoyageAI models and capabilities
 voyage-models:
 	@echo "[DEEPCLAUDE] Available VoyageAI Models..."
-	@curl -s http://localhost:8009/memory/models | jq .
+	@curl -s http://sam.chat:8009/memory/models | jq .
 
 # Domain-specific workflows
 voyage-finance-search:
@@ -1129,14 +1129,14 @@ voyage-help:
 # Ref Tools documentation search
 ref-search:
 	@echo "[LINK] Ref Tools Documentation Search..."
-	@curl -X POST http://localhost:8011/ref/search \
+	@curl -X POST http://sam.chat:8011/ref/search \
 		-H "Content-Type: application/json" \
 		-d '{"query": "$(QUERY)", "source_type": "$(or $(SOURCE),AUTO)", "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_code_examples": $(or $(CODE),true), "max_results": $(or $(LIMIT),10), "organization": $(if $(ORG),"$(ORG)",null), "project_context": $(if $(PROJECT),"$(PROJECT)",null)}' | jq .
 
 # Read URL content with Ref Tools
 ref-read-url:
 	@echo "📄 Ref Tools URL Content Extraction..."
-	@curl -X POST http://localhost:8011/ref/read-url \
+	@curl -X POST http://sam.chat:8011/ref/read-url \
 		-H "Content-Type: application/json" \
 		-d '{"url": "$(URL)", "extract_code": $(or $(CODE),true)}' | jq .
 
@@ -1153,7 +1153,7 @@ ref-external-search:
 # Unified documentation search combining all sources
 docs-unified-search:
 	@echo "[SHINE] Unified Documentation Intelligence Search..."
-	@curl -X POST http://localhost:8012/docs/unified-search \
+	@curl -X POST http://sam.chat:8012/docs/unified-search \
 		-H "Content-Type: application/json" \
 		-d '{"query": "$(QUERY)", "documentation_type": "$(or $(TYPE),HYBRID)", "intelligence_level": "$(or $(INTELLIGENCE),ENHANCED)", "privacy_level": "$(or $(PRIVACY),INTERNAL)", "include_code": $(or $(CODE),true), "include_examples": $(or $(EXAMPLES),true), "max_results_per_source": $(or $(LIMIT),5), "project_context": $(if $(PROJECT),"$(PROJECT)",null), "organization": $(if $(ORG),"$(ORG)",null)}' | jq .
 
@@ -1191,9 +1191,9 @@ docs-help:
 unified-start:
 	@echo "[START] Starting UltraMCP Unified Backend..."
 	@docker-compose -f docker-compose.unified.yml up -d ultramcp-unified-backend
-	@echo "[OK] Unified backend started at http://localhost:8000"
-	@echo "📚 Documentation: http://localhost:8000/docs"
-	@echo "[LINK] MCP Tools: http://localhost:8000/mcp/tools"
+	@echo "[OK] Unified backend started at http://sam.chat:8000"
+	@echo "📚 Documentation: http://sam.chat:8000/docs"
+	@echo "[LINK] MCP Tools: http://sam.chat:8000/mcp/tools"
 
 # Start complete unified system (backend + specialized services)
 unified-system-start:
@@ -1206,11 +1206,11 @@ unified-system-start:
 unified-status:
 	@echo "🏥 Unified Backend Health Check..."
 	@echo "1. Global Health:"
-	@curl -s http://localhost:8000/health 2>/dev/null | jq . || echo "[ERROR] Unified backend not available"
+	@curl -s http://sam.chat:8000/health 2>/dev/null | jq . || echo "[ERROR] Unified backend not available"
 	@echo "2. Component Health:"
-	@curl -s http://localhost:8000/health/detailed 2>/dev/null | jq .components || echo "[ERROR] Component health check failed"
+	@curl -s http://sam.chat:8000/health/detailed 2>/dev/null | jq .components || echo "[ERROR] Component health check failed"
 	@echo "3. MCP Tools:"
-	@curl -s http://localhost:8000/mcp/tools 2>/dev/null | jq .total_tools || echo "[ERROR] MCP tools not available"
+	@curl -s http://sam.chat:8000/mcp/tools 2>/dev/null | jq .total_tools || echo "[ERROR] MCP tools not available"
 
 # View unified backend logs
 unified-logs:
@@ -1223,39 +1223,39 @@ unified-test:
 	@echo "1. Health check..."
 	@make unified-status
 	@echo "2. Testing CoD endpoint..."
-	@curl -X POST http://localhost:8000/cod/local-debate \
+	@curl -X POST http://sam.chat:8000/cod/local-debate \
 		-H "Content-Type: application/json" \
 		-d '{"topic": "Test unified backend debate", "participants": 2, "rounds": 1}' 2>/dev/null | jq .debate_id || echo "[ERROR] CoD test failed"
 	@echo "3. Testing Memory endpoint..."
-	@curl -X POST "http://localhost:8000/memory/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "[ERROR] Memory test failed"
+	@curl -X POST "http://sam.chat:8000/memory/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "[ERROR] Memory test failed"
 	@echo "4. Testing VoyageAI endpoint..."
-	@curl -X POST "http://localhost:8000/voyage/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "[ERROR] Voyage test failed"
+	@curl -X POST "http://sam.chat:8000/voyage/search/privacy-first?query=test&limit=3" 2>/dev/null | jq .query || echo "[ERROR] Voyage test failed"
 	@echo "[OK] Unified backend tests complete"
 
 # Open unified backend documentation
 unified-docs:
 	@echo "📚 Opening Unified Backend Documentation..."
-	@echo "Swagger UI: http://localhost:8000/docs"
-	@echo "ReDoc: http://localhost:8000/redoc"
-	@echo "OpenAPI Schema: http://localhost:8000/openapi.json"
-	@echo "MCP Tools: http://localhost:8000/mcp/tools"
+	@echo "Swagger UI: http://sam.chat:8000/docs"
+	@echo "ReDoc: http://sam.chat:8000/redoc"
+	@echo "OpenAPI Schema: http://sam.chat:8000/openapi.json"
+	@echo "MCP Tools: http://sam.chat:8000/mcp/tools"
 	@if command -v open >/dev/null 2>&1; then \
-		open http://localhost:8000/docs; \
+		open http://sam.chat:8000/docs; \
 	elif command -v xdg-open >/dev/null 2>&1; then \
-		xdg-open http://localhost:8000/docs; \
+		xdg-open http://sam.chat:8000/docs; \
 	else \
-		echo "Open manually: http://localhost:8000/docs"; \
+		echo "Open manually: http://sam.chat:8000/docs"; \
 	fi
 
 # Test MCP protocol endpoints
 unified-mcp-test:
 	@echo "[LINK] Testing MCP Protocol Integration..."
 	@echo "1. List MCP tools..."
-	@curl -s http://localhost:8000/mcp/tools | jq .total_tools
+	@curl -s http://sam.chat:8000/mcp/tools | jq .total_tools
 	@echo "2. Get MCP capabilities..."
-	@curl -s http://localhost:8000/mcp/capabilities | jq .capabilities
+	@curl -s http://sam.chat:8000/mcp/capabilities | jq .capabilities
 	@echo "3. Test MCP tool execution (CoD)..."
-	@curl -X POST http://localhost:8000/mcp/execute/cod_local_debate \
+	@curl -X POST http://sam.chat:8000/mcp/execute/cod_local_debate \
 		-H "Content-Type: application/json" \
 		-d '{"topic": "MCP integration test", "participants": 2}' | jq .result.debate_id
 	@echo "[OK] MCP integration test complete"
@@ -1301,14 +1301,14 @@ unified-performance-test:
 	@echo "[FAST] Unified Backend Performance Test..."
 	@echo "1. Concurrent CoD requests..."
 	@for i in $$(seq 1 3); do \
-		curl -X POST http://localhost:8000/cod/local-debate \
+		curl -X POST http://sam.chat:8000/cod/local-debate \
 			-H "Content-Type: application/json" \
 			-d '{"topic": "Performance test $$i", "participants": 2, "rounds": 1}' \
 			-w "Response time: %{time_total}s\n" -o /dev/null -s & \
 	done; wait
 	@echo "2. Concurrent Memory searches..."
 	@for i in $$(seq 1 5); do \
-		curl -X POST "http://localhost:8000/memory/search/privacy-first?query=performance$$i&limit=2" \
+		curl -X POST "http://sam.chat:8000/memory/search/privacy-first?query=performance$$i&limit=2" \
 			-w "Response time: %{time_total}s\n" -o /dev/null -s & \
 	done; wait
 	@echo "[OK] Performance test complete"
@@ -1338,10 +1338,10 @@ unified-help:
 	@echo "  make unified-migrate               - Migrate from microservices"
 	@echo ""
 	@echo "Service URLs:"
-	@echo "  Unified Backend:  http://localhost:8000"
-	@echo "  Documentation:    http://localhost:8000/docs"
-	@echo "  MCP Tools:        http://localhost:8000/mcp/tools"
-	@echo "  Health Check:     http://localhost:8000/health"
+	@echo "  Unified Backend:  http://sam.chat:8000"
+	@echo "  Documentation:    http://sam.chat:8000/docs"
+	@echo "  MCP Tools:        http://sam.chat:8000/mcp/tools"
+	@echo "  Health Check:     http://sam.chat:8000/health"
 	@echo ""
 	@echo "MCP Tools Available:"
 	@echo "  - cod_enhanced_debate             - Multi-LLM debate orchestration"
@@ -1445,7 +1445,7 @@ claudia-help:
 	@echo "Integration Workflow:"
 	@echo "  1. make claudia-start           - Start MCP servers"
 	@echo "  2. make claudia-frontend        - Start frontend"
-	@echo "  3. Navigate to http://localhost:3001"
+	@echo "  3. Navigate to http://sam.chat:3001"
 	@echo "  4. Use Claudia visual interface for multi-LLM debates"
 	@echo ""
 	@echo "MCP Tools Available:"
@@ -1489,7 +1489,7 @@ claudia-system-start:
 	@sleep 3
 	@echo ""
 	@echo "[OK] Complete Claudia system started!"
-	@echo "[CLAUDIA] Claudia Interface: http://localhost:3001"
+	@echo "[CLAUDIA] Claudia Interface: http://sam.chat:3001"
 	@echo "📖 Use 'make claudia-help' for available commands"
 	@make claudia-status
 
@@ -1508,17 +1508,17 @@ claudia-simple-start:
 # Actions service status
 actions-health:
 	@echo "[CLAUDIA] Checking Actions MCP Service Health..."
-	@curl -s http://localhost:8010/health/ | jq . || echo "[ERROR] Actions service not available"
+	@curl -s http://sam.chat:8010/health/ | jq . || echo "[ERROR] Actions service not available"
 
 # List all available actions
 actions-list:
 	@echo "📋 Available External Actions:"
-	@curl -s http://localhost:8010/actions/ | jq . || echo "[ERROR] Failed to get actions list"
+	@curl -s http://sam.chat:8010/actions/ | jq . || echo "[ERROR] Failed to get actions list"
 
 # Escalate to human approval
 actions-escalate:
 	@echo "[ALERT] Escalating to Human: $(MESSAGE)"
-	@curl -X POST http://localhost:8010/actions/escalate_to_human/execute \
+	@curl -X POST http://sam.chat:8010/actions/escalate_to_human/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"message": "$(MESSAGE)", "priority": "$(if $(PRIORITY),$(PRIORITY),medium)"}}' | jq .
 
@@ -1526,14 +1526,14 @@ actions-escalate:
 actions-notify:
 	@echo "📢 Sending Notification to $(RECIPIENT)"
 	@ACTION_ID=$$(if [ "$(CHANNEL)" = "slack" ]; then echo "send_slack_message"; else echo "send_email"; fi); \
-	curl -X POST http://localhost:8010/actions/$$ACTION_ID/execute \
+	curl -X POST http://sam.chat:8010/actions/$$ACTION_ID/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"recipient": "$(RECIPIENT)", "message": "$(MESSAGE)", "subject": "$(if $(SUBJECT),$(SUBJECT),Notification)", "channel": "$(if $(CHANNEL),$(CHANNEL),email)"}}' | jq .
 
 # Trigger external workflow
 actions-workflow:
 	@echo "[FAST] Triggering Workflow: $(JOB)"
-	@curl -X POST http://localhost:8010/actions/trigger_workflow/execute \
+	@curl -X POST http://sam.chat:8010/actions/trigger_workflow/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"job_name": "$(JOB)", "workflow_type": "$(if $(TYPE),$(TYPE),jenkins)", "parameters": $(if $(PARAMS),$(PARAMS),{})}}' | jq .
 
@@ -1541,38 +1541,38 @@ actions-workflow:
 actions-ticket:
 	@echo "🎫 Creating Ticket: $(TITLE)"
 	@ACTION_ID=$$(if [ "$(SYSTEM)" = "github" ]; then echo "create_github_issue"; else echo "create_jira_ticket"; fi); \
-	curl -X POST http://localhost:8010/actions/$$ACTION_ID/execute \
+	curl -X POST http://sam.chat:8010/actions/$$ACTION_ID/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"title": "$(TITLE)", "description": "$(DESC)", "system": "$(if $(SYSTEM),$(SYSTEM),jira)", "priority": "$(if $(PRIORITY),$(PRIORITY),medium)"}}' | jq .
 
 # Run security scan
 actions-security-scan:
 	@echo "[SECURITY] Running Security Scan on $(TARGET)"
-	@curl -X POST http://localhost:8010/actions/run_security_scan/execute \
+	@curl -X POST http://sam.chat:8010/actions/run_security_scan/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": {"target": "$(TARGET)", "scan_type": "$(if $(TYPE),$(TYPE),vulnerability)", "tool": "$(if $(TOOL),$(TOOL),sonarqube)"}}' | jq .
 
 # Validate action parameters
 actions-validate:
 	@echo "[OK] Validating Parameters for Action: $(ACTION)"
-	@curl -X POST http://localhost:8010/actions/$(ACTION)/validate \
+	@curl -X POST http://sam.chat:8010/actions/$(ACTION)/validate \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": $(PARAMS)}' | jq .
 
 # Get action execution history
 actions-history:
 	@echo "📜 Getting History for Action: $(ACTION)"
-	@curl -s "http://localhost:8010/actions/$(ACTION)/history?limit=$(if $(LIMIT),$(LIMIT),10)" | jq .
+	@curl -s "http://sam.chat:8010/actions/$(ACTION)/history?limit=$(if $(LIMIT),$(LIMIT),10)" | jq .
 
 # Get execution statistics
 actions-stats:
 	@echo "[DATA] Actions Execution Statistics:"
-	@curl -s http://localhost:8010/actions/stats/summary | jq .
+	@curl -s http://sam.chat:8010/actions/stats/summary | jq .
 
 # Execute any action directly
 actions-execute:
 	@echo "[CLAUDIA] Executing Action: $(ACTION)"
-	@curl -X POST http://localhost:8010/actions/$(ACTION)/execute \
+	@curl -X POST http://sam.chat:8010/actions/$(ACTION)/execute \
 		-H "Content-Type: application/json" \
 		-d '{"parameters": $(PARAMS)}' | jq .
 
@@ -1629,8 +1629,8 @@ actions-help:
 	@echo "Direct Execution:"
 	@echo "  make actions-execute ACTION=escalate_to_human PARAMS='{\"message\":\"test\"}'"
 	@echo ""
-	@echo "Service URL: http://localhost:8010"
-	@echo "Documentation: http://localhost:8010/docs"
+	@echo "Service URL: http://sam.chat:8010"
+	@echo "Documentation: http://sam.chat:8010/docs"
 
 # =============================================================================
 # GITINGEST REPOSITORY ANALYSIS - Code Context for LLMs
@@ -1781,19 +1781,19 @@ context-status:
 # Validate semantic coherence
 context-validate:
 	@echo "[BUILD] Validating semantic coherence..."
-	@curl -s -X POST http://localhost:8025/validate_coherence | jq . || echo "ContextBuilder not running - use 'make context-start'"
+	@curl -s -X POST http://sam.chat:8025/validate_coherence | jq . || echo "ContextBuilder not running - use 'make context-start'"
 
 # Apply context mutation
 context-mutate:
 	@echo "[BUILD] Applying context mutation: $(DOMAIN).$(FIELD) -> $(VALUE)"
-	@curl -s -X POST http://localhost:8025/apply_mutation \
+	@curl -s -X POST http://sam.chat:8025/apply_mutation \
 		-H "Content-Type: application/json" \
 		-d '{"target_domain":"$(DOMAIN).$(FIELD)","new_value":"$(VALUE)","source":"makefile"}' | jq . || echo "ContextBuilder not running"
 
 # Optimize thresholds and parameters
 context-optimize:
 	@echo "[BUILD] Optimizing ContextBuilder thresholds..."
-	@curl -s -X POST http://localhost:8025/process_context \
+	@curl -s -X POST http://sam.chat:8025/process_context \
 		-H "Content-Type: application/json" \
 		-d '{"context_data":{},"operation":"optimize","parameters":{"target_performance":0.85}}' | jq . || echo "ContextBuilder not running"
 
@@ -1803,7 +1803,7 @@ context-analyze:
 	@if [ -z "$(SESSION)" ]; then \
 		echo "Usage: make context-analyze SESSION='transcript text here'"; \
 	else \
-		curl -s -X POST http://localhost:8025/analyze_session \
+		curl -s -X POST http://sam.chat:8025/analyze_session \
 			-H "Content-Type: application/json" \
 			-d '{"meeting_transcript":"$(SESSION)","analysis_depth":"standard"}' | jq .; \
 	fi
@@ -1817,19 +1817,19 @@ context-test:
 context-system-status:
 	@echo "[DATA] Complete ContextBuilder System Status"
 	@echo "==========================================="
-	@curl -s http://localhost:8025/system_status | jq . || echo "ContextBuilder not running"
+	@curl -s http://sam.chat:8025/system_status | jq . || echo "ContextBuilder not running"
 
 # Get knowledge tree
 context-knowledge-tree:
 	@echo "[DATA] Current Knowledge Tree"
 	@echo "============================"
-	@curl -s http://localhost:8025/knowledge_tree | jq . || echo "ContextBuilder not running"
+	@curl -s http://sam.chat:8025/knowledge_tree | jq . || echo "ContextBuilder not running"
 
 # Get performance metrics
 context-metrics:
 	@echo "[DATA] ContextBuilder Performance Metrics"
 	@echo "========================================"
-	@curl -s http://localhost:8025/metrics | jq . || echo "ContextBuilder not running"
+	@curl -s http://sam.chat:8025/metrics | jq . || echo "ContextBuilder not running"
 
 # ContextBuilder help
 # Start ContextBuilder ecosystem
@@ -1865,56 +1865,56 @@ context-logs:
 # Validate semantic coherence
 context-validate:
 	@echo "🔍 Validating semantic coherence..."
-	@curl -X POST http://localhost:8025/validate_coherence \
+	@curl -X POST http://sam.chat:8025/validate_coherence \
 		-H "Content-Type: application/json" | jq .
 
 # Apply context mutation
 context-mutate:
 	@echo "🔄 Applying context mutation..."
-	@curl -X POST http://localhost:8025/apply_mutation \
+	@curl -X POST http://sam.chat:8025/apply_mutation \
 		-H "Content-Type: application/json" \
 		-d '{"target_domain": "$(DOMAIN)", "field": "$(FIELD)", "new_value": "$(VALUE)", "source": "makefile"}' | jq .
 
 # Analyze session for insights
 context-analyze:
 	@echo "🧠 Analyzing session for insights..."
-	@curl -X POST http://localhost:8025/analyze_session \
+	@curl -X POST http://sam.chat:8025/analyze_session \
 		-H "Content-Type: application/json" \
 		-d '{"meeting_transcript": "$(SESSION)", "context_domain": "$(or $(DOMAIN),general)", "analysis_depth": "$(or $(DEPTH),standard)"}' | jq .
 
 # Optimize context thresholds
 context-optimize:
 	@echo "⚡ Optimizing context thresholds..."
-	@curl -X POST http://localhost:8025/process_context \
+	@curl -X POST http://sam.chat:8025/process_context \
 		-H "Content-Type: application/json" \
 		-d '{"context_data": {}, "operation": "optimize", "parameters": {"target_performance": 0.85}}' | jq .
 
 # Get system status
 context-system-status:
 	@echo "🏥 Complete system status..."
-	@curl -s http://localhost:8025/system_status | jq .
+	@curl -s http://sam.chat:8025/system_status | jq .
 
 # Get knowledge tree
 context-knowledge-tree:
 	@echo "🌳 Current knowledge tree:"
-	@curl -s http://localhost:8025/knowledge_tree | jq .
+	@curl -s http://sam.chat:8025/knowledge_tree | jq .
 
 # Get performance metrics
 context-metrics:
 	@echo "📊 Performance metrics:"
-	@curl -s http://localhost:8025/metrics | jq .
+	@curl -s http://sam.chat:8025/metrics | jq .
 
 # Process context with custom operation
 context-process:
 	@echo "⚙️ Processing context with operation: $(OPERATION)"
-	@curl -X POST http://localhost:8025/process_context \
+	@curl -X POST http://sam.chat:8025/process_context \
 		-H "Content-Type: application/json" \
 		-d '{"context_data": $(DATA), "operation": "$(OPERATION)", "parameters": $(or $(PARAMS),{})}' | jq .
 
 # Quick context health check
 context-health:
 	@echo "🏥 ContextBuilder Health Check:"
-	@curl -s http://localhost:8025/health | jq .
+	@curl -s http://sam.chat:8025/health | jq .
 
 # Enhanced context help
 context-help:
@@ -1943,12 +1943,12 @@ context-help:
 	@echo "  make context-logs                               - View service logs"
 	@echo ""
 	@echo "Service Endpoints:"
-	@echo "  • Orchestrator:        http://localhost:8025"
-	@echo "  • Drift Detector:      http://localhost:8020"
-	@echo "  • Contradiction Resolver: http://localhost:8021"
-	@echo "  • Belief Reviser:      http://localhost:8022"
-	@echo "  • Utility Predictor:   http://localhost:8023"
-	@echo "  • Memory Tuner:        http://localhost:8026"
+	@echo "  • Orchestrator:        http://sam.chat:8025"
+	@echo "  • Drift Detector:      http://sam.chat:8020"
+	@echo "  • Contradiction Resolver: http://sam.chat:8021"
+	@echo "  • Belief Reviser:      http://sam.chat:8022"
+	@echo "  • Utility Predictor:   http://sam.chat:8023"
+	@echo "  • Memory Tuner:        http://sam.chat:8026"
 	@echo ""
 	@echo "Example Workflows:"
 	@echo "  1. Complete startup:   make context-start"
@@ -1964,43 +1964,43 @@ context-help:
 # Assemble dynamic prompt
 prompt-assemble:
 	@echo "🎯 Assembling dynamic prompt..."
-	@curl -X POST http://localhost:8027/assemble_prompt \
+	@curl -X POST http://sam.chat:8027/assemble_prompt \
 		-H "Content-Type: application/json" \
 		-d '{"prompt_type": "$(TYPE)", "objective": "$(OBJECTIVE)", "complexity": "$(or $(COMPLEXITY),medium)", "context_domains": [$(if $(DOMAINS),"$(DOMAINS)",[])], "template_variables": $(or $(VARS),{})}' | jq .
 
 # Optimize existing prompt
 prompt-optimize:
 	@echo "⚡ Optimizing prompt..."
-	@curl -X POST http://localhost:8027/optimize_prompt \
+	@curl -X POST http://sam.chat:8027/optimize_prompt \
 		-H "Content-Type: application/json" \
 		-d '{"original_prompt": "$(PROMPT)", "performance_metrics": $(or $(METRICS),{}), "target_improvement": "$(or $(TARGET),effectiveness)"}' | jq .
 
 # List prompt templates
 prompt-templates:
 	@echo "📋 Available prompt templates:"
-	@curl -s http://localhost:8027/templates | jq .
+	@curl -s http://sam.chat:8027/templates | jq .
 
 # Analyze prompt quality
 prompt-analyze:
 	@echo "🔍 Analyzing prompt quality..."
-	@curl -X POST http://localhost:8027/analyze_prompt \
+	@curl -X POST http://sam.chat:8027/analyze_prompt \
 		-H "Content-Type: application/json" \
 		-d '{"prompt": "$(PROMPT)", "context_domains": [$(if $(DOMAINS),"$(DOMAINS)",[])]}' | jq .
 
 # Check PromptAssembler status
 prompt-status:
 	@echo "📊 PromptAssembler Status:"
-	@curl -s http://localhost:8027/health | jq .
+	@curl -s http://sam.chat:8027/health | jq .
 
 # Get PromptAssembler performance analytics
 prompt-analytics:
 	@echo "📈 PromptAssembler Analytics:"
-	@curl -s http://localhost:8027/performance_analytics | jq .
+	@curl -s http://sam.chat:8027/performance_analytics | jq .
 
 # Create new prompt template
 prompt-create-template:
 	@echo "📝 Creating prompt template..."
-	@curl -X POST http://localhost:8027/create_template \
+	@curl -X POST http://sam.chat:8027/create_template \
 		-H "Content-Type: application/json" \
 		-d '{"template_name": "$(NAME)", "template_content": "$(CONTENT)", "variables": [$(VARS)], "context_domains": [$(DOMAINS)], "description": "$(DESC)"}' | jq .
 
@@ -2011,55 +2011,55 @@ prompt-create-template:
 # View monitoring dashboard
 observatory-dashboard:
 	@echo "🔭 Context Observatory Dashboard ($(TYPE))..."
-	@curl -s "http://localhost:8028/dashboard/$(or $(TYPE),overview)" | jq .
+	@curl -s "http://sam.chat:8028/dashboard/$(or $(TYPE),overview)" | jq .
 
 # Comprehensive health check
 observatory-health:
 	@echo "🏥 Comprehensive health check..."
-	@curl -X GET http://localhost:8028/health_check \
+	@curl -X GET http://sam.chat:8028/health_check \
 		-H "Content-Type: application/json" | jq .
 
 # View system alerts
 observatory-alerts:
 	@echo "🚨 System alerts..."
-	@curl -X GET http://localhost:8028/alerts \
+	@curl -X GET http://sam.chat:8028/alerts \
 		-H "Content-Type: application/json" | jq .
 
 # Get performance metrics
 observatory-metrics:
 	@echo "📊 Performance metrics..."
-	@curl -X GET http://localhost:8028/metrics \
+	@curl -X GET http://sam.chat:8028/metrics \
 		-H "Content-Type: application/json" | jq .
 
 # Start background monitoring
 observatory-start-monitoring:
 	@echo "▶️ Starting background monitoring..."
-	@curl -X POST http://localhost:8028/start_monitoring | jq .
+	@curl -X POST http://sam.chat:8028/start_monitoring | jq .
 
 # Stop background monitoring
 observatory-stop-monitoring:
 	@echo "⏹️ Stopping background monitoring..."
-	@curl -X POST http://localhost:8028/stop_monitoring | jq .
+	@curl -X POST http://sam.chat:8028/stop_monitoring | jq .
 
 # System overview
 observatory-overview:
 	@echo "🌐 System overview..."
-	@curl -s http://localhost:8028/system_overview | jq .
+	@curl -s http://sam.chat:8028/system_overview | jq .
 
 # Performance trends
 observatory-trends:
 	@echo "📈 Performance trends..."
-	@curl -s http://localhost:8028/performance_trends | jq .
+	@curl -s http://sam.chat:8028/performance_trends | jq .
 
 # Coherence analytics
 observatory-coherence:
 	@echo "🧠 Coherence analytics..."
-	@curl -s http://localhost:8028/coherence_analytics | jq .
+	@curl -s http://sam.chat:8028/coherence_analytics | jq .
 
 # Resolve alert
 observatory-resolve-alert:
 	@echo "✅ Resolving alert $(ALERT_ID)..."
-	@curl -X POST "http://localhost:8028/alert/$(ALERT_ID)/resolve" | jq .
+	@curl -X POST "http://sam.chat:8028/alert/$(ALERT_ID)/resolve" | jq .
 
 # =============================================================================
 # DETERMINISTICDEBUGMODE - REPRODUCIBLE TESTING
@@ -2068,58 +2068,58 @@ observatory-resolve-alert:
 # Start debug session
 debug-start-session:
 	@echo "🐛 Starting debug session: $(NAME)..."
-	@curl -X POST http://localhost:8029/start_debug_session \
+	@curl -X POST http://sam.chat:8029/start_debug_session \
 		-H "Content-Type: application/json" \
 		-d '{"session_name": "$(NAME)", "debug_level": "$(or $(LEVEL),standard)", "reproducibility_mode": "$(or $(MODE),semantic)", "random_seed": $(or $(SEED),42)}' | jq .
 
 # Stop debug session
 debug-stop-session:
 	@echo "🛑 Stopping debug session: $(SESSION_ID)..."
-	@curl -X POST "http://localhost:8029/stop_debug_session/$(SESSION_ID)" | jq .
+	@curl -X POST "http://sam.chat:8029/stop_debug_session/$(SESSION_ID)" | jq .
 
 # Capture system snapshot
 debug-capture-snapshot:
 	@echo "📸 Capturing system snapshot..."
-	@curl -X POST http://localhost:8029/capture_snapshot \
+	@curl -X POST http://sam.chat:8029/capture_snapshot \
 		-H "Content-Type: application/json" \
 		-d '{"session_id": "$(or $(SESSION_ID),)"}' | jq .
 
 # Trace operation
 debug-trace-operation:
 	@echo "🔍 Tracing operation: $(TYPE)..."
-	@curl -X POST http://localhost:8029/trace_operation \
+	@curl -X POST http://sam.chat:8029/trace_operation \
 		-H "Content-Type: application/json" \
 		-d '{"operation_type": "$(TYPE)", "input_parameters": $(or $(PARAMS),{}), "target_service": "$(or $(SERVICE),orchestrator)"}' | jq .
 
 # List debug sessions
 debug-sessions:
 	@echo "📋 Debug sessions:"
-	@curl -s http://localhost:8029/debug_sessions | jq .
+	@curl -s http://sam.chat:8029/debug_sessions | jq .
 
 # Get snapshots for session
 debug-snapshots:
 	@echo "📸 Snapshots for session $(SESSION_ID):"
-	@curl -s "http://localhost:8029/snapshots/$(SESSION_ID)" | jq .
+	@curl -s "http://sam.chat:8029/snapshots/$(SESSION_ID)" | jq .
 
 # Get operations for session
 debug-operations:
 	@echo "⚙️ Operations for session $(SESSION_ID):"
-	@curl -s "http://localhost:8029/operations/$(SESSION_ID)" | jq .
+	@curl -s "http://sam.chat:8029/operations/$(SESSION_ID)" | jq .
 
 # Check debug mode status
 debug-status:
 	@echo "🐛 Debug Mode Status:"
-	@curl -s http://localhost:8029/health | jq .
+	@curl -s http://sam.chat:8029/health | jq .
 
 # Debug analytics
 debug-analytics:
 	@echo "📊 Debug Analytics:"
-	@curl -s http://localhost:8029/debug_analytics | jq .
+	@curl -s http://sam.chat:8029/debug_analytics | jq .
 
 # Reproducibility report
 debug-reproducibility-report:
 	@echo "📋 Reproducibility report for session $(SESSION_ID):"
-	@curl -s "http://localhost:8029/reproducibility_report/$(SESSION_ID)" | jq .
+	@curl -s "http://sam.chat:8029/reproducibility_report/$(SESSION_ID)" | jq .
 
 # Enhanced help for new services
 prompt-help:
@@ -2251,7 +2251,7 @@ nginx-logs:
 
 nginx-status:
 	@echo "📊 Nginx status:"
-	@curl -s http://localhost:8080/health 2>/dev/null || echo "Nginx not available"
+	@curl -s http://sam.chat:8080/health 2>/dev/null || echo "Nginx not available"
 
 # HAProxy commands
 haproxy-deploy:
@@ -2270,11 +2270,11 @@ haproxy-logs:
 
 haproxy-status:
 	@echo "📊 HAProxy status:"
-	@curl -s http://localhost:8405/health 2>/dev/null || echo "HAProxy not available"
+	@curl -s http://sam.chat:8405/health 2>/dev/null || echo "HAProxy not available"
 
 haproxy-admin:
 	@echo "🔧 HAProxy admin interface:"
-	@echo "Available at: http://localhost:8404"
+	@echo "Available at: http://sam.chat:8404"
 	@echo "Username: admin"
 	@echo "Password: contextbuilder2024"
 
@@ -2386,14 +2386,14 @@ redis-monitor:
 # Database management interfaces
 database-admin:
 	@echo "🛠️ Database management interfaces:"
-	@echo "PgAdmin: http://localhost:5050"
+	@echo "PgAdmin: http://sam.chat:5050"
 	@echo "  Email: admin@contextbuilder.local"
 	@echo "  Password: contextbuilder_admin_2024"
 	@echo ""
-	@echo "Redis Commander: http://localhost:8081"
+	@echo "Redis Commander: http://sam.chat:8081"
 	@echo ""
-	@echo "PostgreSQL Metrics: http://localhost:9187/metrics"
-	@echo "Redis Metrics: http://localhost:9121/metrics"
+	@echo "PostgreSQL Metrics: http://sam.chat:9187/metrics"
+	@echo "Redis Metrics: http://sam.chat:9121/metrics"
 
 # Database help
 database-help:
@@ -2471,50 +2471,50 @@ monitoring-logs:
 # Prometheus commands
 prometheus-status:
 	@echo "🔍 Prometheus status:"
-	@curl -s http://localhost:9090/-/healthy 2>/dev/null && echo "Prometheus: Healthy" || echo "Prometheus: Unhealthy"
+	@curl -s http://sam.chat:9090/-/healthy 2>/dev/null && echo "Prometheus: Healthy" || echo "Prometheus: Unhealthy"
 
 prometheus-reload:
 	@echo "🔄 Reloading Prometheus configuration..."
-	@curl -X POST http://localhost:9090/-/reload 2>/dev/null && echo "Configuration reloaded!" || echo "Failed to reload"
+	@curl -X POST http://sam.chat:9090/-/reload 2>/dev/null && echo "Configuration reloaded!" || echo "Failed to reload"
 
 prometheus-targets:
 	@echo "🎯 Prometheus targets:"
-	@curl -s http://localhost:9090/api/v1/targets | jq -r '.data.activeTargets[] | "\(.labels.job): \(.health)"' 2>/dev/null || echo "Failed to get targets"
+	@curl -s http://sam.chat:9090/api/v1/targets | jq -r '.data.activeTargets[] | "\(.labels.job): \(.health)"' 2>/dev/null || echo "Failed to get targets"
 
 # Grafana commands
 grafana-status:
 	@echo "📊 Grafana status:"
-	@curl -s http://localhost:3000/api/health 2>/dev/null && echo "Grafana: Healthy" || echo "Grafana: Unhealthy"
+	@curl -s http://sam.chat:3000/api/health 2>/dev/null && echo "Grafana: Healthy" || echo "Grafana: Unhealthy"
 
 grafana-admin:
 	@echo "🔑 Grafana admin access:"
-	@echo "URL: http://localhost:3000"
+	@echo "URL: http://sam.chat:3000"
 	@echo "Username: admin"
 	@echo "Password: contextbuilder_grafana_2024"
 
 # Alertmanager commands
 alertmanager-status:
 	@echo "🚨 Alertmanager status:"
-	@curl -s http://localhost:9093/-/healthy 2>/dev/null && echo "Alertmanager: Healthy" || echo "Alertmanager: Unhealthy"
+	@curl -s http://sam.chat:9093/-/healthy 2>/dev/null && echo "Alertmanager: Healthy" || echo "Alertmanager: Unhealthy"
 
 alertmanager-alerts:
 	@echo "📢 Active alerts:"
-	@curl -s http://localhost:9093/api/v1/alerts | jq -r '.data[] | "\(.labels.alertname): \(.status.state)"' 2>/dev/null || echo "No alerts or service unavailable"
+	@curl -s http://sam.chat:9093/api/v1/alerts | jq -r '.data[] | "\(.labels.alertname): \(.status.state)"' 2>/dev/null || echo "No alerts or service unavailable"
 
 # Custom metrics
 custom-metrics:
 	@echo "📈 Custom ContextBuilderAgent metrics:"
-	@curl -s http://localhost:8000/metrics | grep -E "contextbuilder_|HELP" | head -20 2>/dev/null || echo "Custom metrics not available"
+	@curl -s http://sam.chat:8000/metrics | grep -E "contextbuilder_|HELP" | head -20 2>/dev/null || echo "Custom metrics not available"
 
 # Monitoring dashboards
 monitoring-dashboards:
 	@echo "📊 Monitoring Dashboard URLs:"
-	@echo "Prometheus: http://localhost:9090"
-	@echo "Grafana: http://localhost:3000"
-	@echo "Alertmanager: http://localhost:9093"
-	@echo "Node Exporter: http://localhost:9100/metrics"
-	@echo "cAdvisor: http://localhost:8080"
-	@echo "Custom Metrics: http://localhost:8000/metrics"
+	@echo "Prometheus: http://sam.chat:9090"
+	@echo "Grafana: http://sam.chat:3000"
+	@echo "Alertmanager: http://sam.chat:9093"
+	@echo "Node Exporter: http://sam.chat:9100/metrics"
+	@echo "cAdvisor: http://sam.chat:8080"
+	@echo "Custom Metrics: http://sam.chat:8000/metrics"
 
 # Complete production monitoring setup
 production-monitoring-deploy:
@@ -2616,15 +2616,15 @@ k8s-apply-ingress:
 
 # Kubernetes port forwarding for local access
 k8s-port-forward-grafana:
-	@echo "📊 Port forwarding Grafana (http://localhost:3000)..."
+	@echo "📊 Port forwarding Grafana (http://sam.chat:3000)..."
 	@kubectl port-forward svc/grafana 3000:3000 -n contextbuilder
 
 k8s-port-forward-prometheus:
-	@echo "🔍 Port forwarding Prometheus (http://localhost:9090)..."
+	@echo "🔍 Port forwarding Prometheus (http://sam.chat:9090)..."
 	@kubectl port-forward svc/prometheus 9090:9090 -n contextbuilder
 
 k8s-port-forward-api:
-	@echo "🔌 Port forwarding ContextBuilder API (http://localhost:8020)..."
+	@echo "🔌 Port forwarding ContextBuilder API (http://sam.chat:8020)..."
 	@kubectl port-forward svc/contextbuilder-core 8020:8020 -n contextbuilder
 
 # Kubernetes logs

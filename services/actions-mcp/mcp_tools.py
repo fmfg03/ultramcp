@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class ActionsMCPTools:
     """MCP tools for external action execution"""
     
-    def __init__(self, base_url: str = "http://localhost:8010"):
+    def __init__(self, base_url: str = "http://sam.chat:8010"):
         self.base_url = base_url
         self.session = None
     

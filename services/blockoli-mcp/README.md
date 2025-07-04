@@ -48,7 +48,7 @@ Main client class for interacting with Blockoli server.
 ```python
 from services.blockoli_mcp.blockoli_client import BlockoliCodeContext
 
-async with BlockoliCodeContext("http://localhost:8080") as blockoli:
+async with BlockoliCodeContext("http://sam.chat:8080") as blockoli:
     # Create project
     await blockoli.create_project("my_app")
     
@@ -110,8 +110,8 @@ Visual code intelligence interface with:
 Set these environment variables:
 
 ```bash
-# Blockoli server endpoint (default: http://localhost:8080)
-BLOCKOLI_ENDPOINT=http://localhost:8080
+# Blockoli server endpoint (default: http://sam.chat:8080)
+BLOCKOLI_ENDPOINT=http://sam.chat:8080
 
 # Optional API key for authentication
 BLOCKOLI_API_KEY=your-api-key
@@ -175,7 +175,7 @@ make pattern-security-scan PROJECT="payment_app" PATTERN="sql query"
 1. **Blockoli server not running**
    ```bash
    # Check if server is running
-   curl http://localhost:8080/health
+   curl http://sam.chat:8080/health
    
    # Start server if needed
    blockoli --port 8080

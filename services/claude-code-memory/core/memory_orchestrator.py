@@ -73,7 +73,7 @@ class UnifiedMemoryOrchestrator:
         
         # Configuration
         self.config = {
-            "qdrant_url": os.getenv("QDRANT_URL", "http://localhost:6333"),
+            "qdrant_url": os.getenv("QDRANT_URL", "http://sam.chat:6333"),
             "collection_name": os.getenv("MEMORY_COLLECTION", "ultramcp_code_memory"),
             "embedding_model": os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
             "max_file_size": int(os.getenv("MAX_FILE_SIZE", 1024 * 1024)),  # 1MB
@@ -139,17 +139,17 @@ class UnifiedMemoryOrchestrator:
         """Initialize integrations with existing UltraMCP systems"""
         try:
             # Context7 integration
-            self.context7_available = await self._check_service_availability("http://localhost:8003/health")
+            self.context7_available = await self._check_service_availability("http://sam.chat:8003/health")
             if self.context7_available:
                 self.logger.info("✅ Context7 integration available")
             
             # Sam Memory integration
-            self.sam_memory_available = await self._check_service_availability("http://localhost:8001/api/memory/health")
+            self.sam_memory_available = await self._check_service_availability("http://sam.chat:8001/api/memory/health")
             if self.sam_memory_available:
                 self.logger.info("✅ Sam Memory integration available")
             
             # Blockoli integration
-            self.blockoli_available = await self._check_service_availability("http://localhost:8080/health")
+            self.blockoli_available = await self._check_service_availability("http://sam.chat:8080/health")
             if self.blockoli_available:
                 self.logger.info("✅ Blockoli integration available")
                 
@@ -669,7 +669,7 @@ class UnifiedMemoryOrchestrator:
             import aiohttp
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    "http://localhost:8003/api/claude/context",
+                    "http://sam.chat:8003/api/claude/context",
                     json={"prompt": prompt, "autoDetect": True},
                     timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:
@@ -690,7 +690,7 @@ class UnifiedMemoryOrchestrator:
             import aiohttp
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    "http://localhost:8001/api/memory/search",
+                    "http://sam.chat:8001/api/memory/search",
                     json={"query": prompt, "max_results": 3},
                     timeout=aiohttp.ClientTimeout(total=10)
                 ) as response:

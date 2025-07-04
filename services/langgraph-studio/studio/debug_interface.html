@@ -175,7 +175,7 @@
         let events = [];
         
         function connect() {
-            ws = new WebSocket('ws://localhost:8124');
+            ws = new WebSocket('ws://sam.chat:8124');
             
             ws.onopen = function() {
                 document.getElementById('connectionStatus').textContent = 'Connected';

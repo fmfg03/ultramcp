@@ -585,7 +585,7 @@ sleep 30
 
 # Test integration
 echo "🧪 Testing Playwright-MCP integration..."
-curl -X POST http://localhost:3000/api/mcp/execute \
+curl -X POST http://sam.chat:3000/api/mcp/execute \
   -H "Content-Type: application/json" \
   -d '{
     "toolId": "playwright-mcp/navigate",

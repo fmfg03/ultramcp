@@ -142,7 +142,7 @@ format_json_response() {
 # Check if port is available
 is_port_available() {
     local port="$1"
-    ! nc -z localhost "$port" 2>/dev/null
+    ! nc -z sam.chat "$port" 2>/dev/null
 }
 
 # Wait for service to be ready

@@ -147,7 +147,7 @@ docker-compose -f docker-compose.test.yml down
 ```yaml
 # Artillery load test configuration
 config:
-  target: 'http://localhost:3000'
+  target: 'http://sam.chat:3000'
   phases:
     - duration: 60
       arrivalRate: 10

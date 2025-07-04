@@ -72,7 +72,7 @@ def save_log_entry(operation: str, query: str, project_name: str, result_count: 
         f.write(json.dumps(log_entry) + '\n')
 
 async def search_code(query: str, project_name: str, limit: int = 10, 
-                     threshold: float = 0.7, endpoint: str = "http://localhost:8080"):
+                     threshold: float = 0.7, endpoint: str = "http://sam.chat:8080"):
     """Perform semantic code search"""
     
     logger.info(f"Searching for '{query}' in project '{project_name}'")
@@ -152,7 +152,7 @@ async def search_code(query: str, project_name: str, limit: int = 10,
         sys.exit(1)
 
 async def search_functions(query: str, project_name: str, limit: int = 20, 
-                          endpoint: str = "http://localhost:8080"):
+                          endpoint: str = "http://sam.chat:8080"):
     """Search for function-level code blocks"""
     
     logger.info(f"Searching for functions related to '{query}' in project '{project_name}'")
@@ -195,7 +195,7 @@ async def search_functions(query: str, project_name: str, limit: int = 20,
         sys.exit(1)
 
 async def similar_code_search(query: str, project_name: str, limit: int = 10,
-                             threshold: float = 0.7, endpoint: str = "http://localhost:8080"):
+                             threshold: float = 0.7, endpoint: str = "http://sam.chat:8080"):
     """Simple similar code search"""
     
     try:
@@ -236,7 +236,7 @@ def main():
     parser.add_argument('--project', required=True, help='Project name')
     parser.add_argument('--limit', type=int, default=10, help='Maximum results')
     parser.add_argument('--threshold', type=float, default=0.7, help='Similarity threshold')
-    parser.add_argument('--endpoint', default='http://localhost:8080', help='Blockoli endpoint')
+    parser.add_argument('--endpoint', default='http://sam.chat:8080', help='Blockoli endpoint')
     parser.add_argument('--functions', action='store_true', help='Search for functions only')
     parser.add_argument('--similar', action='store_true', help='Simple similarity search')
     parser.add_argument('--output', help='Output file for JSON results')

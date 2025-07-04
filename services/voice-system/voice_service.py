@@ -158,7 +158,7 @@ async def create_voice_session(request: VoiceSessionRequest):
         return {
             "session_id": session_id,
             "status": "created",
-            "websocket_url": f"ws://localhost:8005/ws/{session_id}" if request.real_time else None,
+            "websocket_url": f"ws://sam.chat:8005/ws/{session_id}" if request.real_time else None,
             "session_data": session_data
         }
         

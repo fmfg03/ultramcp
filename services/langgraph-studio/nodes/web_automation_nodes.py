@@ -42,7 +42,7 @@ class WebAutomationNodes:
     Collection of specialized nodes for web automation workflows
     """
     
-    def __init__(self, mcp_base_url: str = "http://localhost:3000"):
+    def __init__(self, mcp_base_url: str = "http://sam.chat:3000"):
         self.mcp_base_url = mcp_base_url
         self.performance_tracker = {}
         

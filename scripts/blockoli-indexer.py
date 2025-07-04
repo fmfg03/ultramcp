@@ -45,7 +45,7 @@ def save_log_entry(operation: str, project_name: str, result: dict):
     with open(log_file, 'a') as f:
         f.write(json.dumps(log_entry) + '\n')
 
-async def index_project_command(project_path: str, project_name: str, endpoint: str = "http://localhost:8080"):
+async def index_project_command(project_path: str, project_name: str, endpoint: str = "http://sam.chat:8080"):
     """Index a project using Blockoli"""
     
     logger.info(f"Starting indexing of project '{project_name}' at path: {project_path}")
@@ -87,7 +87,7 @@ async def index_project_command(project_path: str, project_name: str, endpoint: 
         print(f"❌ {error_msg}")
         sys.exit(1)
 
-async def check_health(endpoint: str = "http://localhost:8080"):
+async def check_health(endpoint: str = "http://sam.chat:8080"):
     """Check Blockoli service health"""
     
     try:
@@ -109,7 +109,7 @@ async def check_health(endpoint: str = "http://localhost:8080"):
         logger.error(error_msg)
         sys.exit(1)
 
-async def list_projects(endpoint: str = "http://localhost:8080"):
+async def list_projects(endpoint: str = "http://sam.chat:8080"):
     """List all indexed projects"""
     
     try:
@@ -131,7 +131,7 @@ async def list_projects(endpoint: str = "http://localhost:8080"):
         logger.error(error_msg)
         sys.exit(1)
 
-async def get_project_stats(project_name: str, endpoint: str = "http://localhost:8080"):
+async def get_project_stats(project_name: str, endpoint: str = "http://sam.chat:8080"):
     """Get statistics for a specific project"""
     
     try:
@@ -153,7 +153,7 @@ def main():
     parser = argparse.ArgumentParser(description='Blockoli Project Indexer')
     parser.add_argument('--project', required=False, help='Project path to index')
     parser.add_argument('--name', required=False, help='Project name')
-    parser.add_argument('--endpoint', default='http://localhost:8080', help='Blockoli endpoint')
+    parser.add_argument('--endpoint', default='http://sam.chat:8080', help='Blockoli endpoint')
     parser.add_argument('--health', action='store_true', help='Check service health')
     parser.add_argument('--list', action='store_true', help='List indexed projects')
     parser.add_argument('--stats', help='Get project statistics')

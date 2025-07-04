@@ -132,7 +132,7 @@ class FallbackManager:
         """Check Redis connectivity"""
         try:
             import redis
-            r = redis.Redis(host='localhost', port=6379, socket_timeout=2)
+            r = redis.Redis(host='sam.chat', port=6379, socket_timeout=2)
             r.ping()
             self.redis_available = True
             return True
@@ -145,7 +145,7 @@ class FallbackManager:
         try:
             import psycopg2
             conn = psycopg2.connect(
-                host="localhost",
+                host="sam.chat",
                 port=5432,
                 database="ultramcp",
                 user="ultramcp",
@@ -178,7 +178,7 @@ class FallbackManager:
         if self.redis_available:
             try:
                 import redis
-                r = redis.Redis(host='localhost', port=6379)
+                r = redis.Redis(host='sam.chat', port=6379)
                 return r.publish(channel, json.dumps(data))
             except Exception:
                 self.redis_available = False
@@ -191,7 +191,7 @@ class FallbackManager:
         if self.redis_available:
             try:
                 import redis
-                r = redis.Redis(host='localhost', port=6379)
+                r = redis.Redis(host='sam.chat', port=6379)
                 pubsub = r.pubsub()
                 pubsub.subscribe(channel)
                 return pubsub
@@ -208,7 +208,7 @@ class FallbackManager:
                 # Store in PostgreSQL
                 import psycopg2
                 conn = psycopg2.connect(
-                    host="localhost",
+                    host="sam.chat",
                     port=5432,
                     database="ultramcp",
                     user="ultramcp",
@@ -272,7 +272,7 @@ class FallbackManager:
             try:
                 import psycopg2
                 conn = psycopg2.connect(
-                    host="localhost",
+                    host="sam.chat",
                     port=5432,
                     database="ultramcp",
                     user="ultramcp",

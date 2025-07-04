@@ -514,7 +514,7 @@ class RollbackManager:
         validation_commands = {
             "Services are responding": "make status",
             "Database connectivity": "python3 scripts/database-fallback.py --status",
-            "API endpoints accessible": "curl -f http://localhost:8001/health",
+            "API endpoints accessible": "curl -f http://sam.chat:8001/health",
             "Core functionality working": "make chat TEXT='test' > /dev/null",
             "No critical errors in logs": "grep -i error logs/combined.log | tail -5"
         }

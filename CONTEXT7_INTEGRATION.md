@@ -235,10 +235,10 @@ make context7-test
 docker logs ultramcp-context7
 
 # Direct service status
-curl http://localhost:8003/health | jq
+curl http://sam.chat:8003/health | jq
 
 # Cache statistics
-curl http://localhost:8003/api/stats | jq .data.cache
+curl http://sam.chat:8003/api/stats | jq .data.cache
 ```
 
 ### Performance Monitoring
@@ -247,7 +247,7 @@ The Context7 service provides detailed metrics:
 
 ```bash
 # Get service metrics
-curl http://localhost:8003/api/stats | jq '{
+curl http://sam.chat:8003/api/stats | jq '{
   requests: .data.service.requestCount,
   errors: .data.service.errorCount,
   cache_hits: .data.cache.hits,
@@ -384,7 +384,7 @@ make context7-detect CODE="import React from 'react'"
 **3. Empty or Invalid Responses**
 ```bash
 # Clear cache
-curl -X DELETE http://localhost:8003/api/cache
+curl -X DELETE http://sam.chat:8003/api/cache
 
 # Check service stats
 make context7-stats

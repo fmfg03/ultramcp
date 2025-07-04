@@ -82,7 +82,7 @@ async def startup_event():
     logger.info("🔍 Starting Blockoli MCP Service...")
     
     # Initialize Blockoli client
-    blockoli_endpoint = os.getenv("BLOCKOLI_ENDPOINT", "http://localhost:8080")
+    blockoli_endpoint = os.getenv("BLOCKOLI_ENDPOINT", "http://sam.chat:8080")
     blockoli_client = BlockoliCodeContext(blockoli_endpoint)
     
     # Initialize CoD orchestrator

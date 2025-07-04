@@ -2,7 +2,7 @@ const axios = require("axios");
 const { spawn } = require("child_process");
 const path = require("path");
 
-const SERVER_URL = "http://localhost:3001"; // Assuming port 3001 from .env
+const SERVER_URL = "http://sam.chat:3001"; // Assuming port 3001 from .env
 const ORCHESTRATE_ENDPOINT = `${SERVER_URL}/orchestrate`;
 const SERVER_START_TIMEOUT = 15000; // 15 seconds for server to start
 const REQUEST_TIMEOUT = 20000; // 20 seconds for API requests

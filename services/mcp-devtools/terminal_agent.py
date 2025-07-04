@@ -649,7 +649,7 @@ class TerminalAgent:
                 try:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.settimeout(1)
-                    result = sock.connect_ex(('localhost', port))
+                    result = sock.connect_ex(('sam.chat', port))
                     sock.close()
                     
                     services_status[service] = {
@@ -781,7 +781,7 @@ class TerminalAgentIntegration:
     
     def __init__(self, terminal_agent: TerminalAgent):
         self.terminal_agent = terminal_agent
-        self.a2a_server_url = "http://localhost:8200"
+        self.a2a_server_url = "http://sam.chat:8200"
     
     async def register_with_a2a(self):
         """Registrar agente con servidor A2A"""
@@ -791,9 +791,9 @@ class TerminalAgentIntegration:
             "version": "1.0.0",
             "capabilities": self.terminal_agent.capabilities,
             "endpoints": {
-                "http": f"http://localhost:{self.terminal_agent.port}",
-                "health": f"http://localhost:{self.terminal_agent.port}/health",
-                "a2a": f"http://localhost:{self.terminal_agent.port}/a2a"
+                "http": f"http://sam.chat:{self.terminal_agent.port}",
+                "health": f"http://sam.chat:{self.terminal_agent.port}/health",
+                "a2a": f"http://sam.chat:{self.terminal_agent.port}/a2a"
             },
             "metadata": {
                 "description": "Terminal agent with full system access for automation",
@@ -1003,9 +1003,9 @@ async def main():
 =========================================
 
 🌐 Access Points:
-   HTTP API:     http://localhost:8301
-   Health Check: http://localhost:8301/health
-   A2A Endpoint: http://localhost:8301/a2a
+   HTTP API:     http://sam.chat:8301
+   Health Check: http://sam.chat:8301/health
+   A2A Endpoint: http://sam.chat:8301/a2a
 
 🛠️  Available Endpoints:
    POST /execute     - Execute terminal commands
@@ -1035,11 +1035,11 @@ async def main():
    ✅ Service monitoring
 
 📋 Example Usage:
-   curl -X POST http://localhost:8301/execute \\
+   curl -X POST http://sam.chat:8301/execute \\
      -H "Content-Type: application/json" \\
      -d '{{"command": "ls -la /root/supermcp"}}'
 
-   curl -X POST http://localhost:8301/file \\
+   curl -X POST http://sam.chat:8301/file \\
      -H "Content-Type: application/json" \\
      -d '{{"operation": "list", "path": "/root/supermcp"}}'
 
@@ -1116,7 +1116,7 @@ sudo systemctl enable terminal-agent
 echo "✅ Terminal Agent installed successfully!"
 echo "🚀 Start with: sudo systemctl start terminal-agent"
 echo "📊 Status: sudo systemctl status terminal-agent"
-echo "🌐 API: http://localhost:8301"
+echo "🌐 API: http://sam.chat:8301"
 """
     
     with open('/root/supermcp/install_terminal_agent.sh', 'w') as f:
@@ -1783,7 +1783,7 @@ class TerminalAgent:
                 try:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.settimeout(1)
-                    result = sock.connect_ex(('localhost', port))
+                    result = sock.connect_ex(('sam.chat', port))
                     sock.close()
                     
                     services_status[service] = {
@@ -1915,7 +1915,7 @@ class TerminalAgentIntegration:
     
     def __init__(self, terminal_agent: TerminalAgent):
         self.terminal_agent = terminal_agent
-        self.a2a_server_url = "http://localhost:8200"
+        self.a2a_server_url = "http://sam.chat:8200"
     
     async def register_with_a2a(self):
         """Registrar agente con servidor A2A"""
@@ -1925,9 +1925,9 @@ class TerminalAgentIntegration:
             "version": "1.0.0",
             "capabilities": self.terminal_agent.capabilities,
             "endpoints": {
-                "http": f"http://localhost:{self.terminal_agent.port}",
-                "health": f"http://localhost:{self.terminal_agent.port}/health",
-                "a2a": f"http://localhost:{self.terminal_agent.port}/a2a"
+                "http": f"http://sam.chat:{self.terminal_agent.port}",
+                "health": f"http://sam.chat:{self.terminal_agent.port}/health",
+                "a2a": f"http://sam.chat:{self.terminal_agent.port}/a2a"
             },
             "metadata": {
                 "description": "Terminal agent with full system access for automation",
@@ -2137,9 +2137,9 @@ async def main():
 =========================================
 
 🌐 Access Points:
-   HTTP API:     http://localhost:8301
-   Health Check: http://localhost:8301/health
-   A2A Endpoint: http://localhost:8301/a2a
+   HTTP API:     http://sam.chat:8301
+   Health Check: http://sam.chat:8301/health
+   A2A Endpoint: http://sam.chat:8301/a2a
 
 🛠️  Available Endpoints:
    POST /execute     - Execute terminal commands
@@ -2169,11 +2169,11 @@ async def main():
    ✅ Service monitoring
 
 📋 Example Usage:
-   curl -X POST http://localhost:8301/execute \\
+   curl -X POST http://sam.chat:8301/execute \\
      -H "Content-Type: application/json" \\
      -d '{{"command": "ls -la /root/supermcp"}}'
 
-   curl -X POST http://localhost:8301/file \\
+   curl -X POST http://sam.chat:8301/file \\
      -H "Content-Type: application/json" \\
      -d '{{"operation": "list", "path": "/root/supermcp"}}'
 
@@ -2250,7 +2250,7 @@ sudo systemctl enable terminal-agent
 echo "✅ Terminal Agent installed successfully!"
 echo "🚀 Start with: sudo systemctl start terminal-agent"
 echo "📊 Status: sudo systemctl status terminal-agent"
-echo "🌐 API: http://localhost:8301"
+echo "🌐 API: http://sam.chat:8301"
 """
     
     with open('/root/supermcp/install_terminal_agent.sh', 'w') as f:

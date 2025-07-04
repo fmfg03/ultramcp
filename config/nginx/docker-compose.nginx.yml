@@ -30,7 +30,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -58,7 +58,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8020/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -80,7 +80,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8020/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -102,7 +102,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8022/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8022/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -124,7 +124,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8022/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8022/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -146,7 +146,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8024/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8024/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -168,7 +168,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8025/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8025/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -190,7 +190,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8026/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8026/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -212,7 +212,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8027/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8027/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -234,7 +234,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8028/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8028/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -256,7 +256,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8029/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8029/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -278,7 +278,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8030/health"]
       interval: 30s
       timeout: 10s
       retries: 3

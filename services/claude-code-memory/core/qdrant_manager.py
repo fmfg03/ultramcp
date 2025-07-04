@@ -46,7 +46,7 @@ class QdrantManager:
     """Advanced Qdrant vector database manager"""
     
     def __init__(self, 
-                 url: str = "http://localhost:6333",
+                 url: str = "http://sam.chat:6333",
                  api_key: Optional[str] = None,
                  timeout: int = 30):
         if not QDRANT_AVAILABLE:

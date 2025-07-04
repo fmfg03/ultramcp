@@ -2,13 +2,13 @@
 
 ## Overview
 
-The UltraMCP Supreme Stack provides a unified API Gateway that routes to all 7 integrated microservices. All services are accessible through `http://localhost:3001/api/` with automatic proxy routing, error handling, and health monitoring.
+The UltraMCP Supreme Stack provides a unified API Gateway that routes to all 7 integrated microservices. All services are accessible through `http://sam.chat:3001/api/` with automatic proxy routing, error handling, and health monitoring.
 
 ## 🚀 Quick Start
 
 ### Base URL
 ```
-http://localhost:3001/api/
+http://sam.chat:3001/api/
 ```
 
 ### Authentication
@@ -20,7 +20,7 @@ ANTHROPIC_API_KEY=your-anthropic-key
 
 ### Health Check
 ```bash
-curl http://localhost:3001/api/health
+curl http://sam.chat:3001/api/health
 ```
 
 ## 🔗 API Gateway Endpoints
@@ -380,7 +380,7 @@ Start a new voice session.
   "session_id": "voice_session_123",
   "session_type": "conversation",
   "status": "active",
-  "websocket_url": "ws://localhost:8005/voice/voice_session_123",
+  "websocket_url": "ws://sam.chat:8005/voice/voice_session_123",
   "ai_enabled": true,
   "created_at": "2024-01-15T10:30:00Z"
 }
@@ -714,7 +714,7 @@ Start complex multi-service workflow.
   "status": "orchestrating",
   "services_involved": ["blockoli", "asterisk", "cod", "deepclaude"],
   "estimated_duration": "8-12 minutes",
-  "websocket_url": "ws://localhost:8008/workflows/workflow_123",
+  "websocket_url": "ws://sam.chat:8008/workflows/workflow_123",
   "progress": {
     "current_stage": "code_indexing",
     "completion_percentage": 15
@@ -794,7 +794,7 @@ Get Control Tower coordination status.
 
 #### Control Tower WebSocket
 ```
-ws://localhost:8008/
+ws://sam.chat:8008/
 ```
 
 **Message Types:**
@@ -804,7 +804,7 @@ ws://localhost:8008/
 
 #### Voice System WebSocket
 ```
-ws://localhost:8005/voice/{session_id}
+ws://sam.chat:8005/voice/{session_id}
 ```
 
 **Message Types:**
@@ -875,7 +875,7 @@ https://your-domain.com/api/
 ### CORS Configuration
 CORS is enabled for web applications. Configure allowed origins in environment:
 ```bash
-CORS_ORIGINS=http://localhost:3000,https://your-app.com
+CORS_ORIGINS=http://sam.chat:3000,https://your-app.com
 ```
 
 ## 🏃‍♂️ Getting Started
@@ -892,12 +892,12 @@ CORS_ORIGINS=http://localhost:3000,https://your-app.com
 
 3. **Test the API Gateway:**
    ```bash
-   curl http://localhost:3001/api/health
+   curl http://sam.chat:3001/api/health
    ```
 
 4. **Run your first code intelligence analysis:**
    ```bash
-   curl -X POST http://localhost:3001/api/blockoli/index \
+   curl -X POST http://sam.chat:3001/api/blockoli/index \
      -H "Content-Type: application/json" \
      -d '{"project_name": "test", "project_path": "/app"}'
    ```

@@ -42,7 +42,7 @@ check_service() {
     local service_name=$1
     local port=$2
     
-    if curl -f "http://localhost:$port/health" >/dev/null 2>&1; then
+    if curl -f "http://sam.chat:$port/health" >/dev/null 2>&1; then
         print_success "$service_name is running on port $port"
         return 0
     else
@@ -187,7 +187,7 @@ test_integration() {
     print_status "Testing system integration..."
     
     # Test orchestrator health
-    if curl -f "http://localhost:8025/health" >/dev/null 2>&1; then
+    if curl -f "http://sam.chat:8025/health" >/dev/null 2>&1; then
         print_success "Orchestrator is responding"
     else
         print_error "Orchestrator is not responding"
@@ -195,14 +195,14 @@ test_integration() {
     fi
     
     # Test knowledge tree access
-    if curl -f "http://localhost:8025/knowledge_tree" >/dev/null 2>&1; then
+    if curl -f "http://sam.chat:8025/knowledge_tree" >/dev/null 2>&1; then
         print_success "Knowledge tree is accessible"
     else
         print_warning "Knowledge tree access issue"
     fi
     
     # Test system status
-    if curl -f "http://localhost:8025/system_status" >/dev/null 2>&1; then
+    if curl -f "http://sam.chat:8025/system_status" >/dev/null 2>&1; then
         print_success "System status is accessible"
     else
         print_warning "System status access issue"
@@ -271,13 +271,13 @@ show_final_status() {
     
     echo ""
     echo "🔗 Available Endpoints:"
-    echo "  • Orchestrator:        http://localhost:8025"
-    echo "  • System Status:       http://localhost:8025/system_status"
-    echo "  • Knowledge Tree:      http://localhost:8025/knowledge_tree"
-    echo "  • Prompt Assembler:    http://localhost:8027"
-    echo "  • Context Observatory: http://localhost:8028"
-    echo "  • Debug Mode:          http://localhost:8029"
-    echo "  • Health Check:        http://localhost:8025/health"
+    echo "  • Orchestrator:        http://sam.chat:8025"
+    echo "  • System Status:       http://sam.chat:8025/system_status"
+    echo "  • Knowledge Tree:      http://sam.chat:8025/knowledge_tree"
+    echo "  • Prompt Assembler:    http://sam.chat:8027"
+    echo "  • Context Observatory: http://sam.chat:8028"
+    echo "  • Debug Mode:          http://sam.chat:8029"
+    echo "  • Health Check:        http://sam.chat:8025/health"
     echo ""
     echo "📁 Key Directories:"
     echo "  • Context Root:        $CONTEXT_DIR"
@@ -285,9 +285,9 @@ show_final_status() {
     echo "  • Logs:                $LOGS_DIR"
     echo ""
     echo "🚀 Next Steps:"
-    echo "  1. Test the system:    curl http://localhost:8025/health"
-    echo "  2. View knowledge:     curl http://localhost:8025/knowledge_tree"
-    echo "  3. Process context:    curl -X POST http://localhost:8025/process_context"
+    echo "  1. Test the system:    curl http://sam.chat:8025/health"
+    echo "  2. View knowledge:     curl http://sam.chat:8025/knowledge_tree"
+    echo "  3. Process context:    curl -X POST http://sam.chat:8025/process_context"
     echo "  4. Monitor logs:       tail -f $LOGS_DIR/context_builder_*.log"
     echo ""
 }

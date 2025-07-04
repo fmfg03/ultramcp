@@ -22,7 +22,7 @@ class A2AService extends EventEmitter {
         super();
         
         this.config = {
-            a2aServerUrl: config.a2aServerUrl || 'http://localhost:8200',
+            a2aServerUrl: config.a2aServerUrl || 'http://sam.chat:8200',
             agentId: config.agentId || 'supermcp_orchestrator',
             agentName: config.agentName || 'SUPERmcp Orchestrator',
             capabilities: config.capabilities || [
@@ -89,9 +89,9 @@ class A2AService extends EventEmitter {
             capabilities: this.config.capabilities,
             protocols: ['mcp', 'a2a', 'websocket'],
             endpoints: {
-                a2a: `http://localhost:3000/api/a2a`,
-                health: `http://localhost:3000/health`,
-                websocket: `ws://localhost:3000/ws/a2a`
+                a2a: `http://sam.chat:3000/api/a2a`,
+                health: `http://sam.chat:3000/health`,
+                websocket: `ws://sam.chat:3000/ws/a2a`
             },
             metadata: {
                 description: 'SUPERmcp orchestrator with full MCP and A2A integration',

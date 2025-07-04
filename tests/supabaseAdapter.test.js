@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 
 // Set up mock environment variables BEFORE any other imports that might use them
-process.env.SUPABASE_URL = "http://localhost:54321"; // Dummy valid URL
+process.env.SUPABASE_URL = "http://sam.chat:54321"; // Dummy valid URL
 process.env.SUPABASE_KEY = "your_dummy_anon_key";    // Dummy valid key
 
 // This is the API object our mocked getSupabaseClient will return

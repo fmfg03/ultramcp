@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: ["http://sam.chat:3000", "http://sam.chat:5173"],
     methods: ["GET", "POST"]
   }
 });
@@ -409,8 +409,8 @@ const PORT = process.env.CONTROL_TOWER_PORT || 8001;
 
 server.listen(PORT, () => {
   console.log(`🚀 UltraMCP Control Tower WebSocket Server running on port ${PORT}`);
-  console.log(`📡 WebSocket endpoint: ws://localhost:${PORT}`);
-  console.log(`🌐 HTTP API endpoint: http://localhost:${PORT}`);
+  console.log(`📡 WebSocket endpoint: ws://sam.chat:${PORT}`);
+  console.log(`🌐 HTTP API endpoint: http://sam.chat:${PORT}`);
 });
 
 module.exports = { app, server, io };

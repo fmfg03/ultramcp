@@ -4,8 +4,8 @@
   "services": [
     {
       "name": "cod-protocol",
-      "endpoint": "http://localhost:8001",
-      "health_check": "http://localhost:8001/health",
+      "endpoint": "http://sam.chat:8001",
+      "health_check": "http://sam.chat:8001/health",
       "port": 8001,
       "protocol": "http",
       "timeout": 5,
@@ -20,8 +20,8 @@
     },
     {
       "name": "postgres",
-      "endpoint": "postgresql://localhost:5432/ultramcp",
-      "health_check": "http://localhost:5432",
+      "endpoint": "postgresql://sam.chat:5432/ultramcp",
+      "health_check": "http://sam.chat:5432",
       "port": 5432,
       "protocol": "postgresql",
       "timeout": 5,
@@ -36,8 +36,8 @@
     },
     {
       "name": "redis",
-      "endpoint": "redis://localhost:6379",
-      "health_check": "http://localhost:6379",
+      "endpoint": "redis://sam.chat:6379",
+      "health_check": "http://sam.chat:6379",
       "port": 6379,
       "protocol": "redis",
       "timeout": 5,
@@ -52,8 +52,8 @@
     },
     {
       "name": "web-dashboard",
-      "endpoint": "http://localhost:3000",
-      "health_check": "http://localhost:3000/health",
+      "endpoint": "http://sam.chat:3000",
+      "health_check": "http://sam.chat:3000/health",
       "port": 3000,
       "protocol": "http",
       "timeout": 5,

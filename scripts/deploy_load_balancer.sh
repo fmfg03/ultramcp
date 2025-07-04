@@ -201,13 +201,13 @@ deploy_nginx() {
     sleep 30
     
     # Check health
-    if curl -f http://localhost:8080/health &> /dev/null; then
+    if curl -f http://sam.chat:8080/health &> /dev/null; then
         success "Nginx load balancer deployed successfully"
         log "Services available at:"
-        log "  - HTTP: http://localhost"
-        log "  - HTTPS: https://localhost"
-        log "  - Status: http://localhost:8080/status"
-        log "  - Health: http://localhost:8080/health"
+        log "  - HTTP: http://sam.chat"
+        log "  - HTTPS: https://sam.chat"
+        log "  - Status: http://sam.chat:8080/status"
+        log "  - Health: http://sam.chat:8080/health"
     else
         error "Nginx load balancer deployment failed"
         return 1
@@ -239,7 +239,7 @@ services:
       - contextbuilder-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8405/health"]
+      test: ["CMD", "curl", "-f", "http://sam.chat:8405/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -261,13 +261,13 @@ EOF
     sleep 10
     
     # Check health
-    if curl -f http://localhost:8405/health &> /dev/null; then
+    if curl -f http://sam.chat:8405/health &> /dev/null; then
         success "HAProxy load balancer deployed successfully"
         log "Services available at:"
-        log "  - HTTP: http://localhost"
-        log "  - HTTPS: https://localhost"
-        log "  - Admin: http://localhost:8404"
-        log "  - Health: http://localhost:8405/health"
+        log "  - HTTP: http://sam.chat"
+        log "  - HTTPS: https://sam.chat"
+        log "  - Admin: http://sam.chat:8404"
+        log "  - Health: http://sam.chat:8405/health"
     else
         error "HAProxy load balancer deployment failed"
         return 1
@@ -279,7 +279,7 @@ test_load_balancer() {
     log "Testing load balancer..."
     
     # Test health endpoint
-    if curl -f http://localhost/health &> /dev/null; then
+    if curl -f http://sam.chat/health &> /dev/null; then
         success "Health check passed"
     else
         error "Health check failed"
@@ -290,7 +290,7 @@ test_load_balancer() {
     local endpoints=("/api/context/" "/api/belief/" "/api/contradiction/" "/api/utility/" "/api/drift/" "/api/prompt/" "/api/observatory/" "/api/debug/" "/api/memory/")
     
     for endpoint in "${endpoints[@]}"; do
-        if curl -f "http://localhost${endpoint}health" &> /dev/null; then
+        if curl -f "http://sam.chat${endpoint}health" &> /dev/null; then
             success "Endpoint ${endpoint} is accessible"
         else
             warning "Endpoint ${endpoint} is not accessible"
@@ -313,7 +313,7 @@ show_status() {
     local services=("8020" "8022" "8024" "8025" "8026" "8027" "8028" "8029" "8030")
     
     for port in "${services[@]}"; do
-        if curl -f "http://localhost:${port}/health" &> /dev/null 2>&1; then
+        if curl -f "http://sam.chat:${port}/health" &> /dev/null 2>&1; then
             echo -e "  Port ${port}: ${GREEN}✓ Healthy${NC}"
         else
             echo -e "  Port ${port}: ${RED}✗ Unhealthy${NC}"
@@ -350,7 +350,7 @@ main() {
     show_status
     
     success "Load balancer deployment completed successfully!"
-    log "You can now access the ContextBuilderAgent 2.0 platform at http://localhost"
+    log "You can now access the ContextBuilderAgent 2.0 platform at http://sam.chat"
 }
 
 # Command line interface

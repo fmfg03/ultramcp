@@ -76,7 +76,7 @@ class SearchStats:
 class VoyageAIIntegration:
     """Integration client for VoyageAI service"""
     
-    def __init__(self, service_url: str = "http://localhost:8010"):
+    def __init__(self, service_url: str = "http://sam.chat:8010"):
         self.service_url = service_url
         self.session = None
         
@@ -163,9 +163,9 @@ class EnhancedSemanticSearchEngine(SemanticSearchEngine):
     """Enhanced semantic search with VoyageAI integration"""
     
     def __init__(self, 
-                 qdrant_url: str = "http://localhost:6333",
+                 qdrant_url: str = "http://sam.chat:6333",
                  collection_name: str = "enhanced_code_memory",
-                 voyage_service_url: str = "http://localhost:8010"):
+                 voyage_service_url: str = "http://sam.chat:8010"):
         super().__init__(qdrant_url, collection_name)
         self.voyage_service_url = voyage_service_url
         self.voyage_client = VoyageAIIntegration(voyage_service_url)

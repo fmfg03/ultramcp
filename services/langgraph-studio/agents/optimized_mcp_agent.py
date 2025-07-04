@@ -705,7 +705,7 @@ if __name__ == "__main__":
         'llm_provider': 'openai',
         'model': 'gpt-4',
         'temperature': 0.1,
-        'redis_url': 'redis://localhost:6379'  # Optional
+        'redis_url': 'redis://sam.chat:6379'  # Optional
     })
     
     # Execute with optimization level

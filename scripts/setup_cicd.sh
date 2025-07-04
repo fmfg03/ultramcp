@@ -193,7 +193,7 @@ class TestAPIIntegration:
     
     @pytest.fixture
     def base_url(self):
-        return os.getenv('API_BASE_URL', 'http://localhost:8020')
+        return os.getenv('API_BASE_URL', 'http://sam.chat:8020')
     
     @pytest.mark.asyncio
     async def test_health_endpoints(self, base_url):
@@ -207,7 +207,7 @@ class TestAPIIntegration:
         
         async with aiohttp.ClientSession() as session:
             for service, port in services:
-                async with session.get(f'http://localhost:{port}/health') as resp:
+                async with session.get(f'http://sam.chat:{port}/health') as resp:
                     assert resp.status == 200
                     data = await resp.json()
                     assert data.get('status') == 'healthy'
@@ -262,7 +262,7 @@ from concurrent.futures import ThreadPoolExecutor
 class PerformanceBenchmark:
     """Performance benchmark suite for ContextBuilderAgent"""
     
-    def __init__(self, base_url='http://localhost:8020'):
+    def __init__(self, base_url='http://sam.chat:8020'):
         self.base_url = base_url
         self.results = {}
     

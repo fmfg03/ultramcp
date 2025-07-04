@@ -314,13 +314,13 @@ docker-compose up -d
 ### **Observabilidad**
 ```bash
 # Langwatch Dashboard
-open http://localhost:8000
+open http://sam.chat:8000
 
 # LangGraph Studio
-open http://localhost:8123
+open http://sam.chat:8123
 
 # DevTool Client
-open http://localhost:5173
+open http://sam.chat:5173
 ```
 
 ---

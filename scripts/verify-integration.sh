@@ -76,12 +76,12 @@ declare -A SERVICE_PATHS=(
 check_port() {
     local port=$1
     if command -v nc >/dev/null 2>&1; then
-        nc -z localhost "$port" 2>/dev/null
+        nc -z sam.chat "$port" 2>/dev/null
     elif command -v telnet >/dev/null 2>&1; then
-        timeout 3 telnet localhost "$port" 2>/dev/null | grep -q "Connected"
+        timeout 3 telnet sam.chat "$port" 2>/dev/null | grep -q "Connected"
     else
         # Fallback using /dev/tcp
-        (echo >/dev/tcp/localhost/"$port") 2>/dev/null
+        (echo >/dev/tcp/sam.chat/"$port") 2>/dev/null
     fi
 }
 
@@ -89,7 +89,7 @@ check_port() {
 check_service_health() {
     local service=$1
     local port=$2
-    local health_endpoint="http://localhost:$port/health"
+    local health_endpoint="http://sam.chat:$port/health"
     
     if command -v curl >/dev/null 2>&1; then
         curl -s -f --connect-timeout 5 "$health_endpoint" >/dev/null

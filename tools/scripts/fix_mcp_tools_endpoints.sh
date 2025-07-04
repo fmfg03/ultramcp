@@ -88,7 +88,7 @@ cat > config/adapter_config.json << 'EOF'
       "description": "Python-based task orchestration",
       "capabilities": ["orchestrate_tasks", "manage_workflows", "execute_tools"],
       "config": {
-        "base_url": "http://localhost:8000"
+        "base_url": "http://sam.chat:8000"
       }
     },
     {
@@ -98,7 +98,7 @@ cat > config/adapter_config.json << 'EOF'
       "description": "Local LLM models via Ollama",
       "capabilities": ["qwen2.5:14b", "qwen2.5-coder:7b", "deepseek-coder:6.7b", "llama3.1:8b", "mistral:7b"],
       "config": {
-        "base_url": "http://localhost:11434"
+        "base_url": "http://sam.chat:11434"
       }
     }
   ],
@@ -339,7 +339,7 @@ app.use(express.urlencoded({ extended: true }));
 // Configuración CORS mejorada
 const corsOptions = {
   origin: [
-    'http://localhost:5173',
+    'http://sam.chat:5173',
     'http://127.0.0.1:5173',
     'http://sam.chat:5173',
     'http://sam.chat',
@@ -534,7 +534,7 @@ endpoints=(
 
 for endpoint in "${endpoints[@]}"; do
     echo "🔍 Testing $endpoint:"
-    response=$(curl -s -w "%{http_code}" -o /tmp/test_response --max-time 5 "http://localhost:3000$endpoint")
+    response=$(curl -s -w "%{http_code}" -o /tmp/test_response --max-time 5 "http://sam.chat:3000$endpoint")
     
     if [ "$response" = "200" ]; then
         echo "  ✅ HTTP 200 - Success"
@@ -552,7 +552,7 @@ done
 echo "🎯 TEST ESPECÍFICO - ENDPOINT /api/tools (El que necesita el frontend)"
 echo "===================================================================="
 
-response=$(curl -s -H "Origin: http://localhost:5173" "http://localhost:3000/api/tools")
+response=$(curl -s -H "Origin: http://sam.chat:5173" "http://sam.chat:3000/api/tools")
 echo "📄 Response completa del endpoint /api/tools:"
 echo "$response" | python3 -m json.tool 2>/dev/null || echo "$response"
 
@@ -568,7 +568,7 @@ echo ""
 echo "🎯 RESUMEN DEL FIX"
 echo "=================="
 
-if curl -s --max-time 3 "http://localhost:3000/api/tools" | grep -q "tools"; then
+if curl -s --max-time 3 "http://sam.chat:3000/api/tools" | grep -q "tools"; then
     echo "🎉 ✅ ÉXITO: Endpoint /api/tools funcionando correctamente"
     echo "🎉 ✅ Frontend ahora puede cargar herramientas MCP"
     echo ""

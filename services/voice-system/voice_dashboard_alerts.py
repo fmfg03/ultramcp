@@ -577,7 +577,7 @@ def run_background_monitoring():
 
 if __name__ == "__main__":
     print("🎤 Starting Voice System Dashboard...")
-    print("📊 Dashboard will be available at: http://localhost:5000")
+    print("📊 Dashboard will be available at: http://sam.chat:5000")
     print("🔄 Auto-refresh every 30 seconds")
     print("🚨 Background monitoring active")
     

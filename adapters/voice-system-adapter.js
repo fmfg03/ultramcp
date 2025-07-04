@@ -31,7 +31,7 @@ class VoiceSystemAdapter extends IService {
 
         this.config = {
             servicePath: config.servicePath || path.join(__dirname, '../services/voice-system'),
-            apiEndpoint: config.apiEndpoint || 'http://localhost:8000',
+            apiEndpoint: config.apiEndpoint || 'http://sam.chat:8000',
             pythonExecutable: config.pythonExecutable || 'python',
             enableSTT: config.enableSTT !== false,
             enableTTS: config.enableTTS !== false,

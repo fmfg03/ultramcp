@@ -167,15 +167,15 @@ fi
 print_status "Testing service endpoints..."
 
 # Test health endpoint
-if curl -s "http://localhost:$PORT/health" | grep -q '"status":"healthy"'; then
+if curl -s "http://sam.chat:$PORT/health" | grep -q '"status":"healthy"'; then
     print_success "Health endpoint is working"
 else
     print_error "Health endpoint failed"
 fi
 
 # Test tools endpoint
-if curl -s "http://localhost:$PORT/api/tools" | grep -q '"name"'; then
-    TOOL_COUNT=$(curl -s "http://localhost:$PORT/api/tools" | grep -o '"name"' | wc -l)
+if curl -s "http://sam.chat:$PORT/api/tools" | grep -q '"name"'; then
+    TOOL_COUNT=$(curl -s "http://sam.chat:$PORT/api/tools" | grep -o '"name"' | wc -l)
     print_success "Tools endpoint is working ($TOOL_COUNT tools available)"
 else
     print_error "Tools endpoint failed"
@@ -185,7 +185,7 @@ fi
 EXECUTE_TEST=$(curl -s -X POST \
     -H "Content-Type: application/json" \
     -d '{"tool":"firecrawl","parameters":{"url":"https://example.com"}}' \
-    "http://localhost:$PORT/api/tools/execute")
+    "http://sam.chat:$PORT/api/tools/execute")
 
 if echo "$EXECUTE_TEST" | grep -q '"success":true'; then
     print_success "Execute endpoint is working"
@@ -264,7 +264,7 @@ if ! systemctl is-active --quiet "$SERVICE_NAME"; then
 fi
 
 # Check if port is responding
-if ! curl -s "http://localhost:$PORT/health" >/dev/null; then
+if ! curl -s "http://sam.chat:$PORT/health" >/dev/null; then
     echo "$(date): Service $SERVICE_NAME is not responding on port $PORT, restarting..."
     systemctl restart "$SERVICE_NAME"
 fi
@@ -307,9 +307,9 @@ Service Status:
 $(systemctl status $SERVICE_NAME --no-pager -l)
 
 Test Results:
-- Health Endpoint: $(curl -s http://localhost:$PORT/health | grep -o '"status":"[^"]*"' || echo "Failed")
-- Tools Count: $(curl -s http://localhost:$PORT/api/tools | grep -o '"name"' | wc -l || echo "0")
-- Execute Test: $(curl -s -X POST -H "Content-Type: application/json" -d '{"tool":"firecrawl","parameters":{"url":"https://example.com"}}' http://localhost:$PORT/api/tools/execute | grep -o '"success":[^,]*' || echo "Failed")
+- Health Endpoint: $(curl -s http://sam.chat:$PORT/health | grep -o '"status":"[^"]*"' || echo "Failed")
+- Tools Count: $(curl -s http://sam.chat:$PORT/api/tools | grep -o '"name"' | wc -l || echo "0")
+- Execute Test: $(curl -s -X POST -H "Content-Type: application/json" -d '{"tool":"firecrawl","parameters":{"url":"https://example.com"}}' http://sam.chat:$PORT/api/tools/execute | grep -o '"success":[^,]*' || echo "Failed")
 
 Management Commands:
 - Start: systemctl start $SERVICE_NAME
@@ -319,10 +319,10 @@ Management Commands:
 - Logs: journalctl -u $SERVICE_NAME -f
 
 URLs:
-- Health Check: http://localhost:$PORT/health
+- Health Check: http://sam.chat:$PORT/health
 - Frontend: http://65.109.54.94:5174/
-- API Tools: http://localhost:$PORT/api/tools
-- API Execute: http://localhost:$PORT/api/tools/execute
+- API Tools: http://sam.chat:$PORT/api/tools
+- API Execute: http://sam.chat:$PORT/api/tools/execute
 
 EOF
 
@@ -351,9 +351,9 @@ print_success "✅ Monitoring script installed"
 print_success "✅ All endpoints tested and working"
 echo ""
 print_status "🌐 Frontend URL: http://65.109.54.94:5174/"
-print_status "🔍 Health Check: http://localhost:$PORT/health"
-print_status "🛠️  API Tools: http://localhost:$PORT/api/tools"
-print_status "⚡ API Execute: http://localhost:$PORT/api/tools/execute"
+print_status "🔍 Health Check: http://sam.chat:$PORT/health"
+print_status "🛠️  API Tools: http://sam.chat:$PORT/api/tools"
+print_status "⚡ API Execute: http://sam.chat:$PORT/api/tools/execute"
 echo ""
 print_status "📋 Management Commands:"
 echo "   systemctl start $SERVICE_NAME"

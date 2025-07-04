@@ -246,7 +246,7 @@ langgraph dev --host 0.0.0.0 --port 8123 --tunnel
 ```
 
 ### Studio Access
-- **Local**: http://localhost:8123
+- **Local**: http://sam.chat:8123
 - **Tunnel**: Auto-generated public URL
 - **Studio URL**: {self.config.get("studio_url", "https://smith.langchain.com")}
 

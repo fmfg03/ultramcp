@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-BASE_URL="${BASE_URL:-http://localhost}"
+BASE_URL="${BASE_URL:-http://sam.chat}"
 BACKEND_PORT="${BACKEND_PORT:-3000}"
 STUDIO_PORT="${STUDIO_PORT:-8123}"
 DEVTOOL_PORT="${DEVTOOL_PORT:-5173}"
@@ -150,7 +150,7 @@ test_websocket_connectivity() {
     log_info "Testing WebSocket connectivity..."
     
     # Simple WebSocket test using curl (if available) or nc
-    local ws_url="ws://localhost:$BACKEND_PORT/ws"
+    local ws_url="ws://sam.chat:$BACKEND_PORT/ws"
     
     # Check if websocat is available for proper WebSocket testing
     if command -v websocat &> /dev/null; then
@@ -172,7 +172,7 @@ test_database_connectivity() {
     log_info "Testing database connectivity..."
     
     # Check if we can connect to PostgreSQL
-    local db_host="${DB_HOST:-localhost}"
+    local db_host="${DB_HOST:-sam.chat}"
     local db_port="${DB_PORT:-5432}"
     local db_user="${DB_USER:-postgres}"
     local db_name="${DB_NAME:-postgres}"
@@ -195,7 +195,7 @@ test_database_connectivity() {
 test_redis_connectivity() {
     log_info "Testing Redis connectivity..."
     
-    local redis_host="${REDIS_HOST:-localhost}"
+    local redis_host="${REDIS_HOST:-sam.chat}"
     local redis_port="${REDIS_PORT:-6379}"
     
     if command -v redis-cli &> /dev/null; then

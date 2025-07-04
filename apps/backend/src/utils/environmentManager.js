@@ -129,7 +129,7 @@ class EnvironmentManager {
         enableStudio: true,
         rateLimitMultiplier: 10,
         authRequired: false,
-        corsOrigins: ['http://localhost:3000', 'http://localhost:5173'],
+        corsOrigins: ['http://sam.chat:3000', 'http://sam.chat:5173'],
         allowedIPs: ['127.0.0.1', '::1'],
         database: {
           pool: { min: 1, max: 5 },
@@ -143,7 +143,7 @@ class EnvironmentManager {
         enableStudio: false,
         rateLimitMultiplier: 100,
         authRequired: false,
-        corsOrigins: ['http://localhost:3000'],
+        corsOrigins: ['http://sam.chat:3000'],
         allowedIPs: ['127.0.0.1'],
         database: {
           pool: { min: 1, max: 3 },
@@ -316,7 +316,7 @@ class EnvironmentManager {
   getServerConfig() {
     return {
       port: process.env.PORT || (this.environment === 'production' ? 8080 : 3000),
-      host: this.environment === 'production' ? '0.0.0.0' : 'localhost',
+      host: this.environment === 'production' ? '0.0.0.0' : 'sam.chat',
       cors: {
         origin: this.config.corsOrigins,
         credentials: true,

@@ -36,7 +36,7 @@ class WebAutomationAgent:
     Advanced Web Automation Agent with step-by-step execution
     """
     
-    def __init__(self, mcp_base_url: str = "http://localhost:3000"):
+    def __init__(self, mcp_base_url: str = "http://sam.chat:3000"):
         self.mcp_base_url = mcp_base_url
         self.session_id = None
         self.current_url = None

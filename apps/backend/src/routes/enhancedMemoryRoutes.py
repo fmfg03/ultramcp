@@ -42,7 +42,7 @@ auth_middleware = AuthMiddleware()
 def get_controller() -> EnhancedMemoryController:
     """Dependency to get enhanced memory controller"""
     config = {
-        'NEO4J_URI': os.getenv('NEO4J_URI', 'bolt://localhost:7687'),
+        'NEO4J_URI': os.getenv('NEO4J_URI', 'bolt://sam.chat:7687'),
         'NEO4J_USERNAME': os.getenv('NEO4J_USERNAME', 'neo4j'),
         'NEO4J_PASSWORD': os.getenv('NEO4J_PASSWORD', 'neo4j_password'),
         'OPENAI_API_KEY': os.getenv('OPENAI_API_KEY'),

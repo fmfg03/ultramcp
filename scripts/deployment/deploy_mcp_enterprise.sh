@@ -237,10 +237,10 @@ health_check() {
 
 # Perform health checks
 HEALTH_CHECKS=(
-    "Backend:http://localhost:3000/health"
-    "Monitor:http://localhost:8125/health"
-    "Dashboard:http://localhost:8126/health"
-    "Validation:http://localhost:8127/health"
+    "Backend:http://sam.chat:3000/health"
+    "Monitor:http://sam.chat:8125/health"
+    "Dashboard:http://sam.chat:8126/health"
+    "Validation:http://sam.chat:8127/health"
 )
 
 successful_checks=0
@@ -257,7 +257,7 @@ log "Health checks completed: $successful_checks/${#HEALTH_CHECKS[@]} services h
 log "🔍 Final verification..."
 
 # Test API endpoint
-if curl -s "http://localhost:3000/health" | grep -q "healthy"; then
+if curl -s "http://sam.chat:3000/health" | grep -q "healthy"; then
     log "✅ API endpoint responding correctly"
 else
     log "⚠️ API endpoint may have issues"

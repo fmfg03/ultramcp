@@ -94,9 +94,9 @@ services:
       target: dependencies
     container_name: mcp-devtool-dev
     environment:
-      VITE_API_BASE_URL: http://localhost:3001
-      VITE_STUDIO_BASE_URL: http://localhost:8124
-      VITE_WS_BASE_URL: ws://localhost:3001
+      VITE_API_BASE_URL: http://sam.chat:3001
+      VITE_STUDIO_BASE_URL: http://sam.chat:8124
+      VITE_WS_BASE_URL: ws://sam.chat:3001
     volumes:
       - ./mcp-devtool-client:/app
       - /app/node_modules

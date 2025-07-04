@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 
 // Mock environment variables first
 process.env.CRED_ENCRYPTION_KEY = "test_encryption_key_1234567890abcdef"; // Ensure it's a valid length for AES, e.g., 32 chars for AES-256
-process.env.SUPABASE_URL = "http://localhost:54321";
+process.env.SUPABASE_URL = "http://sam.chat:54321";
 process.env.SUPABASE_KEY = "your_dummy_anon_key";
 
 // This is the API object our mocked getSupabaseClient will return

@@ -30,7 +30,7 @@ class CoDProtocolAdapter extends IService {
 
         this.config = {
             servicePath: config.servicePath || path.join(__dirname, '../services/cod-protocol'),
-            apiEndpoint: config.apiEndpoint || 'http://localhost:5000',
+            apiEndpoint: config.apiEndpoint || 'http://sam.chat:5000',
             pythonExecutable: config.pythonExecutable || 'python',
             enableShadowLLM: config.enableShadowLLM !== false,
             enableCounterfactual: config.enableCounterfactual !== false,

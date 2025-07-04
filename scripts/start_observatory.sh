@@ -352,11 +352,11 @@ done
 # 8. Test de funcionalidad
 echo ""
 echo "🧪 Testing Observatory..."
-if curl -s --max-time 5 http://localhost:5174 > /dev/null 2>&1; then
+if curl -s --max-time 5 http://sam.chat:5174 > /dev/null 2>&1; then
     echo "✅ Observatory respondiendo correctamente"
     
     # Test específico de content-type
-    CONTENT_TYPE=$(curl -s -I --max-time 3 http://localhost:5174 | grep -i content-type)
+    CONTENT_TYPE=$(curl -s -I --max-time 3 http://sam.chat:5174 | grep -i content-type)
     echo "📄 Content-Type: $CONTENT_TYPE"
     
 else

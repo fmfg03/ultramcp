@@ -31,5 +31,5 @@ FRONTEND_PID=$!
 echo "Frontend PID: $FRONTEND_PID"
 echo ""
 echo "✅ Complete Claudia system started!"
-echo "🎭 Claudia Interface: http://localhost:3001"
+echo "🎭 Claudia Interface: http://sam.chat:3001"
 echo "📖 To stop servers: kill $COD_PID $LOCAL_PID $HYBRID_PID $FRONTEND_PID"

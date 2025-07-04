@@ -75,7 +75,7 @@ class TaskValidationSystem:
     def __init__(self, config: Dict[str, Any] = None):
         self.config = config or {}
         self.db_path = self.config.get("db_path", "task_validation.db")
-        self.manus_base_url = self.config.get("manus_base_url", "http://localhost:3000")
+        self.manus_base_url = self.config.get("manus_base_url", "http://sam.chat:3000")
         self.validation_timeout = self.config.get("validation_timeout", 5.0)
         self.cache_ttl = self.config.get("cache_ttl", 300)  # 5 minutos
         
@@ -716,7 +716,7 @@ def main():
     # Configuración
     config = {
         "db_path": "task_validation.db",
-        "manus_base_url": "http://localhost:3000",
+        "manus_base_url": "http://sam.chat:3000",
         "validation_timeout": 5.0,
         "cache_ttl": 300
     }
@@ -725,7 +725,7 @@ def main():
     init_validation_system(config)
     
     print("✅ Sistema de validación iniciado")
-    print("🌐 API disponible en: http://localhost:8127")
+    print("🌐 API disponible en: http://sam.chat:8127")
     print("📊 Endpoints disponibles:")
     print("   GET  /api/validate/<task_id> - Validar task_id")
     print("   POST /api/tasks/offline - Almacenar tarea offline")

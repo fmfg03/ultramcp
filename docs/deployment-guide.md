@@ -181,7 +181,7 @@ make verify-integration
 make health-check
 
 # Test API Gateway routing
-curl http://localhost:3001/api/health
+curl http://sam.chat:3001/api/health
 
 # Test cross-service communication
 make test-cross-services
@@ -420,7 +420,7 @@ server {
 
     # API Gateway
     location /api/ {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://sam.chat:3001;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -429,7 +429,7 @@ server {
 
     # WebSocket support
     location /ws/ {
-        proxy_pass http://localhost:8008;
+        proxy_pass http://sam.chat:8008;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -438,7 +438,7 @@ server {
 
     # Frontend
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://sam.chat:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -495,19 +495,19 @@ scrape_configs:
   - job_name: 'ultramcp-services'
     static_configs:
       - targets: 
-        - 'localhost:3001'  # API Gateway
-        - 'localhost:8001'  # CoD Service
-        - 'localhost:8002'  # Security Service
-        - 'localhost:8003'  # Blockoli Service
-        - 'localhost:8004'  # Voice Service
-        - 'localhost:8006'  # DeepClaude Service
-        - 'localhost:8007'  # Control Tower
+        - 'sam.chat:3001'  # API Gateway
+        - 'sam.chat:8001'  # CoD Service
+        - 'sam.chat:8002'  # Security Service
+        - 'sam.chat:8003'  # Blockoli Service
+        - 'sam.chat:8004'  # Voice Service
+        - 'sam.chat:8006'  # DeepClaude Service
+        - 'sam.chat:8007'  # Control Tower
 
   - job_name: 'infrastructure'
     static_configs:
       - targets:
-        - 'localhost:5432'  # PostgreSQL
-        - 'localhost:6379'  # Redis
+        - 'sam.chat:5432'  # PostgreSQL
+        - 'sam.chat:6379'  # Redis
 ```
 
 ### Grafana Dashboards
@@ -576,13 +576,13 @@ check_service_health() {
 
 # Check all services
 services=(
-    "API Gateway:http://localhost:3001/api/health"
-    "CoD Service:http://localhost:8001/health"
-    "Security Service:http://localhost:8002/health"
-    "Blockoli Service:http://localhost:8003/health"
-    "Voice Service:http://localhost:8004/health"
-    "DeepClaude Service:http://localhost:8006/health"
-    "Control Tower:http://localhost:8007/health"
+    "API Gateway:http://sam.chat:3001/api/health"
+    "CoD Service:http://sam.chat:8001/health"
+    "Security Service:http://sam.chat:8002/health"
+    "Blockoli Service:http://sam.chat:8003/health"
+    "Voice Service:http://sam.chat:8004/health"
+    "DeepClaude Service:http://sam.chat:8006/health"
+    "Control Tower:http://sam.chat:8007/health"
 )
 
 failed_services=0
@@ -830,7 +830,7 @@ docker exec ultramcp-service-name ping ultramcp-postgres
 **API Gateway Routing Issues**
 ```bash
 # Test routing
-curl -v http://localhost:3001/api/health
+curl -v http://sam.chat:3001/api/health
 
 # Check proxy configuration
 docker exec ultramcp-terminal cat /app/src/index.js | grep createProxyMiddleware

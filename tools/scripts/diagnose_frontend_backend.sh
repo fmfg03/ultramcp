@@ -30,7 +30,7 @@ if [ -d "frontend" ]; then
     echo ""
     echo "🔍 Buscando URLs hardcodeadas en código JavaScript:"
     # Buscar en archivos JS/TS del frontend
-    grep -r -n "localhost:3000\|127.0.0.1:3000\|:3000\|api/tools" src/ . 2>/dev/null | head -10 || echo "  No se encontraron URLs hardcodeadas"
+    grep -r -n "sam.chat:3000\|127.0.0.1:3000\|:3000\|api/tools" src/ . 2>/dev/null | head -10 || echo "  No se encontraron URLs hardcodeadas"
     
     echo ""
     echo "🔍 Verificando configuración de Vite proxy:"
@@ -63,7 +63,7 @@ test_frontend_request() {
     
     # Test básico
     response=$(curl -s -w "%{http_code}" -o /tmp/test_response --max-time 5 \
-        -H "Origin: http://localhost:5173" \
+        -H "Origin: http://sam.chat:5173" \
         -H "Content-Type: application/json" \
         -H "Accept: application/json" \
         "$base_url/api/tools")
@@ -81,7 +81,7 @@ test_frontend_request() {
 }
 
 # Probar diferentes URLs que podría estar usando el frontend
-test_frontend_request "http://localhost:3000" "localhost:3000"
+test_frontend_request "http://sam.chat:3000" "sam.chat:3000"
 test_frontend_request "http://127.0.0.1:3000" "127.0.0.1:3000"
 test_frontend_request "http://65.109.54.94:3000" "IP pública:3000"
 
@@ -99,10 +99,10 @@ echo "============================="
 
 echo "🔍 Test OPTIONS preflight request:"
 curl -s -X OPTIONS \
-    -H "Origin: http://localhost:5173" \
+    -H "Origin: http://sam.chat:5173" \
     -H "Access-Control-Request-Method: GET" \
     -H "Access-Control-Request-Headers: content-type" \
-    -v "http://localhost:3000/api/tools" 2>&1 | grep -E "(HTTP|Access-Control|Origin)"
+    -v "http://sam.chat:3000/api/tools" 2>&1 | grep -E "(HTTP|Access-Control|Origin)"
 
 # 5. Verificar si el frontend puede conectarse al backend
 echo ""
@@ -111,7 +111,7 @@ echo "================================="
 
 echo "🔍 Test si frontend puede conectarse a backend:"
 # Simular desde el mismo contexto que el frontend
-curl -s -H "Origin: http://localhost:5173" "http://localhost:3000/health" || echo "❌ No puede conectarse a backend"
+curl -s -H "Origin: http://sam.chat:5173" "http://sam.chat:3000/health" || echo "❌ No puede conectarse a backend"
 
 # 6. Verificar console del frontend
 echo ""
@@ -135,7 +135,7 @@ echo "🔄 7. TEST CONEXIÓN INVERSA"
 echo "==========================="
 
 echo "🔍 Test si backend puede 'ver' al frontend:"
-curl -s -I "http://localhost:5173" | head -3 || echo "❌ Backend no puede ver frontend"
+curl -s -I "http://sam.chat:5173" | head -3 || echo "❌ Backend no puede ver frontend"
 
 # 8. Diagnóstico de red
 echo ""
@@ -155,11 +155,11 @@ echo "🧪 9. COMANDO PARA TEST MANUAL"
 echo "=============================="
 
 echo "📋 Ejecuta este comando manualmente para simular al frontend:"
-echo "curl -v -H 'Origin: http://localhost:5173' 'http://localhost:3000/api/tools'"
+echo "curl -v -H 'Origin: http://sam.chat:5173' 'http://sam.chat:3000/api/tools'"
 
 echo ""
 echo "📋 Ejecuta este comando desde el frontend (en browser console):"
-echo "fetch('http://localhost:3000/api/tools')"
+echo "fetch('http://sam.chat:3000/api/tools')"
 echo "  .then(response => response.json())"
 echo "  .then(data => console.log(data))"
 echo "  .catch(error => console.error('Error:', error));"

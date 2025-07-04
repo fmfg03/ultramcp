@@ -13,7 +13,7 @@ router = APIRouter()
 security = HTTPBearer(auto_error=False)
 logger = logging.getLogger(__name__)
 
-ACTIONS_SERVICE_URL = "http://localhost:8010"
+ACTIONS_SERVICE_URL = "http://sam.chat:8010"
 
 
 async def proxy_to_actions_service(endpoint: str, method: str = "GET", **kwargs) -> Dict[str, Any]:

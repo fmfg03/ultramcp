@@ -387,7 +387,7 @@ class SQLiteContextStorage:
 class RedisContextStorage:
     """Almacenamiento de contexto en Redis"""
     
-    def __init__(self, redis_url: str = "redis://localhost:6379/0"):
+    def __init__(self, redis_url: str = "redis://sam.chat:6379/0"):
         self.redis_client = redis.from_url(redis_url, decode_responses=False)
         self.metadata_prefix = "ctx:meta:"
         self.content_prefix = "ctx:data:"
@@ -508,7 +508,7 @@ class RedisContextStorage:
 class MongoDBContextStorage:
     """Almacenamiento de contexto en MongoDB"""
     
-    def __init__(self, connection_string: str = "mongodb://localhost:27017/", database: str = "sam_context"):
+    def __init__(self, connection_string: str = "mongodb://sam.chat:27017/", database: str = "sam_context"):
         self.client = pymongo.MongoClient(connection_string)
         self.db = self.client[database]
         self.collection = self.db.contexts

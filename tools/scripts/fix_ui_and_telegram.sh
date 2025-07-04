@@ -499,7 +499,7 @@ echo "========================="
 echo "🔍 Test del bot Telegram con datos reales:"
 response=$(curl -s -X POST -H "Content-Type: application/json" \
     -d '{"tool":"telegram","action":"send_message","params":{"message":"Test from agentius_bot"}}' \
-    "http://localhost:3000/api/tools/execute")
+    "http://sam.chat:3000/api/tools/execute")
 
 if echo "$response" | grep -q "agentius_bot"; then
     echo "✅ Bot Telegram con datos reales:"

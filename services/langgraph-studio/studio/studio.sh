@@ -145,7 +145,7 @@ This directory contains LangGraph Studio configuration and exported visualizatio
 
 ## 🔧 Studio Configuration
 - Development Server: ./langgraph_system/studio/studio.sh start
-- Local Access: http://localhost:8123
+- Local Access: http://sam.chat:8123
 - Debug Port: 8124
 
 ## 📈 Monitoring & Analytics
@@ -170,9 +170,9 @@ check_health() {
     
     # Verificar si el servidor está corriendo
     local port=${1:-$DEFAULT_PORT}
-    if curl -s "http://localhost:$port/health" &> /dev/null; then
+    if curl -s "http://sam.chat:$port/health" &> /dev/null; then
         echo -e "${GREEN}✅ Studio server is running${NC}"
-        curl -s "http://localhost:$port/health" | python3 -m json.tool
+        curl -s "http://sam.chat:$port/health" | python3 -m json.tool
     else
         echo -e "${YELLOW}⚠️  Studio server is not running${NC}"
     fi

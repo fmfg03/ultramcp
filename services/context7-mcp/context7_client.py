@@ -50,7 +50,7 @@ class Context7Client:
     Provides high-level interface for retrieving real-time documentation
     """
     
-    def __init__(self, base_url: str = "http://localhost:8003", timeout: int = 30):
+    def __init__(self, base_url: str = "http://sam.chat:8003", timeout: int = 30):
         self.base_url = base_url.rstrip('/')
         self.timeout = timeout
         self.session = None

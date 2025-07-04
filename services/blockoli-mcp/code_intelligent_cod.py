@@ -50,7 +50,7 @@ class CodeIntelligentTask:
 class CodeIntelligentCoDOrchestrator(EnhancedCoDOrchestrator):
     """Enhanced CoD Orchestrator with Blockoli code intelligence"""
     
-    def __init__(self, config: Dict = None, blockoli_endpoint: str = "http://localhost:8080"):
+    def __init__(self, config: Dict = None, blockoli_endpoint: str = "http://sam.chat:8080"):
         super().__init__(config)
         self.blockoli_endpoint = blockoli_endpoint
         self.blockoli_client = None
@@ -707,7 +707,7 @@ async def run_code_intelligent_debate(
     project_name: str,
     intelligence_mode: str = "basic",
     code_query: str = None,
-    blockoli_endpoint: str = "http://localhost:8080"
+    blockoli_endpoint: str = "http://sam.chat:8080"
 ) -> Dict:
     """Quick utility function to run code-intelligent debate"""
     
@@ -726,7 +726,7 @@ async def run_code_intelligent_debate(
 async def quick_architecture_analysis(
     topic: str,
     project_name: str,
-    blockoli_endpoint: str = "http://localhost:8080"
+    blockoli_endpoint: str = "http://sam.chat:8080"
 ) -> Dict:
     """Quick architecture analysis using code intelligence"""
     
@@ -740,7 +740,7 @@ async def quick_architecture_analysis(
 async def quick_security_analysis(
     topic: str,
     project_name: str,
-    blockoli_endpoint: str = "http://localhost:8080"
+    blockoli_endpoint: str = "http://sam.chat:8080"
 ) -> Dict:
     """Quick security analysis using code intelligence"""
     
@@ -762,7 +762,7 @@ if __name__ == "__main__":
         parser.add_argument('--project', required=True, help='Project name')
         parser.add_argument('--mode', default='basic', help='Intelligence mode')
         parser.add_argument('--query', help='Specific code query')
-        parser.add_argument('--endpoint', default='http://localhost:8080', help='Blockoli endpoint')
+        parser.add_argument('--endpoint', default='http://sam.chat:8080', help='Blockoli endpoint')
         parser.add_argument('--output', help='Output file for results')
         
         args = parser.parse_args()

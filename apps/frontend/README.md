@@ -43,9 +43,9 @@ Para ejecutar el frontend en modo de desarrollo con recarga en caliente:
 npm run dev
 ```
 
-Vite iniciará un servidor de desarrollo, típicamente en `http://localhost:5173`. Gracias a la configuración del proxy en `vite.config.js`, las solicitudes a `/api/...` serán redirigidas automáticamente al servidor backend (que se asume está corriendo en `http://localhost:3001`).
+Vite iniciará un servidor de desarrollo, típicamente en `http://sam.chat:5173`. Gracias a la configuración del proxy en `vite.config.js`, las solicitudes a `/api/...` serán redirigidas automáticamente al servidor backend (que se asume está corriendo en `http://sam.chat:3001`).
 
-**Nota sobre Pruebas sin Proxy:** Durante las pruebas recientes donde el frontend se sirvió manualmente (`python -m http.server`), el código de `MCPToolSelector.jsx` fue modificado temporalmente para usar URLs absolutas (`http://localhost:3001/api/...`) en las llamadas `fetch`. Para el desarrollo normal usando `npm run dev`, las URLs relativas (`/api/...`) deberían funcionar correctamente debido al proxy de Vite.
+**Nota sobre Pruebas sin Proxy:** Durante las pruebas recientes donde el frontend se sirvió manualmente (`python -m http.server`), el código de `MCPToolSelector.jsx` fue modificado temporalmente para usar URLs absolutas (`http://sam.chat:3001/api/...`) en las llamadas `fetch`. Para el desarrollo normal usando `npm run dev`, las URLs relativas (`/api/...`) deberían funcionar correctamente debido al proxy de Vite.
 
 ## Compilación (Producción)
 

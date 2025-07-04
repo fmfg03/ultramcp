@@ -47,7 +47,7 @@ class SemanticSearchEngine:
     """Advanced semantic search using Qdrant and sentence transformers"""
     
     def __init__(self, 
-                 qdrant_url: str = "http://localhost:6333",
+                 qdrant_url: str = "http://sam.chat:6333",
                  collection_name: str = "code_memory",
                  model_name: str = "all-MiniLM-L6-v2"):
         self.qdrant_url = qdrant_url

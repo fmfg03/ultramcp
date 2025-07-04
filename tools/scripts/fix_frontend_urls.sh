@@ -27,7 +27,7 @@ grep -n "api/mcp" src/services/codeAgentService.js
 echo ""
 echo "✅ ENDPOINTS DISPONIBLES EN NUESTRO BACKEND:"
 echo "==========================================="
-curl -s http://localhost:3000/ | python3 -c "
+curl -s http://sam.chat:3000/ | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
@@ -319,7 +319,7 @@ echo "==========================="
 sleep 5
 
 echo "🔍 Test del endpoint correcto:"
-curl -s http://localhost:5173/api/tools | head -1
+curl -s http://sam.chat:5173/api/tools | head -1
 
 echo ""
 echo "📝 Últimas líneas del log frontend:"
@@ -331,7 +331,7 @@ echo "🎯 RESUMEN DEL FIX COMPLETO"
 echo "=========================="
 
 echo "❌ PROBLEMAS CORREGIDOS:"
-echo "  • URLs hardcodeadas: localhost:3001 → URLs relativas (proxy)"
+echo "  • URLs hardcodeadas: sam.chat:3001 → URLs relativas (proxy)"
 echo "  • Endpoints incorrectos: /api/mcp/tools → /api/tools"
 echo "  • Endpoints incorrectos: /api/mcp/execute → /api/tools/execute"
 

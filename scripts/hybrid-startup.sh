@@ -124,14 +124,14 @@ case $choice in
         echo "🔍 Service Health Check:"
         echo "======================="
         
-        if curl -s http://localhost:8001/health >/dev/null; then
-            echo "✅ CoD Protocol Service: Healthy (http://localhost:8001)"
+        if curl -s http://sam.chat:8001/health >/dev/null; then
+            echo "✅ CoD Protocol Service: Healthy (http://sam.chat:8001)"
         else
             echo "❌ CoD Protocol Service: Not responding"
         fi
         
-        if curl -s http://localhost:3000/health >/dev/null 2>&1; then
-            echo "✅ Web Dashboard: Healthy (http://localhost:3000)"
+        if curl -s http://sam.chat:3000/health >/dev/null 2>&1; then
+            echo "✅ Web Dashboard: Healthy (http://sam.chat:3000)"
         else
             echo "⚠️  Web Dashboard: Optional service not available"
         fi
@@ -148,8 +148,8 @@ case $choice in
         echo "  make status        - Check system status"
         echo ""
         echo "🌐 Web interfaces:"
-        echo "  CoD Protocol API: http://localhost:8001"
-        echo "  System Dashboard: http://localhost:3000 (if available)"
+        echo "  CoD Protocol API: http://sam.chat:8001"
+        echo "  System Dashboard: http://sam.chat:3000 (if available)"
         echo ""
         log_success "hybrid-startup" "Full Docker system started successfully"
         ;;
@@ -167,8 +167,8 @@ case $choice in
         echo "⏳ Waiting for CoD Protocol service..."
         sleep 5
         
-        if curl -s http://localhost:8001/health >/dev/null; then
-            echo "✅ CoD Protocol Service is running on http://localhost:8001"
+        if curl -s http://sam.chat:8001/health >/dev/null; then
+            echo "✅ CoD Protocol Service is running on http://sam.chat:8001"
             log_success "hybrid-startup" "CoD Protocol service started"
             
             echo ""
@@ -196,10 +196,10 @@ case $choice in
         sleep 10
         
         echo "🔧 Development services started!"
-        echo "  Backend: http://localhost:3001 (with hot reload)"
-        echo "  DevTool: http://localhost:5174"
-        echo "  Studio: http://localhost:8124"
-        echo "  CoD Service: http://localhost:8001"
+        echo "  Backend: http://sam.chat:3001 (with hot reload)"
+        echo "  DevTool: http://sam.chat:5174"
+        echo "  Studio: http://sam.chat:8124"
+        echo "  CoD Service: http://sam.chat:8001"
         
         log_success "hybrid-startup" "Development mode started"
         ;;
@@ -219,10 +219,10 @@ case $choice in
         # Check services
         echo "🔍 Service Health:"
         services=(
-            "http://localhost:8001/health:CoD Protocol"
-            "http://localhost:3000:Web Dashboard"
-            "http://localhost:5432:PostgreSQL"
-            "http://localhost:6379:Redis"
+            "http://sam.chat:8001/health:CoD Protocol"
+            "http://sam.chat:3000:Web Dashboard"
+            "http://sam.chat:5432:PostgreSQL"
+            "http://sam.chat:6379:Redis"
         )
         
         for service in "${services[@]}"; do

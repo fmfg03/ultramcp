@@ -10,7 +10,7 @@ set -euo pipefail
 # Configuration
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_NAME="ultramcp-supreme"
-MEMORY_SERVICE_URL="http://localhost:8009"
+MEMORY_SERVICE_URL="http://sam.chat:8009"
 LOG_FILE="${PROJECT_ROOT}/logs/codebase-indexing.log"
 
 # Colors for output

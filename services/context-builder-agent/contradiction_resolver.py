@@ -39,7 +39,7 @@ class ContradictionResolver:
     
     def __init__(self):
         self.app = FastAPI(title="Contradiction Resolver", version="1.0.0")
-        self.ollama_host = "http://localhost:11434"
+        self.ollama_host = "http://sam.chat:11434"
         self.model_pool = ["qwen2.5:14b", "llama3.1:8b", "mistral:7b"]
         self.model_weights = {
             "qwen2.5:14b": 0.4,  # Highest weight for analytical tasks

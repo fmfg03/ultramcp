@@ -139,10 +139,10 @@ POST /studio/config                 # Actualizar configuración
 ## 🎯 URLs de Acceso
 
 ### **Desarrollo Local**
-- **Studio Principal**: http://localhost:8123
-- **API Documentation**: http://localhost:8123/docs
-- **Health Check**: http://localhost:8123/health
-- **Debug WebSocket**: ws://localhost:8124
+- **Studio Principal**: http://sam.chat:8123
+- **API Documentation**: http://sam.chat:8123/docs
+- **Health Check**: http://sam.chat:8123/health
+- **Debug WebSocket**: ws://sam.chat:8124
 
 ### **Modo Túnel**
 - **URL Pública**: Auto-generada por LangGraph CLI

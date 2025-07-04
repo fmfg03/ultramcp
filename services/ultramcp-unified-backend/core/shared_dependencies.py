@@ -56,7 +56,7 @@ class SharedResourceManager:
                 "DATABASE_URL",
                 f"postgresql://{os.getenv('POSTGRES_USER', 'ultramcp')}:"
                 f"{os.getenv('POSTGRES_PASSWORD', 'ultramcp_secure')}@"
-                f"{os.getenv('POSTGRES_HOST', 'localhost')}:"
+                f"{os.getenv('POSTGRES_HOST', 'sam.chat')}:"
                 f"{os.getenv('POSTGRES_PORT', '5432')}/"
                 f"{os.getenv('POSTGRES_DB', 'ultramcp')}"
             )
@@ -82,7 +82,7 @@ class SharedResourceManager:
     async def _init_redis(self) -> aioredis.Redis:
         """Initialize Redis connection"""
         try:
-            redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+            redis_url = os.getenv("REDIS_URL", "redis://sam.chat:6379")
             redis_password = os.getenv("REDIS_PASSWORD")
             
             if redis_password:
@@ -108,7 +108,7 @@ class SharedResourceManager:
     async def _init_qdrant(self) -> QdrantClient:
         """Initialize Qdrant vector database client"""
         try:
-            qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
+            qdrant_url = os.getenv("QDRANT_URL", "http://sam.chat:6333")
             
             client = QdrantClient(url=qdrant_url)
             

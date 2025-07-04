@@ -35,7 +35,7 @@ class A2AAgent(ABC):
     """Clase base para agentes A2A"""
     
     def __init__(self, agent_id: str, name: str, capabilities: List[str], 
-                 a2a_server_url: str = "http://localhost:8200"):
+                 a2a_server_url: str = "http://sam.chat:8200"):
         self.agent_id = agent_id
         self.name = name
         self.capabilities = capabilities
@@ -121,7 +121,7 @@ class A2AAgent(ABC):
 class ManusA2AAgent(A2AAgent):
     """Agente Manus adaptado para A2A - Orchestrator"""
     
-    def __init__(self, mcp_orchestrator_url: str = "http://localhost:3000"):
+    def __init__(self, mcp_orchestrator_url: str = "http://sam.chat:3000"):
         super().__init__(
             agent_id="manus_orchestrator_v2",
             name="Manus Orchestrator Agent", 
@@ -337,7 +337,7 @@ class ManusA2AAgent(A2AAgent):
 class SAMA2AAgent(A2AAgent):
     """Agente SAM adaptado para A2A - Autonomous Executor"""
     
-    def __init__(self, sam_executor_url: str = "http://localhost:3001"):
+    def __init__(self, sam_executor_url: str = "http://sam.chat:3001"):
         super().__init__(
             agent_id="sam_executor_v2",
             name="SAM Autonomous Executor",
@@ -639,7 +639,7 @@ class SAMA2AAgent(A2AAgent):
 class MemoryA2AAgent(A2AAgent):
     """Agente Memory adaptado para A2A - Semantic Memory"""
     
-    def __init__(self, memory_url: str = "http://localhost:3000/memory"):
+    def __init__(self, memory_url: str = "http://sam.chat:3000/memory"):
         super().__init__(
             agent_id="memory_analyzer_v2",
             name="Memory Analyzer Agent",

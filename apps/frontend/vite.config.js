@@ -11,13 +11,13 @@ export default defineConfig({
       'sam.chat',
       'www.sam.chat',
       '65.109.54.94',
-      'localhost',
+      'sam.chat',
       '127.0.0.1'
     ],
     proxy: {
       // Proxy /api requests to the backend server running on port 3000
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://sam.chat:3000',
         changeOrigin: true,
         // secure: false, // Uncomment if backend is not HTTPS
         // rewrite: (path) => path.replace(/^\/api/, '') // Uncomment if backend doesn't expect /api prefix

@@ -159,7 +159,7 @@ Sam can be invoked as part of CoD debates for:
 ### Basic Task Execution
 ```bash
 # Via LangGraph endpoint
-curl -X POST http://localhost:8000/invoke \
+curl -X POST http://sam.chat:8000/invoke \
   -H "Content-Type: application/json" \
   -d '{
     "tool": "sam_executor_agent",
@@ -177,7 +177,7 @@ curl -X POST http://localhost:8000/invoke \
 ### Batch Processing
 ```bash
 # Multiple tasks with dependencies
-curl -X POST http://localhost:8000/invoke \
+curl -X POST http://sam.chat:8000/invoke \
   -H "Content-Type: application/json" \
   -d '{
     "tool": "sam_executor_agent", 
@@ -261,7 +261,7 @@ workflow = graph.create_workflow([
 
 ### Environment Variables
 ```bash
-LANGGRAPH_STUDIO_URL=http://localhost:8123
+LANGGRAPH_STUDIO_URL=http://sam.chat:8123
 SAM_AUTONOMY_LEVEL=semi_autonomous
 SAM_PREFERRED_MODELS=mistral-local,llama-local,deepseek-local
 SAM_MAX_RETRIES=3
@@ -350,10 +350,10 @@ make local-status
 python3 apps/backend/sam_langgraph_integration.py
 
 # Check LangGraph configuration
-curl http://localhost:8123/api/config
+curl http://sam.chat:8123/api/config
 
 # Monitor execution
-curl http://localhost:8123/api/stats
+curl http://sam.chat:8123/api/stats
 ```
 
 ## Conclusion

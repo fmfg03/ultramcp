@@ -253,22 +253,22 @@ STUDIO_SECRET=my-secret MCP_API_KEYS=key1,key2 npm start
 ### **Testing de Endpoints:**
 ```bash
 # Health check (público)
-curl http://localhost:3000/health
+curl http://sam.chat:3000/health
 
 # Studio (requiere secret en producción)
-curl -H "X-Studio-Secret: my-secret" http://localhost:3000/studio
+curl -H "X-Studio-Secret: my-secret" http://sam.chat:3000/studio
 
 # MCP (requiere API key en producción)
-curl -H "X-MCP-Key: key1" http://localhost:3000/mcp/agents
+curl -H "X-MCP-Key: key1" http://sam.chat:3000/mcp/agents
 
 # Analytics (requiere JWT token)
-curl -H "Authorization: Bearer jwt-token" http://localhost:3000/analytics
+curl -H "Authorization: Bearer jwt-token" http://sam.chat:3000/analytics
 ```
 
 ### **Generar Token JWT:**
 ```bash
 # Generar token temporal
-curl -X POST http://localhost:3000/auth/token \
+curl -X POST http://sam.chat:3000/auth/token \
   -H "Content-Type: application/json" \
   -d '{"purpose": "testing", "duration": "1h"}'
 ```

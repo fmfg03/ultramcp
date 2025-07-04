@@ -124,7 +124,7 @@ cp services/deepclaude/docker-compose.deepclaude.yml docker-compose.deepclaude.y
 
 # Set environment variables
 echo "DEEPSEEK_API_KEY=your-key-here" >> .env
-echo "DEEPCLAUDE_ENDPOINT=http://localhost:1337" >> .env
+echo "DEEPCLAUDE_ENDPOINT=http://sam.chat:1337" >> .env
 
 # Test integration
 make deepclaude-test
@@ -247,7 +247,7 @@ reasoning_trace_format = "structured"
 # Enhanced participant configuration
 @dataclass
 class DeepClaudeConfig:
-    endpoint: str = "http://localhost:1337"
+    endpoint: str = "http://sam.chat:1337"
     reasoning_mode: str = "full"  # full, lightweight, creative
     show_thinking: bool = True
     cost_optimization: bool = True

@@ -453,9 +453,9 @@ cmd_health() {
     log_info "Checking service endpoints..."
     
     local endpoints=(
-        "http://localhost:3000/health:Backend"
-        "http://localhost:5173:DevTool"
-        "http://localhost:8123/health:Studio"
+        "http://sam.chat:3000/health:Backend"
+        "http://sam.chat:5173:DevTool"
+        "http://sam.chat:8123/health:Studio"
     )
     
     for endpoint_info in "${endpoints[@]}"; do

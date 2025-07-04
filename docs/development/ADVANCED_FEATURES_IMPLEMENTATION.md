@@ -80,7 +80,7 @@ docs = export_graph_docs()  # Genera markdown para todos los grafos
 ```
 
 #### **⚡ Funcionalidades Avanzadas:**
-- **Real-time streaming**: WebSocket a `ws://localhost:8124/langwatch`
+- **Real-time streaming**: WebSocket a `ws://sam.chat:8124/langwatch`
 - **Smart filtering**: Por nivel, agente, session_id, contenido
 - **Batch loading**: Carga eficiente de logs históricos
 - **Memory management**: Límite de 1000 logs para evitar problemas de memoria

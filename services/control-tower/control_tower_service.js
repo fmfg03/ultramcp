@@ -21,11 +21,11 @@ app.use(express.json());
 
 // Service URLs from environment
 const services = {
-    cod: process.env.COD_SERVICE_URL || 'http://localhost:8001',
-    asterisk: process.env.ASTERISK_SERVICE_URL || 'http://localhost:8002',
-    blockoli: process.env.BLOCKOLI_SERVICE_URL || 'http://localhost:8003',
-    voice: process.env.VOICE_SERVICE_URL || 'http://localhost:8004',
-    deepclaude: process.env.DEEPCLAUDE_SERVICE_URL || 'http://localhost:8006'
+    cod: process.env.COD_SERVICE_URL || 'http://sam.chat:8001',
+    asterisk: process.env.ASTERISK_SERVICE_URL || 'http://sam.chat:8002',
+    blockoli: process.env.BLOCKOLI_SERVICE_URL || 'http://sam.chat:8003',
+    voice: process.env.VOICE_SERVICE_URL || 'http://sam.chat:8004',
+    deepclaude: process.env.DEEPCLAUDE_SERVICE_URL || 'http://sam.chat:8006'
 };
 
 // Global state

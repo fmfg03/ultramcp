@@ -622,12 +622,12 @@ class UltraMCPToolRegistry:
             async with httpx.AsyncClient() as client:
                 if tool.method == "POST":
                     response = await client.post(
-                        f"http://localhost:8000{tool.endpoint}",
+                        f"http://sam.chat:8000{tool.endpoint}",
                         json=arguments
                     )
                 else:
                     response = await client.get(
-                        f"http://localhost:8000{tool.endpoint}",
+                        f"http://sam.chat:8000{tool.endpoint}",
                         params=arguments
                     )
                 

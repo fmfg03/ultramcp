@@ -122,7 +122,7 @@ Centralized coordination of memory operations with other microservices.
 
 ### Environment Variables
 ```bash
-QDRANT_URL=http://localhost:6333
+QDRANT_URL=http://sam.chat:6333
 MEMORY_SERVICE_PORT=8009
 SENTENCE_TRANSFORMERS_HOME=/app/models
 TREE_SITTER_PARSERS_PATH=/app/tree_sitter_parsers
@@ -206,7 +206,7 @@ tail -f logs/combined.log | grep "memory"
 **Memory Usage**
 ```bash
 # Check memory service stats
-curl http://localhost:8009/memory/stats
+curl http://sam.chat:8009/memory/stats
 ```
 
 ### Support

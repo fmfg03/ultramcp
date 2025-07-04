@@ -81,8 +81,8 @@ async def lifespan(app: FastAPI):
         logger.info("🧠 Initializing Enhanced Claude Code Memory Service...")
         
         # Initialize enhanced search engine
-        qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-        voyage_url = os.getenv("VOYAGE_SERVICE_URL", "http://localhost:8010")
+        qdrant_url = os.getenv("QDRANT_URL", "http://sam.chat:6333")
+        voyage_url = os.getenv("VOYAGE_SERVICE_URL", "http://sam.chat:8010")
         
         enhanced_search_engine = EnhancedSemanticSearchEngine(
             qdrant_url=qdrant_url,

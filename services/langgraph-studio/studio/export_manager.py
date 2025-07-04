@@ -556,7 +556,7 @@ This directory contains LangGraph Studio configuration and exported visualizatio
 ```
 
 ### Studio Access
-- **Local**: http://localhost:8123
+- **Local**: http://sam.chat:8123
 - **Tunnel**: Auto-generated public URL
 - **Studio URL**: https://smith.langchain.com
 

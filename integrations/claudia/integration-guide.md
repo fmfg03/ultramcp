@@ -451,8 +451,8 @@ use tauri::api::process::Command;
 async fn secure_api_call(endpoint: String, data: String) -> Result<String, String> {
     // Validate endpoint is allowed
     let allowed_endpoints = vec![
-        "localhost:8001", // UltraMCP Control Tower
-        "localhost:11434" // Ollama
+        "sam.chat:8001", // UltraMCP Control Tower
+        "sam.chat:11434" // Ollama
     ];
     
     // ... secure API call implementation
@@ -525,7 +525,7 @@ Create environment-specific configurations:
 
 ```bash
 # Development
-ULTRAMCP_BASE_URL=http://localhost:3000
+ULTRAMCP_BASE_URL=http://sam.chat:3000
 ULTRAMCP_MODE=development
 
 # Production  

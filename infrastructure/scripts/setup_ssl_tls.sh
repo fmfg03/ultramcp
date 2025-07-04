@@ -98,7 +98,7 @@ server {
     
     # Proxy a backend MCP
     location /api/ {
-        proxy_pass http://localhost:3000/;
+        proxy_pass http://sam.chat:3000/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -109,7 +109,7 @@ server {
     
     # Proxy a Grafana
     location /grafana/ {
-        proxy_pass http://localhost:3001/;
+        proxy_pass http://sam.chat:3001/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -118,7 +118,7 @@ server {
     
     # Servir frontend
     location / {
-        proxy_pass http://localhost:5174/;
+        proxy_pass http://sam.chat:5174/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -289,7 +289,7 @@ server {
     location /api/ {
         limit_req zone=api burst=20 nodelay;
         
-        proxy_pass http://localhost:3000/;
+        proxy_pass http://sam.chat:3000/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -312,7 +312,7 @@ server {
     location /api/auth/login {
         limit_req zone=login burst=5 nodelay;
         
-        proxy_pass http://localhost:3000/auth/login;
+        proxy_pass http://sam.chat:3000/auth/login;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -321,7 +321,7 @@ server {
     
     # WebSocket para notificaciones
     location /ws/ {
-        proxy_pass http://localhost:8765/;
+        proxy_pass http://sam.chat:8765/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -334,7 +334,7 @@ server {
     
     # Webhooks
     location /webhooks/ {
-        proxy_pass http://localhost:8080/;
+        proxy_pass http://sam.chat:8080/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -343,7 +343,7 @@ server {
     
     # Grafana
     location /grafana/ {
-        proxy_pass http://localhost:3001/;
+        proxy_pass http://sam.chat:3001/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -362,7 +362,7 @@ server {
         allow 192.168.0.0/16;
         deny all;
         
-        proxy_pass http://localhost:9091/;
+        proxy_pass http://sam.chat:9091/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -371,7 +371,7 @@ server {
     
     # Frontend estático
     location / {
-        proxy_pass http://localhost:5174/;
+        proxy_pass http://sam.chat:5174/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;

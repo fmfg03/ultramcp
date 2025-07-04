@@ -4,8 +4,8 @@ echo "📊 Claudia Integration Status"
 echo "============================"
 
 # Check if frontend is running
-if curl -s http://localhost:3003 > /dev/null 2>&1; then
-    echo "✅ Frontend: Running on http://localhost:3003"
+if curl -s http://sam.chat:3003 > /dev/null 2>&1; then
+    echo "✅ Frontend: Running on http://sam.chat:3003"
 else
     echo "❌ Frontend: Not running"
 fi
@@ -30,5 +30,5 @@ else
 fi
 
 echo ""
-echo "🎭 Access Claudia at: http://localhost:3003"
+echo "🎭 Access Claudia at: http://sam.chat:3003"
 echo "📖 Use /root/ultramcp/start-claudia.sh to restart"

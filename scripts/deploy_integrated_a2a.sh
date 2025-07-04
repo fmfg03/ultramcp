@@ -132,7 +132,7 @@ start_supermcp_backend() {
     if check_port $SUPERMCP_BACKEND_PORT; then
         # Set environment variables for A2A integration
         export A2A_ENABLED=true
-        export A2A_SERVER_URL="http://localhost:$A2A_SERVER_PORT"
+        export A2A_SERVER_URL="http://sam.chat:$A2A_SERVER_PORT"
         export A2A_AGENT_ID="supermcp_orchestrator"
         export A2A_AGENT_NAME="SUPERmcp Orchestrator"
         
@@ -142,7 +142,7 @@ start_supermcp_backend() {
         echo $SUPERMCP_PID > ../logs/supermcp_backend.pid
         
         # Wait for service to be ready
-        if wait_for_service "http://localhost:$SUPERMCP_BACKEND_PORT/health" "SUPERmcp Backend"; then
+        if wait_for_service "http://sam.chat:$SUPERMCP_BACKEND_PORT/health" "SUPERmcp Backend"; then
             log_success "SUPERmcp backend started with A2A integration (PID: $SUPERMCP_PID)"
         else
             log_error "Failed to start SUPERmcp backend"
@@ -187,7 +187,7 @@ test_a2a_integration() {
     
     # Test 1: A2A Service Status
     log_info "Testing A2A service status..."
-    response=$(curl -s "http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/status" 2>/dev/null || echo "failed")
+    response=$(curl -s "http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/status" 2>/dev/null || echo "failed")
     if [[ $response == *"success"* ]]; then
         log_success "A2A service status: OK"
     else
@@ -196,7 +196,7 @@ test_a2a_integration() {
     
     # Test 2: Agent Discovery
     log_info "Testing agent discovery..."
-    discovery_response=$(curl -s "http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/discover" 2>/dev/null || echo "failed")
+    discovery_response=$(curl -s "http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/discover" 2>/dev/null || echo "failed")
     if [[ $discovery_response == *"agents"* ]]; then
         agent_count=$(echo $discovery_response | jq '.agents | length' 2>/dev/null || echo "0")
         log_success "Agent discovery: Found $agent_count agents"
@@ -215,7 +215,7 @@ test_a2a_integration() {
         "priority": 5
     }'
     
-    task_response=$(curl -s -X POST "http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/task" \
+    task_response=$(curl -s -X POST "http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/task" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer dev-token" \
         -d "$task_payload" 2>/dev/null || echo "failed")
@@ -228,7 +228,7 @@ test_a2a_integration() {
     
     # Test 4: Monitoring Dashboard
     log_info "Testing A2A monitoring dashboard..."
-    dashboard_response=$(curl -s "http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/dashboard" 2>/dev/null || echo "failed")
+    dashboard_response=$(curl -s "http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/dashboard" 2>/dev/null || echo "failed")
     if [[ $dashboard_response == *"dashboard"* ]]; then
         log_success "A2A monitoring dashboard: OK"
     else
@@ -246,7 +246,7 @@ test_a2a_integration() {
         "priority": 3
     }'
     
-    mcp_response=$(curl -s -X POST "http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/task" \
+    mcp_response=$(curl -s -X POST "http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/task" \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer dev-token" \
         -d "$mcp_payload" 2>/dev/null || echo "failed")
@@ -263,20 +263,20 @@ display_service_urls() {
     log_info "Service URLs:"
     echo ""
     echo "🌐 SUPERmcp Backend:"
-    echo "   • Main API: http://localhost:$SUPERMCP_BACKEND_PORT"
-    echo "   • Health: http://localhost:$SUPERMCP_BACKEND_PORT/health"
-    echo "   • A2A Status: http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/status"
-    echo "   • A2A Dashboard: http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/dashboard"
+    echo "   • Main API: http://sam.chat:$SUPERMCP_BACKEND_PORT"
+    echo "   • Health: http://sam.chat:$SUPERMCP_BACKEND_PORT/health"
+    echo "   • A2A Status: http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/status"
+    echo "   • A2A Dashboard: http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/dashboard"
     echo ""
     echo "🤖 A2A Services:"
-    echo "   • Central Server: http://localhost:$A2A_SERVER_PORT"
-    echo "   • Manus Agent: http://localhost:$MANUS_AGENT_PORT"
-    echo "   • SAM Agent: http://localhost:$SAM_AGENT_PORT"
-    echo "   • Memory Agent: http://localhost:$MEMORY_AGENT_PORT"
+    echo "   • Central Server: http://sam.chat:$A2A_SERVER_PORT"
+    echo "   • Manus Agent: http://sam.chat:$MANUS_AGENT_PORT"
+    echo "   • SAM Agent: http://sam.chat:$SAM_AGENT_PORT"
+    echo "   • Memory Agent: http://sam.chat:$MEMORY_AGENT_PORT"
     echo ""
     echo "📊 Monitoring:"
-    echo "   • A2A Metrics: http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/metrics"
-    echo "   • Active Traces: http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/traces"
+    echo "   • A2A Metrics: http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/metrics"
+    echo "   • Active Traces: http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/traces"
     echo ""
 }
 
@@ -398,8 +398,8 @@ main() {
     log_info "Integration report available at: $PROJECT_DIR/a2a_integration_report.md"
     echo ""
     log_info "To test the integration, try:"
-    echo "  curl http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/status"
-    echo "  curl http://localhost:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/dashboard"
+    echo "  curl http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/status"
+    echo "  curl http://sam.chat:$SUPERMCP_BACKEND_PORT/api/a2a/monitoring/dashboard"
 }
 
 # Run main function

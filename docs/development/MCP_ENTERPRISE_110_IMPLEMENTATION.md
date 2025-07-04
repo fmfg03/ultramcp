@@ -71,7 +71,7 @@
 - **Frontend**: https://sam.chat
 - **API Backend**: https://api.sam.chat  
 - **MCP Orchestration**: http://65.109.54.94:3001
-- **Observatory**: http://localhost:5177 (desarrollo)
+- **Observatory**: http://sam.chat:5177 (desarrollo)
 - **GitHub Repo**: https://github.com/fmfg03/supermcp
 
 ## 🎉 **LOGROS ENTERPRISE**

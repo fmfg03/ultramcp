@@ -4,7 +4,7 @@ echo "🚀 Deploying SUPERmcp A2A Agents..."
 
 # Verificar que el servidor A2A central esté funcionando
 echo "📡 Checking A2A Central Server..."
-if ! curl -s http://localhost:8200/health > /dev/null; then
+if ! curl -s http://sam.chat:8200/health > /dev/null; then
     echo "❌ A2A Central Server not running. Starting it..."
     python3 supermcp_a2a_server.py &
     sleep 5
@@ -102,33 +102,33 @@ echo "🔍 Verifying agent deployment..."
 
 # Verificar cada agente
 echo "  📡 Checking Manus Agent (8210)..."
-if curl -s http://localhost:8210/health > /dev/null; then
+if curl -s http://sam.chat:8210/health > /dev/null; then
     echo "  ✅ Manus Agent is running"
 else
     echo "  ❌ Manus Agent failed to start"
 fi
 
 echo "  📡 Checking SAM Agent (8211)..."
-if curl -s http://localhost:8211/health > /dev/null; then
+if curl -s http://sam.chat:8211/health > /dev/null; then
     echo "  ✅ SAM Agent is running"
 else
     echo "  ❌ SAM Agent failed to start"
 fi
 
 echo "  📡 Checking Memory Agent (8212)..."
-if curl -s http://localhost:8212/health > /dev/null; then
+if curl -s http://sam.chat:8212/health > /dev/null; then
     echo "  ✅ Memory Agent is running"
 else
     echo "  ❌ Memory Agent failed to start"
 fi
 
 echo "📊 Checking A2A Registry..."
-curl -s http://localhost:8200/agents
+curl -s http://sam.chat:8200/agents
 
 echo ""
 echo "🎉 A2A Agent deployment completed!"
 echo "📍 Agent Endpoints:"
-echo "  🧠 Manus Orchestrator: http://localhost:8210"
-echo "  🔧 SAM Executor: http://localhost:8211"
-echo "  💾 Memory Analyzer: http://localhost:8212"
-echo "  📡 A2A Central Server: http://localhost:8200"
+echo "  🧠 Manus Orchestrator: http://sam.chat:8210"
+echo "  🔧 SAM Executor: http://sam.chat:8211"
+echo "  💾 Memory Analyzer: http://sam.chat:8212"
+echo "  📡 A2A Central Server: http://sam.chat:8200"

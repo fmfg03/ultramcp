@@ -28,7 +28,7 @@ echo ""
 ensure_directory "data/debates"
 
 # Check if CoD service is running
-cod_service_url="http://localhost:8001"
+cod_service_url="http://sam.chat:8001"
 if ! is_service_running "cod-service"; then
     log_info "cod-debate" "Starting CoD Protocol service"
     echo "🚀 Starting CoD Protocol service..."

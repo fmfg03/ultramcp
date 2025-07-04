@@ -29,10 +29,10 @@ FRONTEND_PORT=5174
 LOG_LEVEL=info
 
 # Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/mcp_enterprise
+DATABASE_URL=postgresql://postgres:password@sam.chat:5432/mcp_enterprise
 
 # Redis
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://sam.chat:6379
 
 # Security
 JWT_SECRET=mcp-enterprise-jwt-secret-2024

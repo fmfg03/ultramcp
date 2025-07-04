@@ -101,7 +101,7 @@ class EnhancedMemorySystem:
         """Initialize connections to Neo4j and Graphiti"""
         try:
             # Initialize Neo4j driver
-            neo4j_uri = self.config.get('NEO4J_URI', 'bolt://localhost:7687')
+            neo4j_uri = self.config.get('NEO4J_URI', 'bolt://sam.chat:7687')
             neo4j_username = self.config.get('NEO4J_USERNAME', 'neo4j')
             neo4j_password = self.config.get('NEO4J_PASSWORD', 'neo4j_password')
             

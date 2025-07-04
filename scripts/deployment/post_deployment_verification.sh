@@ -82,10 +82,10 @@ health_check() {
 }
 
 HEALTH_ENDPOINTS=(
-    "Backend API:http://localhost:3000/health"
-    "Active Monitor:http://localhost:8125/health"
-    "Dashboard:http://localhost:8126/health" 
-    "Validation:http://localhost:8127/health"
+    "Backend API:http://sam.chat:3000/health"
+    "Active Monitor:http://sam.chat:8125/health"
+    "Dashboard:http://sam.chat:8126/health" 
+    "Validation:http://sam.chat:8127/health"
 )
 
 health_ok=0
@@ -105,7 +105,7 @@ log "🧪 Testing API functionality..."
 api_tests_passed=0
 
 # Test basic health endpoint
-if curl -s "http://localhost:3000/health" | grep -q "healthy"; then
+if curl -s "http://sam.chat:3000/health" | grep -q "healthy"; then
     log "✅ Backend health endpoint working"
     api_tests_passed=$((api_tests_passed + 1))
 else
@@ -113,7 +113,7 @@ else
 fi
 
 # Test memory endpoint
-if curl -s -f "http://localhost:3000/api/memories" > /dev/null 2>&1; then
+if curl -s -f "http://sam.chat:3000/api/memories" > /dev/null 2>&1; then
     log "✅ Memory API endpoint accessible"
     api_tests_passed=$((api_tests_passed + 1))
 else
@@ -121,7 +121,7 @@ else
 fi
 
 # Test webhooks endpoint
-if curl -s -f "http://localhost:3003/webhooks" > /dev/null 2>&1; then
+if curl -s -f "http://sam.chat:3003/webhooks" > /dev/null 2>&1; then
     log "✅ Webhook endpoint accessible"
     api_tests_passed=$((api_tests_passed + 1))
 else
@@ -236,7 +236,7 @@ log "🔗 Running integration test..."
 # Test a complete workflow if possible
 integration_test() {
     # Create a simple test memory
-    test_response=$(curl -s -X POST "http://localhost:3000/api/memories" \
+    test_response=$(curl -s -X POST "http://sam.chat:3000/api/memories" \
         -H "Content-Type: application/json" \
         -d '{
             "content": "Post-deployment verification test",

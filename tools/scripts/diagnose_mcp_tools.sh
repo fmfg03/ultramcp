@@ -27,7 +27,7 @@ endpoints=(
 
 for endpoint in "${endpoints[@]}"; do
     echo "Testing $endpoint:"
-    response=$(curl -s -w "%{http_code}" -o /tmp/response --max-time 3 "http://localhost:3000$endpoint")
+    response=$(curl -s -w "%{http_code}" -o /tmp/response --max-time 3 "http://sam.chat:3000$endpoint")
     
     if [ "$response" = "200" ]; then
         echo "  ✅ $endpoint: HTTP 200"
@@ -51,7 +51,7 @@ echo ""
 
 # Test CORS desde frontend hacia backend
 echo "Testing CORS desde frontend (5173) hacia backend (3000):"
-response=$(curl -s -H "Origin: http://localhost:5173" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: content-type" -X OPTIONS "http://localhost:3000/api/tools")
+response=$(curl -s -H "Origin: http://sam.chat:5173" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: content-type" -X OPTIONS "http://sam.chat:3000/api/tools")
 
 if [ -n "$response" ]; then
     echo "  📄 CORS Response: $response"
@@ -84,7 +84,7 @@ if [ -d "frontend" ]; then
     
     # Buscar URLs de API en archivos JS/TS
     echo "🔍 URLs de API encontradas:"
-    grep -r -n "localhost:3000\|127.0.0.1:3000\|api/tools\|/tools" src/ . 2>/dev/null | head -10 || echo "  No se encontraron URLs de API explícitas"
+    grep -r -n "sam.chat:3000\|127.0.0.1:3000\|api/tools\|/tools" src/ . 2>/dev/null | head -10 || echo "  No se encontraron URLs de API explícitas"
     
     echo ""
     echo "🔍 Variables de entorno frontend:"
@@ -146,8 +146,8 @@ for method in "GET" "POST"; do
     echo "  Testing $method /api/tools:"
     response=$(curl -s -w "%{http_code}" -o /tmp/test_response -X $method \
         -H "Content-Type: application/json" \
-        -H "Origin: http://localhost:5173" \
-        --max-time 3 "http://localhost:3000/api/tools")
+        -H "Origin: http://sam.chat:5173" \
+        --max-time 3 "http://sam.chat:3000/api/tools")
     
     echo "    Status: $response"
     if [ -f "/tmp/test_response" ]; then

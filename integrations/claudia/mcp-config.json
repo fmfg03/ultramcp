@@ -154,7 +154,7 @@
       "args": ["local-mcp-server"],
       "cwd": "/root/ultramcp",
       "env": {
-        "OLLAMA_HOST": "localhost:11434",
+        "OLLAMA_HOST": "sam.chat:11434",
         "ULTRAMCP_LOCAL_ONLY": "true",
         "ULTRAMCP_PRIVACY_MODE": "true"
       },
