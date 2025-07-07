@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
@@ -15,12 +21,11 @@ export default defineConfig({
       '127.0.0.1'
     ],
     proxy: {
-      // Proxy /api requests to the backend server running on port 3000
+      // Proxy /api requests to the Claudia MCP service running on port 8013
       '/api': {
-        target: 'http://sam.chat:3000',
+        target: 'http://localhost:8013',
         changeOrigin: true,
-        // secure: false, // Uncomment if backend is not HTTPS
-        // rewrite: (path) => path.replace(/^\/api/, '') // Uncomment if backend doesn't expect /api prefix
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   }

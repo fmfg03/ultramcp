@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>UltraMCP API Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            try {
+                console.log('Testing /api/agents...');
+                const agentsRes = await fetch('/api/agents');
+                const agents = await agentsRes.json();
+                console.log('Agents:', agents);
+                
+                console.log('Testing /api/metrics...');
+                const metricsRes = await fetch('/api/metrics');
+                const metrics = await metricsRes.json();
+                console.log('Metrics:', metrics);
+                
+                document.getElementById('results').innerHTML = `
+                    <h2>API Test Results</h2>
+                    <p><strong>Agents:</strong> ${agents.length} found</p>
+                    <p><strong>Total Executions:</strong> ${metrics.total_executions}</p>
+                    <p><strong>Running:</strong> ${metrics.running_executions}</p>
+                    <h3>Agents:</h3>
+                    <ul>
+                        ${agents.map(agent => `<li>${agent.name} (${agent.model})</li>`).join('')}
+                    </ul>
+                `;
+            } catch (error) {
+                console.error('API Test Error:', error);
+                document.getElementById('results').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        testAPI();
+    </script>
+</body>
+</html>

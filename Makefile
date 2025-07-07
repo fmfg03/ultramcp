@@ -1389,9 +1389,9 @@ hybrid-mcp-server:
 	@echo "[AI] Starting Hybrid Decision MCP Server..."
 	@cd services/claudia-mcp && python3 hybrid_mcp_server.py
 
-# Test Claudia MCP integration
-claudia-test:
-	@echo "🧪 Testing Claudia MCP Integration..."
+# Test legacy Claudia MCP integration
+claudia-legacy-test:
+	@echo "🧪 Testing Legacy Claudia MCP Integration..."
 	@echo "1. Testing Chain-of-Debate MCP Server files..."
 	@test -f services/claudia-mcp/cod_mcp_server.py && echo "[OK] Chain-of-Debate MCP Server exists" || echo "[ERROR] Chain-of-Debate MCP Server missing"
 	@echo "2. Testing Local Models MCP Server files..."
@@ -1400,19 +1400,19 @@ claudia-test:
 	@test -f services/claudia-mcp/hybrid_mcp_server.py && echo "[OK] Hybrid Decision MCP Server exists" || echo "[ERROR] Hybrid Decision MCP Server missing"
 	@echo "4. Testing requirements..."
 	@test -f services/claudia-mcp/requirements.txt && echo "[OK] Claudia MCP requirements exist" || echo "[ERROR] Claudia MCP requirements missing"
-	@echo "[OK] Claudia MCP integration tests complete"
+	@echo "[OK] Legacy Claudia MCP integration tests complete"
 
-# Stop Claudia MCP servers
-claudia-stop:
-	@echo "🛑 Stopping Claudia MCP servers..."
+# Stop legacy Claudia MCP servers
+claudia-legacy-stop:
+	@echo "🛑 Stopping legacy Claudia MCP servers..."
 	@pkill -f "cod_mcp_server.py" 2>/dev/null || true
 	@pkill -f "local_mcp_server.py" 2>/dev/null || true
 	@pkill -f "hybrid_mcp_server.py" 2>/dev/null || true
-	@echo "[OK] Claudia MCP servers stopped"
+	@echo "[OK] Legacy Claudia MCP servers stopped"
 
-# Check Claudia MCP servers status
-claudia-status:
-	@echo "[DATA] Claudia MCP Servers Status"
+# Check legacy Claudia MCP servers status
+claudia-legacy-status:
+	@echo "[DATA] Legacy Claudia MCP Servers Status"
 	@echo "============================="
 	@pgrep -f "cod_mcp_server.py" >/dev/null && echo "[OK] Chain-of-Debate MCP Server: Running" || echo "[ERROR] Chain-of-Debate MCP Server: Stopped"
 	@pgrep -f "local_mcp_server.py" >/dev/null && echo "[OK] Local Models MCP Server: Running" || echo "[ERROR] Local Models MCP Server: Stopped"
@@ -1423,15 +1423,15 @@ claudia-frontend:
 	@echo "[DESIGN] Starting Claudia Frontend Development Server..."
 	@cd apps/frontend && npm run dev -- --port 3001
 
-# Claudia integration help
-claudia-help:
-	@echo "[CLAUDIA] Claudia MCP Integration Commands"
+# Legacy Claudia integration help
+claudia-legacy-help:
+	@echo "[CLAUDIA] Legacy Claudia MCP Integration Commands"
 	@echo "=================================="
 	@echo ""
 	@echo "MCP Server Management:"
 	@echo "  make claudia-start              - Start all Claudia MCP servers"
-	@echo "  make claudia-stop               - Stop all Claudia MCP servers"
-	@echo "  make claudia-status             - Check MCP servers status"
+	@echo "  make claudia-legacy-stop        - Stop all Claudia MCP servers"
+	@echo "  make claudia-legacy-status      - Check MCP servers status"
 	@echo "  make claudia-test               - Test MCP integration"
 	@echo ""
 	@echo "Individual MCP Servers:"
@@ -2803,3 +2803,151 @@ cicd-help:
 	@echo "  ✅ Release management with semantic versioning"
 	@echo "  ✅ Slack notifications and alerts"
 	@echo "  ✅ Pre-commit hooks for code quality"
+
+# =============================================================================
+# ENHANCED CLAUDIA INTEGRATION - Agent Management System
+# =============================================================================
+
+# Start enhanced Claudia integration service
+claudia-enhanced-start:
+	@echo "🚀 Starting enhanced Claudia integration service..."
+	@docker-compose -f docker-compose.hybrid.yml up -d ultramcp-claudia-integration
+	@echo "✅ Claudia integration service started on port 8013"
+
+# List all available agents
+claudia-agents-list:
+	@echo "📋 Listing all available agents..."
+	@curl -s http://sam.chat:8013/agents | jq '.[] | {name: .name, id: .id, services: .ultramcp_services}'
+
+# List agent templates
+claudia-templates-list:
+	@echo "📋 Listing agent templates..."
+	@curl -s http://sam.chat:8013/agents/templates | jq 'keys'
+
+# Install agent template
+claudia-install-template:
+	@echo "📥 Installing agent template: $(TEMPLATE)"
+	@curl -s -X POST http://sam.chat:8013/agents/templates/$(TEMPLATE)/install | jq '.'
+
+# Execute agent
+claudia-execute-agent:
+	@echo "🚀 Executing agent: $(AGENT_ID)"
+	@curl -s -X POST http://sam.chat:8013/agents/$(AGENT_ID)/execute \
+		-H "Content-Type: application/json" \
+		-d '{"task": "$(TASK)", "project_path": "$(PROJECT:-/root/ultramcp)"}' | jq '.'
+
+# List recent executions
+claudia-executions-list:
+	@echo "📋 Listing recent executions..."
+	@curl -s http://sam.chat:8013/executions | jq '.[] | {id: .id, agent: .agent_name, status: .status, task: .task}'
+
+# Show agent execution metrics
+claudia-metrics:
+	@echo "📊 Agent execution metrics..."
+	@curl -s http://sam.chat:8013/metrics | jq '.'
+
+# Check Claudia service health
+claudia-health:
+	@echo "🏥 Checking Claudia service health..."
+	@curl -s http://localhost:8013/health || echo "Claudia service not available"
+
+# Test complete Claudia integration
+claudia-test:
+	@echo "🧪 Running comprehensive Claudia integration test..."
+	@./scripts/test_claudia_integration.sh
+
+# Quick security scan workflow
+claudia-security-scan:
+	@echo "🔒 Installing and executing security scanner agent..."
+	@curl -s -X POST http://sam.chat:8013/agents/templates/ultramcp_security_scanner/install | jq '.id' | xargs -I {} \
+		curl -s -X POST http://sam.chat:8013/agents/{}/execute \
+		-H "Content-Type: application/json" \
+		-d '{"task": "Perform comprehensive security scan", "project_path": "$(PROJECT:-/root/ultramcp)"}' | jq '.'
+
+# Quick code analysis workflow
+claudia-code-analysis:
+	@echo "🧠 Installing and executing code intelligence agent..."
+	@curl -s -X POST http://sam.chat:8013/agents/templates/code_intelligence_analyst/install | jq '.id' | xargs -I {} \
+		curl -s -X POST http://sam.chat:8013/agents/{}/execute \
+		-H "Content-Type: application/json" \
+		-d '{"task": "Analyze architecture and code quality", "project_path": "$(PROJECT:-/root/ultramcp)"}' | jq '.'
+
+# Quick debate orchestration workflow
+claudia-debate:
+	@echo "🎭 Installing and executing debate orchestrator..."
+	@curl -s -X POST http://sam.chat:8013/agents/templates/debate_orchestrator/install | jq '.id' | xargs -I {} \
+		curl -s -X POST http://sam.chat:8013/agents/{}/execute \
+		-H "Content-Type: application/json" \
+		-d '{"task": "$(TOPIC)", "project_path": "$(PROJECT:-/root/ultramcp)"}' | jq '.'
+
+# Quick voice assistant workflow
+claudia-voice-assistant:
+	@echo "🗣️ Installing and executing voice assistant..."
+	@curl -s -X POST http://sam.chat:8013/agents/templates/voice_powered_assistant/install | jq '.id' | xargs -I {} \
+		curl -s -X POST http://sam.chat:8013/agents/{}/execute \
+		-H "Content-Type: application/json" \
+		-d '{"task": "$(TASK)", "project_path": "$(PROJECT:-/root/ultramcp)"}' | jq '.'
+
+# Stop Claudia integration service
+claudia-stop:
+	@echo "🛑 Stopping Claudia integration service..."
+	@docker-compose -f docker-compose.hybrid.yml stop ultramcp-claudia-integration
+
+# Restart Claudia integration service
+claudia-restart:
+	@echo "🔄 Restarting Claudia integration service..."
+	@docker-compose -f docker-compose.hybrid.yml restart ultramcp-claudia-integration
+
+# Show Claudia service logs
+claudia-logs:
+	@echo "📋 Showing Claudia service logs..."
+	@docker-compose -f docker-compose.hybrid.yml logs -f ultramcp-claudia-integration
+
+# Case-sensitive compatibility alias
+Claudia-start: claudia-enhanced-start
+
+# Enhanced Claudia integration help
+claudia-help:
+	@echo "📖 Enhanced Claudia Integration Commands:"
+	@echo "========================================"
+	@echo ""
+	@echo "🚀 Service Management:"
+	@echo "  make claudia-enhanced-start     # Start enhanced Claudia service"
+	@echo "  make claudia-stop              # Stop service"
+	@echo "  make claudia-restart           # Restart service"
+	@echo "  make claudia-logs              # Show logs"
+	@echo "  make claudia-health            # Check service health"
+	@echo ""
+	@echo "🤖 Agent Management:"
+	@echo "  make claudia-agents-list        # List all agents"
+	@echo "  make claudia-templates-list     # List agent templates"
+	@echo "  make claudia-install-template TEMPLATE=name  # Install template"
+	@echo "  make claudia-execute-agent AGENT_ID=id TASK='task' PROJECT=path"
+	@echo "  make claudia-executions-list    # List recent executions"
+	@echo "  make claudia-metrics           # Show execution metrics"
+	@echo ""
+	@echo "🚀 Quick Agent Workflows:"
+	@echo "  make claudia-security-scan PROJECT=path     # Quick security scan"
+	@echo "  make claudia-code-analysis PROJECT=path     # Code analysis"
+	@echo "  make claudia-debate TOPIC='question' PROJECT=path  # AI debate"
+	@echo "  make claudia-voice-assistant TASK='help' PROJECT=path  # Voice help"
+	@echo ""
+	@echo "📋 Available Templates:"
+	@echo "  - ultramcp_security_scanner     # Advanced security scanning"
+	@echo "  - code_intelligence_analyst     # Code analysis and architecture"
+	@echo "  - debate_orchestrator           # Multi-LLM debate coordination"
+	@echo "  - voice_powered_assistant       # Voice-enabled AI assistance"
+	@echo ""
+	@echo "💡 Examples:"
+	@echo "  # Install and run security scan"
+	@echo "  make claudia-install-template TEMPLATE=ultramcp_security_scanner"
+	@echo "  make claudia-security-scan PROJECT=/root/ultramcp"
+	@echo ""
+	@echo "  # Start AI debate on architecture decision"
+	@echo "  make claudia-debate TOPIC='Should we use microservices?' PROJECT=/root/ultramcp"
+	@echo ""
+	@echo "  # Analyze code quality"
+	@echo "  make claudia-code-analysis PROJECT=/root/ultramcp"
+	@echo ""
+	@echo "Service URL: http://sam.chat:8013"
+	@echo "Frontend UI: http://sam.chat:3000/claudia"

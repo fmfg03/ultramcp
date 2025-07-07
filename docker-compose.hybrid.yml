@@ -427,6 +427,43 @@ services:
       timeout: 10s
       retries: 3
 
+  # Claudia Integration Service - Enhanced Agent Management
+  ultramcp-claudia-integration:
+    build:
+      context: ./services/claudia-integration
+      dockerfile: Dockerfile
+    container_name: ultramcp-claudia-integration
+    environment:
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - ASTERISK_SERVICE_URL=http://ultramcp-asterisk-mcp:8002
+      - BLOCKOLI_SERVICE_URL=http://ultramcp-blockoli:8080
+      - VOICE_SERVICE_URL=http://ultramcp-voice:8004
+      - DEEPCLAUDE_SERVICE_URL=http://ultramcp-deepclaude:8006
+      - CONTROL_TOWER_URL=http://ultramcp-control-tower:8007
+      - MEMORY_SERVICE_URL=http://ultramcp-claude-memory:8009
+      - VOYAGE_SERVICE_URL=http://ultramcp-voyage-ai:8010
+      - REF_TOOLS_SERVICE_URL=http://ultramcp-ref-tools:8011
+    ports:
+      - "8013:8013"
+    depends_on:
+      - ultramcp-cod-service
+      - ultramcp-asterisk-mcp
+      - ultramcp-blockoli
+      - ultramcp-voice
+      - ultramcp-deepclaude
+      - ultramcp-claude-memory
+    networks:
+      - ultramcp-hybrid
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://sam.chat:8013/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Optional: Lightweight monitoring dashboard
   ultramcp-dashboard:
     build:

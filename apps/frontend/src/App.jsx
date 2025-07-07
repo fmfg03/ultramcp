@@ -7,7 +7,7 @@ import { Dashboard, Build, Psychology, Assessment, AutoAwesome } from '@mui/icon
 import MCPToolSelector from './components/code/MCPToolSelector';
 import SimpleOrchestrationTest from './components/SimpleOrchestrationTest';
 import UltraMCPControlTower from './components/UltraMCPControlTower';
-import ClaudiaIntegration from './components/claudia/ClaudiaIntegration';
+import ClaudiaShadcn from './components/claudia/ClaudiaShadcn';
 
 // Material-UI theme
 const theme = createTheme({
@@ -145,7 +145,7 @@ function App() {
             </Container>
           )}
           
-          {currentView === 'claudia' && <ClaudiaIntegration />}
+          {currentView === 'claudia' && <ClaudiaShadcn />}
         </Box>
       </Box>
     </ThemeProvider>
