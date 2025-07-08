@@ -21,6 +21,8 @@ const supabaseService = supabaseServiceKey
  * Log MCP system events to Supabase
  */
 async function logToSupabase(level, message, metadata = {}) {
+  if (!supabaseService) {
+    console.warn('Supabase service client not configured');
     return;
   }
 
@@ -47,6 +49,10 @@ async function logToSupabase(level, message, metadata = {}) {
  * Track session metrics
  */
 async function trackSession(sessionId, userId, action, data = {}) {
+  if (!supabaseService) {
+    console.warn('Supabase service client not configured');
+    return;
+  }
 
   try {
     const { error } = await supabaseService
@@ -71,6 +77,10 @@ async function trackSession(sessionId, userId, action, data = {}) {
  * Store system metrics
  */
 async function storeMetrics(metrics) {
+  if (!supabaseService) {
+    console.warn('Supabase service client not configured');
+    return;
+  }
 
   try {
     const { error } = await supabaseService
@@ -94,4 +104,5 @@ module.exports = {
   logToSupabase,
   trackSession,
   storeMetrics,
-  isConfigured: cd /home/ubuntu && ssh root@65.109.54.94 cd supermcp
+  isConfigured: !!supabaseUrl && !!supabaseAnonKey
+};

@@ -1,0 +1,43 @@
+# Servicios simples para probar subdominios SSL
+version: '3.8'
+
+services:
+  # Frontend simple en puerto 5173
+  test-frontend:
+    image: nginx:alpine
+    container_name: test-frontend
+    ports:
+      - "5173:80"
+    volumes:
+      - ./test-pages:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # API simple en puerto 3001  
+  test-api:
+    image: nginx:alpine
+    container_name: test-api
+    ports:
+      - "3001:80"
+    volumes:
+      - ./test-pages:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # Studio simple en puerto 8123
+  test-studio:
+    image: nginx:alpine
+    container_name: test-studio
+    ports:
+      - "8123:80"
+    volumes:
+      - ./test-pages:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # Observatory simple en puerto 5177
+  test-observatory:
+    image: nginx:alpine
+    container_name: test-observatory
+    ports:
+      - "5177:80"
+    volumes:
+      - ./test-pages:/usr/share/nginx/html
+    restart: unless-stopped

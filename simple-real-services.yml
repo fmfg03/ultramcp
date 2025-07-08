@@ -1,0 +1,43 @@
+# UltraMCP servicios simples funcionales
+version: '3.8'
+
+services:
+  # Frontend (puerto 5173)
+  ultramcp-frontend:
+    image: nginx:alpine
+    container_name: ultramcp-frontend
+    ports:
+      - "5173:80"
+    volumes:
+      - ./frontend-content:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # API Gateway (puerto 3001)
+  ultramcp-api:
+    image: nginx:alpine
+    container_name: ultramcp-api
+    ports:
+      - "3001:80"
+    volumes:
+      - ./api-content:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # Studio (puerto 8123)
+  ultramcp-studio:
+    image: nginx:alpine
+    container_name: ultramcp-studio
+    ports:
+      - "8123:80"
+    volumes:
+      - ./studio-content:/usr/share/nginx/html
+    restart: unless-stopped
+
+  # Observatory (puerto 5177)
+  ultramcp-observatory:
+    image: nginx:alpine
+    container_name: ultramcp-observatory
+    ports:
+      - "5177:80"
+    volumes:
+      - ./observatory-content:/usr/share/nginx/html
+    restart: unless-stopped

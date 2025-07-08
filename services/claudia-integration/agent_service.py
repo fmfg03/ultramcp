@@ -638,6 +638,8 @@ if __name__ == "__main__":
     import uvicorn
     from fastapi import FastAPI, HTTPException
     from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.responses import FileResponse
     
     app = FastAPI(title="UltraMCP Claudia Integration Service")
     
@@ -648,6 +650,11 @@ if __name__ == "__main__":
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Mount static files to serve the frontend
+    static_path = Path(__file__).parent / "static"
+    if static_path.exists():
+        app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
     
     agent_service = UltraMCPAgentService()
     
@@ -693,6 +700,14 @@ if __name__ == "__main__":
     @app.on_event("startup")
     async def startup_event():
         await initialize_mcp()
+    
+    @app.get("/")
+    async def root():
+        """Serve the main HTML file"""
+        html_file = Path(__file__).parent / "static" / "index.html"
+        if html_file.exists():
+            return FileResponse(html_file, media_type="text/html")
+        return {"message": "Claudia MCP Frontend - HTML file not found"}
     
     @app.get("/health")
     async def health_check():

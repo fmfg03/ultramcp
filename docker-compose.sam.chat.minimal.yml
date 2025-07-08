@@ -1,0 +1,127 @@
+# UltraMCP Minimal Production Deployment for sam.chat
+# Generated: 2025-07-08
+# Core services only (no optional Studio/Observatory)
+
+networks:
+  ultramcp-sam-chat:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+services:
+  # ==============================================
+  # FRONTEND - React with shadcn/ui
+  # ==============================================
+  ultramcp-frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.production
+    container_name: ultramcp-frontend-sam-chat
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.sam.chat
+      - VITE_BACKEND_URL=https://api.sam.chat
+      - VITE_STUDIO_URL=https://studio.sam.chat
+      - VITE_OBSERVATORY_URL=https://observatory.sam.chat
+      - VITE_DOMAIN=sam.chat
+    networks:
+      - ultramcp-sam-chat
+    restart: unless-stopped
+
+  # ==============================================
+  # BACKEND API GATEWAY
+  # ==============================================
+  ultramcp-backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: ultramcp-backend-sam-chat
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - CORS_ORIGIN=https://sam.chat,https://api.sam.chat,https://studio.sam.chat,https://observatory.sam.chat
+      - FRONTEND_URL=https://sam.chat
+      - API_URL=https://api.sam.chat
+      # Supabase (2x2.mx domain)
+      - SUPABASE_URL=http://localhost:8000
+      - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE5MjY4NzksImV4cCI6MTc4MzQ2Mjg3OX0.m9wwmY9AhjRmVhqYHTIUKIudB2dXk-VNvZBMksXqg-k
+      - SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxOTI2ODc5LCJleHAiOjE3ODM0NjI4Nzl9.eNz8mcDO9AOz4IybULrOCn3bX6PPEPCsKZZrtNuqr6w
+      - DATABASE_URL=postgresql://postgres:YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=@localhost:5432/postgres
+      # Internal service URLs
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - CLAUDIA_SERVICE_URL=http://ultramcp-claudia:8013
+      - REDIS_URL=redis://ultramcp-redis:6379
+    networks:
+      - ultramcp-sam-chat
+    depends_on:
+      - ultramcp-redis
+    restart: unless-stopped
+
+  # ==============================================
+  # CORE MICROSERVICES
+  # ==============================================
+  
+  # Chain-of-Debate Service
+  ultramcp-cod-service:
+    build:
+      context: ./services/chain-of-debate
+      dockerfile: Dockerfile
+    container_name: ultramcp-cod-service-sam-chat
+    ports:
+      - "8001:8001"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+      - DATABASE_URL=postgresql://postgres:YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=@localhost:5432/postgres
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/local_cod_debates:/app/data/debates
+    restart: unless-stopped
+
+  # Claudia Integration Service
+  ultramcp-claudia:
+    build:
+      context: ./services/claudia-integration
+      dockerfile: Dockerfile
+    container_name: ultramcp-claudia-sam-chat
+    ports:
+      - "8013:8013"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+      - MCP_PROTOCOL_VERSION=2024-11-05
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/mcp:/app/data/mcp
+    restart: unless-stopped
+
+  # ==============================================
+  # SUPPORTING SERVICES
+  # ==============================================
+
+  # Redis for caching and coordination
+  ultramcp-redis:
+    image: redis:7-alpine
+    container_name: ultramcp-redis-sam-chat
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ultramcp-redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  ultramcp-redis-data:
+    driver: local

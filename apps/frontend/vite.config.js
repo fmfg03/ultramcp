@@ -16,17 +16,54 @@ export default defineConfig({
     allowedHosts: [
       'sam.chat',
       'www.sam.chat',
+      'api.sam.chat',
+      'studio.sam.chat',
+      'observatory.sam.chat',
       '65.109.54.94',
-      'sam.chat',
-      '127.0.0.1'
+      '127.0.0.1',
+      'localhost'
     ],
     proxy: {
-      // Proxy /api requests to the Claudia MCP service running on port 8013
+      // Proxy /api requests to the backend API gateway for sam.chat
       '/api': {
-        target: 'http://localhost:8013',
+        target: process.env.NODE_ENV === 'production' 
+          ? 'https://api.sam.chat'
+          : 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
-  }
+        secure: process.env.NODE_ENV === 'production',
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
+  },
+  define: {
+    'process.env.VITE_API_URL': JSON.stringify(
+      process.env.VITE_API_URL || 'https://api.sam.chat'
+    ),
+    'process.env.VITE_BACKEND_URL': JSON.stringify(
+      process.env.VITE_BACKEND_URL || 'https://api.sam.chat'
+    ),
+    'process.env.VITE_STUDIO_URL': JSON.stringify(
+      process.env.VITE_STUDIO_URL || 'https://studio.sam.chat'
+    ),
+    'process.env.VITE_OBSERVATORY_URL': JSON.stringify(
+      process.env.VITE_OBSERVATORY_URL || 'https://observatory.sam.chat'
+    ),
+    'process.env.VITE_DOMAIN': JSON.stringify(
+      process.env.VITE_DOMAIN || 'sam.chat'
+    ),
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    minify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['lucide-react', 'class-variance-authority', 'clsx', 'tailwind-merge'],
+        },
+      },
+    },
+  },
 })

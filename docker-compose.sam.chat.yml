@@ -1,0 +1,297 @@
+# UltraMCP Production Deployment for sam.chat
+# Generated: 2025-07-08
+# Domain: sam.chat with subdomains (no ports in URLs)
+
+networks:
+  ultramcp-sam-chat:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+services:
+  # ==============================================
+  # FRONTEND - React with shadcn/ui
+  # ==============================================
+  ultramcp-frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.production
+    container_name: ultramcp-frontend-sam-chat
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://api.sam.chat
+      - VITE_BACKEND_URL=https://api.sam.chat
+      - VITE_STUDIO_URL=https://studio.sam.chat
+      - VITE_OBSERVATORY_URL=https://observatory.sam.chat
+      - VITE_DOMAIN=sam.chat
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./apps/frontend/dist:/app/dist
+    restart: unless-stopped
+
+  # ==============================================
+  # BACKEND API GATEWAY
+  # ==============================================
+  ultramcp-backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: ultramcp-backend-sam-chat
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - CORS_ORIGIN=https://sam.chat,https://api.sam.chat,https://studio.sam.chat,https://observatory.sam.chat
+      - FRONTEND_URL=https://sam.chat
+      - API_URL=https://api.sam.chat
+      # Supabase (2x2.mx domain)
+      - SUPABASE_URL=http://localhost:8000
+      - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE5MjY4NzksImV4cCI6MTc4MzQ2Mjg3OX0.m9wwmY9AhjRmVhqYHTIUKIudB2dXk-VNvZBMksXqg-k
+      - SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxOTI2ODc5LCJleHAiOjE3ODM0NjI4Nzl9.eNz8mcDO9AOz4IybULrOCn3bX6PPEPCsKZZrtNuqr6w
+      - DATABASE_URL=postgresql://postgres:YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=@localhost:5432/postgres
+      # Internal service URLs
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - ASTERISK_SERVICE_URL=http://ultramcp-asterisk-mcp:8002
+      - BLOCKOLI_SERVICE_URL=http://ultramcp-blockoli:8003
+      - VOICE_SERVICE_URL=http://ultramcp-voice:8004
+      - MEMORY_SERVICE_URL=http://ultramcp-memory:8005
+      - DEEPCLAUDE_SERVICE_URL=http://ultramcp-deepclaude:8006
+      - CONTROL_TOWER_URL=http://ultramcp-control-tower:8007
+      - CLAUDIA_SERVICE_URL=http://ultramcp-claudia:8013
+    networks:
+      - ultramcp-sam-chat
+    depends_on:
+      - ultramcp-redis
+    restart: unless-stopped
+
+  # ==============================================
+  # MICROSERVICES
+  # ==============================================
+  
+  # Chain-of-Debate Service
+  ultramcp-cod-service:
+    build:
+      context: ./services/chain-of-debate
+      dockerfile: Dockerfile
+    container_name: ultramcp-cod-service-sam-chat
+    ports:
+      - "8001:8001"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+      - DATABASE_URL=postgresql://postgres:YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=@localhost:5432/postgres
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/local_cod_debates:/app/data/debates
+    restart: unless-stopped
+
+  # Asterisk Security Service
+  ultramcp-asterisk-mcp:
+    build:
+      context: ./services/asterisk-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-asterisk-mcp-sam-chat
+    ports:
+      - "8002:8002"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/security_scans:/app/data/security
+    restart: unless-stopped
+
+  # Blockoli Code Intelligence
+  ultramcp-blockoli:
+    build:
+      context: ./services/blockoli-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-blockoli-sam-chat
+    ports:
+      - "8003:8003"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/code_intelligence:/app/data/code
+    restart: unless-stopped
+
+  # Voice System Service
+  ultramcp-voice:
+    build:
+      context: ./services/voice-system
+      dockerfile: Dockerfile
+    container_name: ultramcp-voice-sam-chat
+    ports:
+      - "8004:8004"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/voice_sessions:/app/data/voice
+    restart: unless-stopped
+
+  # Memory Service (Claude Code Memory)
+  ultramcp-memory:
+    build:
+      context: ./services/claude-code-memory
+      dockerfile: Dockerfile
+    container_name: ultramcp-memory-sam-chat
+    ports:
+      - "8005:8005"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+      - QDRANT_URL=http://ultramcp-qdrant:6333
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/memory:/app/data/memory
+    depends_on:
+      - ultramcp-qdrant
+    restart: unless-stopped
+
+  # DeepClaude Service
+  ultramcp-deepclaude:
+    build:
+      context: ./services/deepclaude
+      dockerfile: Dockerfile
+    container_name: ultramcp-deepclaude-sam-chat
+    ports:
+      - "8006:8006"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/reasoning:/app/data/reasoning
+    restart: unless-stopped
+
+  # Control Tower
+  ultramcp-control-tower:
+    build:
+      context: ./services/control-tower
+      dockerfile: Dockerfile
+    container_name: ultramcp-control-tower-sam-chat
+    ports:
+      - "8007:8007"
+      - "8008:8008"  # WebSocket port
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - WS_PORT=8008
+      - REDIS_URL=redis://ultramcp-redis:6379
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/orchestrations:/app/data/orchestrations
+    restart: unless-stopped
+
+  # Claudia Integration Service
+  ultramcp-claudia:
+    build:
+      context: ./services/claudia-integration
+      dockerfile: Dockerfile
+    container_name: ultramcp-claudia-sam-chat
+    ports:
+      - "8013:8013"
+    environment:
+      - DOMAIN=sam.chat
+      - API_URL=https://api.sam.chat
+      - REDIS_URL=redis://ultramcp-redis:6379
+      - MCP_PROTOCOL_VERSION=2024-11-05
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./data/mcp:/app/data/mcp
+    restart: unless-stopped
+
+  # ==============================================
+  # SUPPORTING SERVICES
+  # ==============================================
+
+  # Redis for caching and coordination
+  ultramcp-redis:
+    image: redis:7-alpine
+    container_name: ultramcp-redis-sam-chat
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ultramcp-redis-data:/data
+    restart: unless-stopped
+
+  # Qdrant for vector storage (Memory service)
+  ultramcp-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ultramcp-qdrant-sam-chat
+    ports:
+      - "6333:6333"
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ultramcp-qdrant-data:/qdrant/storage
+    restart: unless-stopped
+
+  # LangGraph Studio (custom build)
+  ultramcp-studio:
+    build:
+      context: ./services/observatory
+      dockerfile: Dockerfile
+    container_name: ultramcp-studio-sam-chat
+    ports:
+      - "8123:8123"
+    environment:
+      - STUDIO_PORT=8123
+      - API_URL=https://api.sam.chat
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./studio-content:/app/studio
+    restart: unless-stopped
+
+  # Observatory (custom build)
+  ultramcp-observatory:
+    build:
+      context: ./services/observatory
+      dockerfile: Dockerfile
+    container_name: ultramcp-observatory-sam-chat
+    ports:
+      - "5177:5177"
+    environment:
+      - OBSERVATORY_PORT=5177
+      - API_URL=https://api.sam.chat
+    networks:
+      - ultramcp-sam-chat
+    volumes:
+      - ./observatory-content:/app/observatory
+    restart: unless-stopped
+
+volumes:
+  ultramcp-redis-data:
+    driver: local
+  ultramcp-qdrant-data:
+    driver: local

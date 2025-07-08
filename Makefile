@@ -2,11 +2,21 @@
 # UltraMCP Hybrid System - Terminal-First Approach
 # =============================================================================
 
-.PHONY: help logs setup clean status
+.PHONY: help logs setup clean status deploy-sam-chat sam-chat-start sam-chat-stop sam-chat-status sam-chat-logs test-sam-chat setup-ssl
 
 # Default target
 help:
-	@echo "[START] UltraMCP Hybrid System"
+	@echo "🚀 UltraMCP Supreme Stack - sam.chat Production"
+	@echo "================================================"
+	@echo ""
+	@echo "🌐 sam.chat Production Deployment:"
+	@echo "  make deploy-sam-chat         - Deploy complete UltraMCP to sam.chat (no ports)"
+	@echo "  make sam-chat-start          - Start sam.chat production environment"
+	@echo "  make sam-chat-stop           - Stop sam.chat services"
+	@echo "  make sam-chat-status         - Check sam.chat services status"
+	@echo "  make sam-chat-logs           - View sam.chat services logs"
+	@echo "  make test-sam-chat           - Test sam.chat deployment"
+	@echo "  make setup-ssl               - Setup SSL certificates for sam.chat"
 	@echo ""
 	@echo "Claude Code Integration:"
 	@echo "  make claude-init             - Initialize Claude session (RECOMMENDED)"
@@ -1503,6 +1513,11 @@ claudia-simple-start:
 	@echo "[OK] Claudia MCP servers started!"
 	@echo "📖 Use 'make claudia-frontend' to start the UI"
 	@make claudia-status
+
+# =============================================================================
+# Include sam.chat deployment targets
+# =============================================================================
+-include deploy-sam-chat-targets.mk
 
 # =============================================================================
 # Actions MCP Service Commands (External Actions Execution)

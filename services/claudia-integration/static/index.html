@@ -334,7 +334,7 @@
             
             if (task) {
                 try {
-                    const response = await fetch(`/agents/${agentId}/execute`, {
+                    const response = await fetch(`${API_BASE}/agents/${agentId}/execute`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -360,7 +360,7 @@
 
         async function installTemplate(templateName) {
             try {
-                const response = await fetch(`/agents/templates/${templateName}/install`, {
+                const response = await fetch(`${API_BASE}/agents/templates/${templateName}/install`, {
                     method: 'POST'
                 });
                 
