@@ -1,0 +1,16 @@
+# UltraMCP Customer Support Agent Dependencies
+
+# Core Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.7.0
+
+# UltraMCP Integration
+httpx>=0.27.0
+structlog>=25.4.0
+
+# Data Processing
+python-dateutil>=2.9.0
+
+# Optional enhancements
+python-multipart>=0.0.6

@@ -1,0 +1,51 @@
+agent:
+  name: "customer-support"
+  type: "business"
+  framework: "ultramcp"
+  description: "Customer support agent with UltraMCP integration and local models"
+
+capabilities:
+  - "query_knowledge_base"
+  - "escalate_to_human"
+  - "create_ticket"
+  - "cod_consultation"
+  - "sentiment_analysis"
+  - "solution_recommendation"
+
+models:
+  primary: "local:qwen2.5:14b"
+  fallback: "openai:gpt-4-turbo"
+  reasoning: "local:llama3.1:8b"
+
+testing:
+  scenarios:
+    - "complaint_handling"
+    - "product_inquiry"
+    - "refund_request"
+    - "technical_support"
+  quality_threshold: 0.75
+  fallacy_detection: true
+  consensus_building: false
+
+deployment:
+  port: 8015
+  memory: "512Mi"
+  replicas: 2
+  health_check: "/health"
+  
+tools:
+  - name: "knowledge_search"
+    description: "Search company knowledge base"
+    required: true
+  - name: "ticket_creation"
+    description: "Create support ticket"
+    required: false
+  - name: "escalation"
+    description: "Escalate to human agent"
+    required: true
+
+integrations:
+  ultramcp_cod: true
+  local_models: true
+  scenario_testing: true
+  voice_support: false

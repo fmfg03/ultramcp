@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  agent-factory:
+    build:
+      context: ./services/agent-factory
+      dockerfile: Dockerfile
+    container_name: ultramcp-agent-factory
+    restart: unless-stopped
+    ports:
+      - "8014:8014"
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./services/agent-factory/generated:/app/generated
+      - ./services/agent-factory/templates:/app/templates
+    environment:
+      - ULTRAMCP_COD_URL=http://ultramcp-cod-service:8001
+      - ULTRAMCP_LOCAL_MODELS_URL=http://ultramcp-local-models-orchestrator:8012
+      - ULTRAMCP_SCENARIO_URL=http://ultramcp-scenario-testing:8013
+    # depends_on services will be started separately
+    # Agent Factory can work independently and connect to services when available
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8014/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  ultramcp-network:
+    external: true

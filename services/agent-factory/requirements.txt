@@ -1,0 +1,50 @@
+# Agent Factory Service Dependencies
+
+# Core Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.7.0
+
+# Template Engine
+jinja2>=3.1.2
+pyyaml>=6.0.1
+cookiecutter>=2.5.0
+
+# Framework Support
+langchain>=0.1.0
+langchain-community>=0.0.20
+crewai>=0.12.0
+autogen-agentchat>=0.2.0
+
+# UltraMCP Integration
+httpx>=0.27.0
+aiohttp>=3.9.0
+websockets>=12.0
+
+# Code Generation
+ast-decompiler>=0.7.0
+black>=24.0.0
+isort>=5.13.0
+
+# Template Management
+gitpython>=3.1.40
+semver>=3.0.2
+
+# Testing Integration
+pytest>=8.1.1
+pytest-asyncio>=0.26.0
+
+# File Management
+pathlib2>=2.3.7
+# shutil is built-in Python module
+
+# Docker Integration
+docker>=7.0.0
+
+# Monitoring
+structlog>=25.4.0
+prometheus-client>=0.20.0
+
+# Security
+cryptography>=42.0.0
+pyjwt>=2.8.0

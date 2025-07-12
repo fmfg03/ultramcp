@@ -38,6 +38,14 @@ help:
 	@echo "  make research URL='...'        - Web research with Playwright"
 	@echo "  make analyze FILE='...'        - Analyze document/data"
 	@echo ""
+	@echo "🤖 Agent Factory (Create Agent App Style):"
+	@echo "  make create-agent TYPE='...' FRAMEWORK='...' - Create new AI agent"
+	@echo "  make list-agents               - List all created agents"
+	@echo "  make agent-templates           - Show available agent templates"
+	@echo "  make deploy-agent AGENT='...'  - Deploy agent to production"
+	@echo "  make test-agent AGENT='...'    - Test agent with Scenario framework"
+	@echo "  make agent-health              - Check Agent Factory service health"
+	@echo ""
 	@echo "📚 Context7 Real-time Documentation:"
 	@echo "  make context7-docs LIBRARY='...'       - Get library documentation"
 	@echo "  make context7-search LIBRARY='...' QUERY='...' - Search docs"
@@ -2966,3 +2974,9 @@ claudia-help:
 	@echo ""
 	@echo "Service URL: http://sam.chat:8013"
 	@echo "Frontend UI: http://sam.chat:3000/claudia"
+
+# =============================================================================
+# ULTRAMCP AGENT FACTORY - Create Agent App Style
+# =============================================================================
+
+include agent-factory-commands.mk

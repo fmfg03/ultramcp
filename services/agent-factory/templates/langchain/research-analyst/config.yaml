@@ -1,0 +1,50 @@
+agent:
+  name: "research-analyst"
+  type: "research"
+  framework: "langchain"
+  description: "Research analyst agent using LangChain with UltraMCP integration"
+
+capabilities:
+  - "web_search"
+  - "document_analysis"
+  - "data_synthesis"
+  - "report_generation"
+  - "source_verification"
+
+models:
+  primary: "local:qwen2.5:14b"
+  fallback: "openai:gpt-4-turbo"
+  reasoning: "local:llama3.1:8b"
+
+testing:
+  scenarios:
+    - "market_research"
+    - "competitive_analysis"
+    - "trend_identification"
+    - "report_generation"
+  quality_threshold: 0.8
+  evidence_required: true
+  citation_required: true
+
+deployment:
+  port: 8016
+  memory: "1Gi"
+  replicas: 1
+  
+tools:
+  - name: "web_search"
+    description: "Search the web for information"
+    required: true
+  - name: "document_reader"
+    description: "Read and analyze documents"
+    required: true
+  - name: "data_processor"
+    description: "Process and analyze data"
+    required: false
+
+integrations:
+  ultramcp_cod: true
+  local_models: true
+  scenario_testing: true
+  voice_support: false
+  langchain_tools: true
