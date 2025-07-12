@@ -1,0 +1,613 @@
+version: '3.8'
+
+services:
+  # Supabase Services
+  supabase-db:
+    image: supabase/postgres:15.8.1.060
+    container_name: ultramcp-supabase-db
+    restart: unless-stopped
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: 5432
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
+      POSTGRES_USER: supabase_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}
+      JWT_SECRET: ${JWT_SECRET:-cunulKU/nrkZLBgnRHomrQDfRt7ubBoYpIcs5Wnn6bk=}
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+      - ../supabase/supabase/migrations:/docker-entrypoint-initdb.d/migrations:ro
+      - ../supabase/supabase/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+      - ./supabase-ultramcp-init.sql:/docker-entrypoint-initdb.d/ultramcp-init.sql:ro
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_messages=fatal
+    networks:
+      - ultramcp-network
+
+  supabase-auth:
+    image: supabase/gotrue:v2.132.3
+    container_name: ultramcp-supabase-auth
+    depends_on:
+      - supabase-db
+    restart: unless-stopped
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_URI_ALLOW_LIST: "http://localhost:3000/*,http://localhost:54323/*"
+      GOTRUE_DISABLE_SIGNUP: false
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:-cunulKU/nrkZLBgnRHomrQDfRt7ubBoYpIcs5Wnn6bk=}
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_LOG_LEVEL: info
+      GOTRUE_OPERATOR_TOKEN: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE5MjY4NzksImV4cCI6MTc4MzQ2Mjg3OX0.m9wwmY9AhjRmVhqYHTIUKIudB2dXk-VNvZBMksXqg-k}
+      GOTRUE_RATE_LIMIT_HEADER: X-RateLimit-Remaining
+    networks:
+      - ultramcp-network
+
+  supabase-rest:
+    image: postgrest/postgrest:v11.2.2
+    container_name: ultramcp-supabase-rest
+    depends_on:
+      - supabase-db
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-cunulKU/nrkZLBgnRHomrQDfRt7ubBoYpIcs5Wnn6bk=}
+      PGRST_DB_USE_LEGACY_GUCS: "false"
+      PGRST_APP_SETTINGS_JWT_SECRET: ${JWT_SECRET:-cunulKU/nrkZLBgnRHomrQDfRt7ubBoYpIcs5Wnn6bk=}
+      PGRST_APP_SETTINGS_JWT_EXP: 3600
+    networks:
+      - ultramcp-network
+
+  supabase-realtime:
+    image: supabase/realtime:v2.25.65
+    container_name: ultramcp-supabase-realtime
+    depends_on:
+      - supabase-db
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DB_HOST: supabase-db
+      DB_PORT: 5432
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      DB_ENC_KEY: supabaserealtime
+      API_JWT_SECRET: ${JWT_SECRET:-cunulKU/nrkZLBgnRHomrQDfRt7ubBoYpIcs5Wnn6bk=}
+      FLY_ALLOC_ID: fly123
+      FLY_APP_NAME: realtime
+      SECRET_KEY_BASE: UpNVntn3cDxHJpq99YMc1T1AQgQpc8kfYTuRgBiYa15BLrx8etQoXz3gZv1/u2oq
+    networks:
+      - ultramcp-network
+
+  supabase-storage:
+    image: supabase/storage-api:v0.40.4
+    container_name: ultramcp-supabase-storage
+    depends_on:
+      - supabase-db
+      - supabase-rest
+    restart: unless-stopped
+    environment:
+      ANON_KEY: ${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxOTI2ODc5LCJleHAiOjE3ODM0NjI4Nzl9.eNz8mcDO9AOz4IybULrOCn3bX6PPEPCsKZZrtNuqr6w}
+      SERVICE_KEY: ${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE5MjY4NzksImV4cCI6MTc4MzQ2Mjg3OX0.m9wwmY9AhjRmVhqYHTIUKIudB2dXk-VNvZBMksXqg-k}
+      POSTGREST_URL: http://supabase-rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET:-cunulKU/nrkZLBgnRHomrQDfRt7ubBoYpIcs5Wnn6bk=}
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: "true"
+      IMGPROXY_URL: http://supabase-imgproxy:5001
+    volumes:
+      - supabase-storage-data:/var/lib/storage
+    networks:
+      - ultramcp-network
+
+  supabase-imgproxy:
+    image: darthsim/imgproxy:v3.8.0
+    container_name: ultramcp-supabase-imgproxy
+    restart: unless-stopped
+    environment:
+      IMGPROXY_BIND: ":5001"
+      IMGPROXY_LOCAL_FILESYSTEM_ROOT: /
+      IMGPROXY_USE_ETAG: "true"
+      IMGPROXY_ENABLE_WEBP_DETECTION: "true"
+    volumes:
+      - supabase-storage-data:/var/lib/storage
+    networks:
+      - ultramcp-network
+
+  supabase-kong:
+    image: kong:2.8-alpine
+    container_name: ultramcp-supabase-kong
+    restart: unless-stopped
+    ports:
+      - "8000:8000/tcp"
+      - "8443:8443/tcp"
+    depends_on:
+      - supabase-auth
+      - supabase-rest
+      - supabase-realtime
+      - supabase-storage
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+    volumes:
+      - ./supabase-kong.yml:/var/lib/kong/kong.yml:ro
+    networks:
+      - ultramcp-network
+
+  # UltraMCP Core Services - Connected to Supabase Backend
+  
+  # Qdrant Vector Database
+  ultramcp-qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: ultramcp-qdrant
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    networks:
+      - ultramcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # VoyageAI Hybrid Service
+  ultramcp-voyage-ai:
+    build:
+      context: ./services/voyage-ai
+      dockerfile: Dockerfile
+    container_name: ultramcp-voyage-ai
+    environment:
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - CACHE_TTL=3600
+      - MAX_CACHE_SIZE=10000
+    ports:
+      - "8010:8010"
+    networks:
+      - ultramcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # CoD Protocol Service
+  ultramcp-cod-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cod-service
+    container_name: ultramcp-cod-service
+    environment:
+      - COD_SERVICE_PORT=8001
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONPATH=/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - supabase-db
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # Terminal Interface
+  ultramcp-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+      target: terminal
+    container_name: ultramcp-terminal
+    environment:
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONPATH=/app
+    depends_on:
+      - supabase-db
+      - ultramcp-cod-service
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./Makefile:/app/Makefile:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    command: >
+      bash -c "
+        echo '🚀 UltraMCP Supabase Terminal Interface Ready!' &&
+        echo '📋 Available commands: make help' &&
+        echo '🔧 Interactive mode: docker exec -it ultramcp-terminal bash' &&
+        tail -f /dev/null
+      "
+
+  # Asterisk MCP Security Service
+  ultramcp-asterisk-mcp:
+    build:
+      context: ./services/asterisk-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-asterisk-mcp
+    environment:
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    ports:
+      - "8002:8002"
+    depends_on:
+      - supabase-db
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - .:/app/scan_target:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Context7 Real-time Documentation Service
+  ultramcp-context7:
+    build:
+      context: ./services/context7-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-context7
+    environment:
+      - MCP_SERVER_PORT=8003
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - CONTEXT7_CACHE_TTL=3600
+      - CONTEXT7_MAX_DOCS=50
+      - NODE_ENV=production
+    ports:
+      - "8003:8003"
+    depends_on:
+      - supabase-db
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "scripts/health-check.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Blockoli Code Intelligence Service
+  ultramcp-blockoli:
+    build:
+      context: ./services/blockoli-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-blockoli
+    environment:
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - BLOCKOLI_ENDPOINT=${BLOCKOLI_ENDPOINT:-http://localhost:8080}
+      - BLOCKOLI_API_KEY=${BLOCKOLI_API_KEY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - supabase-db
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - .:/app/project_root:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Voice System Service
+  ultramcp-voice:
+    build:
+      context: ./services/voice-system
+      dockerfile: Dockerfile
+    container_name: ultramcp-voice
+    environment:
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - VOICE_SERVICE_PORT=8004
+    ports:
+      - "8004:8004"
+      - "8005:8005"
+    depends_on:
+      - supabase-db
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./data/voice:/app/voice_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # DeepClaude Metacognitive Service
+  ultramcp-deepclaude:
+    build:
+      context: ./services/deepclaude
+      dockerfile: Dockerfile
+    container_name: ultramcp-deepclaude
+    environment:
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NEO4J_URI=${NEO4J_URI:-bolt://localhost:7687}
+      - NEO4J_USERNAME=${NEO4J_USERNAME:-neo4j}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-neo4j_password}
+    ports:
+      - "8006:8006"
+    depends_on:
+      - supabase-db
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Enhanced Claude Code Memory Service
+  ultramcp-claude-memory:
+    build:
+      context: ./services/claude-code-memory
+      dockerfile: Dockerfile
+    container_name: ultramcp-claude-memory
+    environment:
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - QDRANT_URL=http://ultramcp-qdrant:6333
+      - VOYAGE_SERVICE_URL=http://ultramcp-voyage-ai:8010
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+      - MEMORY_SERVICE_PORT=8009
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    ports:
+      - "8009:8009"
+    depends_on:
+      - supabase-db
+      - ultramcp-qdrant
+      - ultramcp-voyage-ai
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./data/code_memory:/app/memory_data
+      - .:/app/project_root:ro
+      - memory_models:/app/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Ref Tools MCP Service
+  ultramcp-ref-tools:
+    build:
+      context: ./services/ref-tools-mcp
+      dockerfile: Dockerfile
+    container_name: ultramcp-ref-tools
+    environment:
+      - REF_SERVICE_PORT=8011
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - INTERNAL_DOCS_API_KEY=${INTERNAL_DOCS_API_KEY}
+      - INTERNAL_DOCS_URL=${INTERNAL_DOCS_URL:-https://docs.internal.company.com}
+      - TEAM_WIKI_URL=${TEAM_WIKI_URL:-https://wiki.internal.company.com}
+      - ADR_URL=${ADR_URL:-https://adr.internal.company.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8011:8011"
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./data/ref_tools:/app/ref_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Unified Documentation Intelligence Service
+  ultramcp-unified-docs:
+    build:
+      context: ./services/unified-docs
+      dockerfile: Dockerfile
+    container_name: ultramcp-unified-docs
+    environment:
+      - UNIFIED_DOCS_PORT=8012
+      - CONTEXT7_SERVICE_URL=http://ultramcp-context7:8003
+      - REF_TOOLS_SERVICE_URL=http://ultramcp-ref-tools:8011
+      - VOYAGE_SERVICE_URL=http://ultramcp-voyage-ai:8010
+      - MEMORY_SERVICE_URL=http://ultramcp-claude-memory:8009
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8012:8012"
+    depends_on:
+      - ultramcp-ref-tools
+      - ultramcp-claude-memory
+      - ultramcp-voyage-ai
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./data/unified_docs:/app/unified_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8012/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Control Tower WebSocket Service
+  ultramcp-control-tower:
+    build:
+      context: ./services/control-tower
+      dockerfile: Dockerfile
+    container_name: ultramcp-control-tower
+    environment:
+      - CONTROL_TOWER_PORT=8007
+      - POSTGRES_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - COD_SERVICE_URL=http://ultramcp-cod-service:8001
+      - ASTERISK_SERVICE_URL=http://ultramcp-asterisk-mcp:8002
+      - CONTEXT7_SERVICE_URL=http://ultramcp-context7:8003
+      - BLOCKOLI_SERVICE_URL=http://ultramcp-blockoli:8080
+      - VOICE_SERVICE_URL=http://ultramcp-voice:8004
+      - DEEPCLAUDE_SERVICE_URL=http://ultramcp-deepclaude:8006
+      - CLAUDE_MEMORY_SERVICE_URL=http://ultramcp-claude-memory:8009
+    ports:
+      - "8007:8007"
+      - "8008:8008"
+    depends_on:
+      - ultramcp-cod-service
+      - ultramcp-asterisk-mcp
+      - ultramcp-context7
+      - ultramcp-blockoli
+      - ultramcp-voice
+      - ultramcp-deepclaude
+      - ultramcp-claude-memory
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # UltraMCP WebUI with Supabase Backend Integration
+  ultramcp-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    container_name: ultramcp-webui
+    ports:
+      - "3000:8080"
+    environment:
+      # Ollama integration via UltraMCP services
+      - OLLAMA_BASE_URL=http://ultramcp-unified-docs:8012
+      
+      # WebUI Configuration
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-ultramcp-secret-key-2024}
+      - WEBUI_NAME=UltraMCP AI Platform
+      - ENV=production
+      
+      # Supabase Backend Integration
+      - DATABASE_URL=postgresql://supabase_admin:${POSTGRES_PASSWORD:-YlGjsCtc73hQIJHTLsIRPiIKS8mTVPCryRMolyRqjFU=}@supabase-db:5432/postgres
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_ANON_KEY=${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxOTI2ODc5LCJleHAiOjE3ODM0NjI4Nzl9.eNz8mcDO9AOz4IybULrOCn3bX6PPEPCsKZZrtNuqr6w}
+      - SUPABASE_SERVICE_KEY=${SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE5MjY4NzksImV4cCI6MTc4MzQ2Mjg3OX0.m9wwmY9AhjRmVhqYHTIUKIudB2dXk-VNvZBMksXqg-k}
+      
+      # UltraMCP service URLs for custom pipelines
+      - ULTRAMCP_COD_URL=http://ultramcp-cod-service:8001
+      - ULTRAMCP_MEMORY_URL=http://ultramcp-claude-memory:8009
+      - ULTRAMCP_CONTROL_TOWER_URL=http://ultramcp-control-tower:8007
+      - ULTRAMCP_UNIFIED_DOCS_URL=http://ultramcp-unified-docs:8012
+      - ULTRAMCP_ASTERISK_URL=http://ultramcp-asterisk-mcp:8002
+      
+      # Enhanced configuration with Supabase auth
+      - ENABLE_SIGNUP=true
+      - DEFAULT_USER_ROLE=user
+      - ENABLE_COMMUNITY_SHARING=false
+      - WEBUI_AUTH=false  # Use Supabase auth instead
+      - WEBUI_AUTH_TRUSTED_EMAIL_HEADER=X-Forwarded-Email
+      
+    volumes:
+      - ultramcp-webui-data:/app/backend/data
+      - ./ultramcp-pipelines:/app/backend/pipelines
+      - ./ultramcp-webui-config:/app/backend/config
+    networks:
+      - ultramcp-network
+    restart: unless-stopped
+    depends_on:
+      - supabase-kong
+      - supabase-db
+      - ultramcp-unified-docs
+      - ultramcp-claude-memory
+      - ultramcp-cod-service
+      - ultramcp-control-tower
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  supabase-db-data:
+    name: ultramcp-supabase-db-data
+  supabase-storage-data:
+    name: ultramcp-supabase-storage-data
+  ultramcp-webui-data:
+    name: ultramcp-webui-data
+  qdrant_data:
+    name: ultramcp-qdrant-supabase
+  memory_models:
+    name: ultramcp-memory-models
+
+networks:
+  ultramcp-network:
+    driver: bridge
+    name: ultramcp-network

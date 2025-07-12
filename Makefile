@@ -18,6 +18,12 @@ help:
 	@echo "  make test-sam-chat           - Test sam.chat deployment"
 	@echo "  make setup-ssl               - Setup SSL certificates for sam.chat"
 	@echo ""
+	@echo "🗄️ Supabase + UltraMCP Complete Integration:"
+	@echo "  make supabase-start          - Start complete UltraMCP with Supabase backend"
+	@echo "  make supabase-stop           - Stop Supabase + UltraMCP services"
+	@echo "  make supabase-status         - Check all service health status"
+	@echo "  make supabase-logs           - View integrated system logs"
+	@echo ""
 	@echo "Claude Code Integration:"
 	@echo "  make claude-init             - Initialize Claude session (RECOMMENDED)"
 	@echo "  make claude-verify           - Full system verification"
@@ -2980,3 +2986,102 @@ claudia-help:
 # =============================================================================
 
 include agent-factory-commands.mk
+include webui-commands.mk
+
+
+# =============================================================================
+# SUPABASE + ULTRAMCP COMPLETE INTEGRATION
+# =============================================================================
+
+supabase-start: ## 🗄️ Start complete UltraMCP with Supabase backend
+	@echo "🗄️ Starting UltraMCP Supreme Stack with Supabase Backend..."
+	@echo "✅ This includes ALL UltraMCP services + Supabase infrastructure"
+	@echo ""
+	@echo "🚀 Services starting:"
+	@echo "   • PostgreSQL Database with Vector Extensions"
+	@echo "   • Supabase Auth, Storage, Realtime, API Gateway"
+	@echo "   • All 12 UltraMCP AI Services"
+	@echo "   • Open WebUI with integrated pipelines"
+	@echo ""
+	@make webui-supabase-start
+	@echo ""
+	@echo "✅ Complete integration ready!"
+	@echo "🌐 WebUI: http://localhost:3000"
+	@echo "🗄️ Supabase API: http://localhost:8000"
+	@echo "🎛️ Control Tower: http://localhost:8007"
+
+supabase-stop: ## 🛑 Stop Supabase + UltraMCP services
+	@echo "🛑 Stopping UltraMCP + Supabase integration..."
+	@make webui-supabase-stop
+
+supabase-status: ## 📊 Check complete integration status
+	@echo "📊 UltraMCP + Supabase Integration Status"
+	@echo "==========================================="
+	@make webui-supabase-status
+	@echo ""
+	@echo "🔗 Additional service checks:"
+	@docker ps --filter "name=ultramcp-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"  < /dev/null |  head -10
+
+supabase-logs: ## 📋 View integrated system logs
+	@echo "📋 UltraMCP + Supabase Integrated Logs"
+	@echo "======================================="
+	@docker-compose -f docker-compose.supabase-webui.yml logs --tail=50 --follow
+
+supabase-health: ## 🏥 Complete health check
+	@echo "🏥 UltraMCP + Supabase Health Check"
+	@echo "===================================="
+	@make webui-supabase-status
+	@echo ""
+	@echo "🔍 Testing UltraMCP service connectivity:"
+	@curl -s http://localhost:8001/health && echo "✅ CoD Service: Healthy" || echo "❌ CoD Service: Unhealthy"
+	@curl -s http://localhost:8002/health && echo "✅ Security Service: Healthy" || echo "❌ Security Service: Unhealthy"
+	@curl -s http://localhost:8009/health && echo "✅ Memory Service: Healthy" || echo "❌ Memory Service: Unhealthy"
+	@curl -s http://localhost:8012/health && echo "✅ Unified Docs: Healthy" || echo "❌ Unified Docs: Unhealthy"
+
+supabase-demo: ## 🎬 Complete integration demonstration
+	@echo "🎬 UltraMCP + Supabase Integration Demo"
+	@echo "========================================"
+	@echo ""
+	@echo "🚀 Complete AI Platform with Enterprise Backend"
+	@echo ""
+	@echo "📱 Frontend: Open WebUI with UltraMCP pipelines"
+	@echo "🗄️ Backend: Supabase (PostgreSQL, Auth, Storage, Realtime)"
+	@echo "🤖 AI Services: 12 integrated UltraMCP microservices"
+	@echo ""
+	@echo "🌟 Demo Commands:"
+	@echo "1. 🌐 Open http://localhost:3000 (WebUI)"
+	@echo "2. 🎭 Try: '/cod Should we use microservices?'"
+	@echo "3. 🔒 Try: '/security scan /app'"
+	@echo "4. 🧠 Try: '/memory search authentication patterns'"
+	@echo "5. 🗣️ Try: '/voice start conversation'"
+	@echo ""
+	@echo "🏗️ Architecture Features:"
+	@echo "• Vector database for AI embeddings"
+	@echo "• Real-time collaboration via WebSockets"
+	@echo "• Secure authentication and authorization"
+	@echo "• File storage with image processing"
+	@echo "• Complete audit trail and logging"
+	@echo "• Scalable microservices architecture"
+
+supabase-test: ## 🧪 Test complete integration
+	@echo "🧪 Testing UltraMCP + Supabase Integration"
+	@echo "==========================================="
+	@echo ""
+	@echo "1. Testing database connectivity..."
+	@docker exec ultramcp-supabase-db pg_isready -h localhost -p 5432 -U supabase_admin && echo "✅ Database: Connected" || echo "❌ Database: Failed"
+	@echo ""
+	@echo "2. Testing Supabase API Gateway..."
+	@curl -s http://localhost:8000/health && echo "✅ API Gateway: Responding" || echo "❌ API Gateway: Failed"
+	@echo ""
+	@echo "3. Testing WebUI..."
+	@curl -s http://localhost:3000/health && echo "✅ WebUI: Responding" || echo "❌ WebUI: Failed"
+	@echo ""
+	@echo "4. Testing UltraMCP services (sample)..."
+	@curl -s http://localhost:8001/health && echo "✅ CoD Service: Connected" || echo "❌ CoD Service: Failed"
+	@curl -s http://localhost:8009/health && echo "✅ Memory Service: Connected" || echo "❌ Memory Service: Failed"
+	@echo ""
+	@echo "✅ Integration test complete\!"
+
+# Include WebUI commands
+include webui-commands.mk
+

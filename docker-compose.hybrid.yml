@@ -101,6 +101,50 @@ services:
       - ./data:/app/data
     restart: unless-stopped
 
+  # UltraMCP WebUI - Open WebUI Integration
+  ultramcp-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    container_name: ultramcp-webui
+    ports:
+      - "3000:8080"
+    environment:
+      # Ollama integration via UltraMCP Unified Docs
+      - OLLAMA_BASE_URL=http://ultramcp-unified-docs:8012
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-ultramcp-secret-key-2024}
+      - WEBUI_NAME=UltraMCP AI Platform
+      - ENV=production
+      
+      # UltraMCP service URLs for custom pipelines
+      - ULTRAMCP_COD_URL=http://ultramcp-cod-service:8001
+      - ULTRAMCP_MEMORY_URL=http://ultramcp-claude-memory:8009
+      - ULTRAMCP_CONTROL_TOWER_URL=http://ultramcp-control-tower:8007
+      - ULTRAMCP_UNIFIED_DOCS_URL=http://ultramcp-unified-docs:8012
+      - ULTRAMCP_ASTERISK_URL=http://ultramcp-asterisk-mcp:8002
+      
+      # Enhanced configuration
+      - ENABLE_SIGNUP=true
+      - DEFAULT_USER_ROLE=user
+      - ENABLE_COMMUNITY_SHARING=false
+      - WEBUI_AUTH=true
+      
+    volumes:
+      - ultramcp-webui-data:/app/backend/data
+      - ./ultramcp-pipelines:/app/backend/pipelines
+      - ./ultramcp-webui-config:/app/backend/config
+    networks:
+      - ultramcp-hybrid
+    restart: unless-stopped
+    depends_on:
+      - ultramcp-unified-docs
+      - ultramcp-claude-memory
+      - ultramcp-cod-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   # Terminal Interface (80% terminal-first)
   ultramcp-terminal:
     build:
@@ -510,6 +554,8 @@ volumes:
     name: ultramcp-qdrant-hybrid
   memory_models:
     name: ultramcp-memory-models
+  ultramcp-webui-data:
+    name: ultramcp-webui-data
 
 # Usage:
 # docker-compose -f docker-compose.hybrid.yml up -d

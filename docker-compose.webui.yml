@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  ultramcp-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    container_name: ultramcp-webui
+    ports:
+      - "3000:8080"
+    environment:
+      # Ollama integration via UltraMCP Local Models Orchestrator
+      - OLLAMA_BASE_URL=http://ultramcp-local-models-orchestrator:8012
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-ultramcp-secret-key-2024}
+      - WEBUI_NAME=UltraMCP AI Platform
+      - ENV=production
+      
+      # UltraMCP service URLs for custom pipelines
+      - ULTRAMCP_COD_URL=http://ultramcp-cod-service:8001
+      - ULTRAMCP_AGENT_FACTORY_URL=http://ultramcp-agent-factory:8014
+      - ULTRAMCP_SCENARIO_URL=http://ultramcp-scenario-testing:8013
+      - ULTRAMCP_LOCAL_MODELS_URL=http://ultramcp-local-models-orchestrator:8012
+      
+      # Enhanced configuration
+      - ENABLE_SIGNUP=true
+      - DEFAULT_USER_ROLE=user
+      - ENABLE_COMMUNITY_SHARING=false
+      - WEBUI_AUTH=true
+      
+      # Performance optimization
+      - WEBUI_SESSION_COOKIE_SECURE=false
+      - WEBUI_SESSION_COOKIE_SAME_SITE=lax
+      
+    volumes:
+      - ultramcp-webui-data:/app/backend/data
+      - ./ultramcp-pipelines:/app/backend/pipelines
+      - ./ultramcp-webui-config:/app/backend/config
+    networks:
+      - ultramcp-network
+    restart: unless-stopped
+    depends_on:
+      - ultramcp-local-models-orchestrator
+      - ultramcp-cod-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ultramcp-webui-data:
+    driver: local
+
+networks:
+  ultramcp-network:
+    external: true

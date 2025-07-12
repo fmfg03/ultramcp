@@ -1,0 +1,211 @@
+_format_version: "1.1"
+
+services:
+  - name: auth-v1-open
+    url: http://supabase-auth:9999/
+    routes:
+      - name: auth-v1-open
+        strip_path: true
+        paths:
+          - /auth/v1
+        methods:
+          - GET
+          - POST
+          - PATCH
+          - DELETE
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - "http://localhost:3000"
+                - "https://2x2.mx"
+                - "http://ultramcp-webui:8080"
+              methods:
+                - GET
+                - POST
+                - PATCH
+                - DELETE
+                - OPTIONS
+              headers:
+                - Accept
+                - Accept-Version
+                - Content-Length
+                - Content-MD5
+                - Content-Type
+                - Date
+                - Authorization
+                - X-Client-Info
+                - apikey
+              credentials: true
+              max_age: 3600
+
+  - name: auth-v1-open-verify
+    url: http://supabase-auth:9999/verify
+    routes:
+      - name: auth-v1-open-verify
+        strip_path: true
+        paths:
+          - /auth/v1/verify
+        methods:
+          - GET
+          - POST
+
+  - name: auth-v1-open-callback
+    url: http://supabase-auth:9999/callback
+    routes:
+      - name: auth-v1-open-callback
+        strip_path: true
+        paths:
+          - /auth/v1/callback
+        methods:
+          - GET
+          - POST
+
+  - name: rest-v1
+    url: http://supabase-rest:3000/
+    routes:
+      - name: rest-v1-all
+        strip_path: true
+        paths:
+          - /rest/v1/
+        methods:
+          - GET
+          - POST
+          - PATCH
+          - DELETE
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - "http://localhost:3000"
+                - "https://2x2.mx"
+                - "http://ultramcp-webui:8080"
+              methods:
+                - GET
+                - POST
+                - PATCH
+                - DELETE
+                - OPTIONS
+              headers:
+                - Accept
+                - Accept-Version
+                - Content-Length
+                - Content-MD5
+                - Content-Type
+                - Date
+                - Authorization
+                - X-Client-Info
+                - apikey
+                - Prefer
+                - Range
+              credentials: true
+              max_age: 3600
+          - name: key-auth
+            config:
+              key_names:
+                - apikey
+              key_in_header: true
+              hide_credentials: true
+
+  - name: realtime-v1
+    url: http://supabase-realtime:4000/socket/
+    routes:
+      - name: realtime-v1-all
+        strip_path: true
+        paths:
+          - /realtime/v1/
+        methods:
+          - GET
+          - POST
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - "http://localhost:3000"
+                - "https://2x2.mx"
+                - "http://ultramcp-webui:8080"
+              methods:
+                - GET
+                - POST
+                - OPTIONS
+              headers:
+                - Accept
+                - Accept-Version
+                - Content-Length
+                - Content-MD5
+                - Content-Type
+                - Date
+                - Authorization
+                - X-Client-Info
+                - apikey
+                - Sec-WebSocket-Extensions
+                - Sec-WebSocket-Key
+                - Sec-WebSocket-Version
+                - Connection
+                - Upgrade
+              credentials: true
+              max_age: 3600
+
+  - name: storage-v1
+    url: http://supabase-storage:5000/
+    routes:
+      - name: storage-v1-all
+        strip_path: true
+        paths:
+          - /storage/v1/
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        plugins:
+          - name: cors
+            config:
+              origins:
+                - "http://localhost:3000"
+                - "https://2x2.mx"
+                - "http://ultramcp-webui:8080"
+              methods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                - OPTIONS
+              headers:
+                - Accept
+                - Accept-Version
+                - Content-Length
+                - Content-MD5
+                - Content-Type
+                - Date
+                - Authorization
+                - X-Client-Info
+                - apikey
+                - Cache-Control
+              credentials: true
+              max_age: 3600
+          - name: key-auth
+            config:
+              key_names:
+                - apikey
+              key_in_header: true
+              hide_credentials: true
+
+  - name: meta
+    url: http://supabase-kong:8001/
+    routes:
+      - name: meta-all
+        strip_path: true
+        paths:
+          - /
+        methods:
+          - GET
+
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxOTI2ODc5LCJleHAiOjE3ODM0NjI4Nzl9.eNz8mcDO9AOz4IybULrOCn3bX6PPEPCsKZZrtNuqr6w
+
+  - username: service_role
+    keyauth_credentials:
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE5MjY4NzksImV4cCI6MTc4MzQ2Mjg3OX0.m9wwmY9AhjRmVhqYHTIUKIudB2dXk-VNvZBMksXqg-k
