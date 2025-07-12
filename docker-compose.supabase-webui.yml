@@ -539,6 +539,27 @@ services:
       timeout: 10s
       retries: 3
 
+  # UltraMCP Custom Dashboard with shadcn/ui
+  ultramcp-dashboard:
+    build:
+      context: ./ultramcp-dashboard
+      dockerfile: Dockerfile
+    container_name: ultramcp-dashboard
+    ports:
+      - "3001:3001"
+    networks:
+      - ultramcp-network
+    restart: unless-stopped
+    depends_on:
+      - supabase-kong
+      - ultramcp-control-tower
+      - ultramcp-claude-memory
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # UltraMCP WebUI with Supabase Backend Integration
   ultramcp-webui:
     image: ghcr.io/open-webui/open-webui:latest

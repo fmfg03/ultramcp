@@ -163,16 +163,35 @@ webui-quick-start: ## ⚡ Quick start WebUI with all services
 	@make webui-demo
 
 # Help
+# Dashboard commands
+dashboard-start: ## 📊 Start custom UltraMCP dashboard only
+	@echo "📊 Starting UltraMCP Custom Dashboard..."
+	@echo "✅ Dashboard will be available at http://localhost:3001"
+	@cd ultramcp-dashboard && npm run dev
+
+dashboard-build: ## 🏗️ Build dashboard for production
+	@echo "🏗️ Building UltraMCP Dashboard..."
+	@cd ultramcp-dashboard && npm run build
+
+dashboard-install: ## 📦 Install dashboard dependencies
+	@echo "📦 Installing dashboard dependencies..."
+	@cd ultramcp-dashboard && npm install
+
 # Supabase backend integration commands
 webui-supabase-start: ## 🗄️ Start WebUI with Supabase backend
 	@echo "🗄️ Starting UltraMCP WebUI with Supabase Backend..."
 	@echo "✅ WebUI with Supabase will be available at http://localhost:3000"
+	@echo "✅ Custom Dashboard will be available at http://localhost:3001"
 	@echo "✅ Supabase API Gateway will be available at http://localhost:8000"
 	@mkdir -p ultramcp-pipelines ultramcp-webui-config
 	@docker-compose -f docker-compose.supabase-webui.yml up -d
 	@echo "🚀 UltraMCP WebUI with Supabase started successfully!"
 	@echo ""
-	@echo "🔗 Access your UltraMCP AI Platform at: http://localhost:3000"
+	@echo "🔗 Access Points:"
+	@echo "   🌐 Open WebUI: http://localhost:3000"
+	@echo "   📊 Custom Dashboard: http://localhost:3001"
+	@echo "   🗄️ Supabase API: http://localhost:8000"
+	@echo ""
 	@echo "🗄️ Supabase Features:"
 	@echo "   • PostgreSQL Database with Vector Extensions"
 	@echo "   • Real-time subscriptions and webhooks"
@@ -180,6 +199,12 @@ webui-supabase-start: ## 🗄️ Start WebUI with Supabase backend
 	@echo "   • File storage with image transformations"
 	@echo "   • API Gateway with Kong proxy"
 	@echo "   • Complete backend infrastructure"
+	@echo ""
+	@echo "📊 Custom Dashboard Features:"
+	@echo "   • Real-time service monitoring"
+	@echo "   • shadcn/ui modern interface"
+	@echo "   • Service health analytics"
+	@echo "   • Performance metrics"
 
 webui-supabase-stop: ## 🛑 Stop WebUI with Supabase backend
 	@echo "🛑 Stopping UltraMCP WebUI with Supabase..."
@@ -195,9 +220,14 @@ webui-supabase-status: ## 📊 Show WebUI + Supabase status
 	@echo ""
 	@echo "🔗 Service Health Checks:"
 	@if docker ps --filter "name=ultramcp-webui" --filter "status=running" --quiet | grep -q .; then \
-		echo "✅ WebUI: Running on http://localhost:3000"; \
+		echo "✅ Open WebUI: Running on http://localhost:3000"; \
 	else \
-		echo "❌ WebUI: Not running"; \
+		echo "❌ Open WebUI: Not running"; \
+	fi
+	@if docker ps --filter "name=ultramcp-dashboard" --filter "status=running" --quiet | grep -q .; then \
+		echo "✅ Custom Dashboard: Running on http://localhost:3001"; \
+	else \
+		echo "❌ Custom Dashboard: Not running"; \
 	fi
 	@if docker ps --filter "name=ultramcp-supabase-kong" --filter "status=running" --quiet | grep -q .; then \
 		echo "✅ Supabase API Gateway: Running on http://localhost:8000"; \
