@@ -26,11 +26,14 @@
 | Puerto | Servicio | Estado | Descripción | URL |
 |--------|----------|--------|-------------|-----|
 | **3001** | Backend API Gateway | ❌ Pendiente | Express.js API gateway | `http://localhost:3001` |
+| **8012** | Local Models Orchestrator | 📝 Configurado | Multi-model orchestration | `http://localhost:8012` |
 
 ### Servicios de Desarrollo
 | Puerto | Servicio | Estado | Descripción | URL |
 |--------|----------|--------|-------------|-----|
 | **5174** | Frontend Dev (Alt) | ⏸️ Disponible | Vite dev server alternativo | `http://localhost:5174` |
+| **11434** | Ollama (Host) | ✅ Activo | Local LLM server (host) | `http://localhost:11434` |
+| **11435** | Ollama Proxy | 📝 Configurado | Docker proxy to host Ollama | `http://localhost:11435` |
 
 ## 🔧 Servicios de Monitoreo y Utilidades
 
@@ -117,8 +120,27 @@
 3. Implementar monitoreo con Grafana/Prometheus
 4. Documentar endpoints API completos
 
+## 📊 Modelos Locales Disponibles
+
+### Ollama Models (Host)
+| Modelo | Tamaño | Especialidad | Estado |
+|--------|--------|--------------|--------|
+| **qwen2.5:14b** | 9.0 GB | Razonamiento general | ✅ Activo |
+| **qwen2.5-coder:7b** | 4.7 GB | Programación | ✅ Activo |
+| **deepseek-coder:6.7b** | 3.8 GB | Code analysis | ✅ Activo |
+| **llama3.1:8b** | 4.9 GB | General purpose | ✅ Activo |
+| **mistral:7b** | 4.1 GB | Fast responses | ✅ Activo |
+
+### Kimi-K2 (Opcional)
+| Modelo | Tamaño | Especialidad | Estado |
+|--------|--------|--------------|--------|
+| **kimi-k2** | ~25 GB | Long context (128K) | 📝 Configurado |
+
+**Total**: 5 modelos activos + 1 opcional
+
 ## 📝 Notas
 - Todos los servicios están configurados con health checks
 - PortNote nos ayuda a mapear y documentar puertos sistemáticamente
+- Modelos locales funcionan completamente offline (cero costo API)
 - La arquitectura está preparada para escalabilidad horizontal
 - Los servicios legacy de Supabase pueden ser migrados gradualmente

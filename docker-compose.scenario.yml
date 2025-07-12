@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  scenario-testing:
+    build:
+      context: ./services/scenario-testing
+      dockerfile: Dockerfile
+    container_name: ultramcp-scenario-testing
+    restart: unless-stopped
+    ports:
+      - "8013:8013"
+    networks:
+      - ultramcp-network
+    volumes:
+      - ./scenario:/app/scenario:ro  # Mount scenario framework
+      - ./services/scenario-testing/results:/app/results  # Test results
+    environment:
+      - TEST_ENVIRONMENT=development
+      - COD_SERVICE_URL=http://cod-service:8001
+      - LOCAL_MODELS_URL=http://local-models-orchestrator:8012
+      - PYTHONPATH=/app/scenario/python:/app
+    depends_on:
+      - ultramcp-cod-service
+      - ultramcp-local-models-orchestrator
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8013/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  ultramcp-network:
+    external: true

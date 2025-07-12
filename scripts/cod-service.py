@@ -22,10 +22,11 @@ except ImportError:
 
 try:
     import uvicorn
+    import httpx
     from fastapi import FastAPI, HTTPException
     from pydantic import BaseModel
 except ImportError:
-    print("❌ Missing dependencies. Install with: pip3 install fastapi uvicorn pydantic")
+    print("❌ Missing dependencies. Install with: pip3 install fastapi uvicorn pydantic httpx")
     sys.exit(1)
 
 # Setup logging to combined log file
@@ -82,10 +83,42 @@ class DebateResponse(BaseModel):
 app = FastAPI(title="CoD Protocol Service", version="1.0.0")
 
 class CoDProtocolEngine:
-    """Simplified CoD Protocol for terminal-first approach"""
+    """Enhanced CoD Protocol with local models integration"""
     
     def __init__(self):
         self.active_debates = {}
+        self.local_models_url = "http://localhost:8012"  # Local models orchestrator
+    
+    async def get_local_models(self) -> Dict:
+        """Get available local models"""
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f"{self.local_models_url}/models", timeout=10.0)
+                if response.status_code == 200:
+                    return response.json()
+                return {"error": "Local models service not available"}
+        except Exception as e:
+            logger.warning(f"Local models service not available: {e}")
+            return {"error": str(e)}
+    
+    async def use_local_model(self, prompt: str, task_type: str = "reasoning") -> str:
+        """Generate response using local models"""
+        try:
+            async with httpx.AsyncClient() as client:
+                payload = {
+                    "prompt": prompt,
+                    "task_type": task_type,
+                    "temperature": 0.7,
+                    "max_tokens": 2000
+                }
+                response = await client.post(f"{self.local_models_url}/generate", json=payload, timeout=60.0)
+                if response.status_code == 200:
+                    result = response.json()
+                    return result.get("content", "No response generated")
+                return f"Error: HTTP {response.status_code}"
+        except Exception as e:
+            logger.error(f"Local model generation failed: {e}")
+            return f"Local model error: {e}"
         
     async def run_debate(self, request: DebateRequest) -> DebateResponse:
         """Run a multi-LLM debate session"""
@@ -222,7 +255,8 @@ async def health_check():
         "api_keys": {
             "openai": bool(os.getenv('OPENAI_API_KEY')),
             "anthropic": bool(os.getenv('ANTHROPIC_API_KEY'))
-        }
+        },
+        "local_models": await cod_engine.get_local_models()
     }
 
 @app.get("/status")
@@ -235,9 +269,21 @@ async def get_status():
         "uptime": "running",  # Simplified
         "endpoints": [
             "POST /debate - Start a debate",
-            "GET /health - Health check",
-            "GET /status - Service status"
+            "GET /health - Health check", 
+            "GET /status - Service status",
+            "GET /local-models - Available local models"
         ]
+    }
+
+@app.get("/local-models")
+async def get_local_models():
+    """Get available local models"""
+    models = await cod_engine.get_local_models()
+    return {
+        "service": "cod-protocol",
+        "local_models_status": "error" not in models,
+        "models": models,
+        "orchestrator_url": cod_engine.local_models_url
     }
 
 @app.get("/")

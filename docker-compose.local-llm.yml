@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Kimi-K2 Local Model Service
+  kimi-k2-local:
+    build: ./services/kimi-k2-local
+    container_name: ultramcp-kimi-k2
+    ports:
+      - "8011:8011"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - MODEL_NAME=moonshot-ai/Kimi-K2-Instruct
+      - HOST=0.0.0.0
+      - PORT=8011
+      - MAX_MODEL_LEN=128000
+    volumes:
+      - kimi_model_cache:/root/.cache/huggingface
+      - ./logs:/app/logs
+    networks:
+      - ultramcp-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+networks:
+  ultramcp-network:
+    external: true
+
+volumes:
+  kimi_model_cache:
+    name: ultramcp-kimi-model-cache
