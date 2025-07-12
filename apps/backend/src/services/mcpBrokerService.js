@@ -1,4 +1,4 @@
-const { getSupabaseClient } = require("../../src/adapters/supabaseAdapter.js");
+const { getSupabaseClient } = require("../adapters/supabaseAdapter.js");
 const AppError = require("../utils/AppError.js");
 const { retryOperation } = require("../utils/retryUtils.js");
 

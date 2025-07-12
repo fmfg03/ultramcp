@@ -1,5 +1,6 @@
 # UltraMCP Hybrid Implementation Dockerfile
-FROM node:18-alpine AS base
+# Base stage for Node.js services
+FROM node:18-alpine AS base-alpine
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -19,16 +20,35 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install Node.js dependencies (including Playwright)
+# Install Node.js dependencies
+RUN npm ci --only=production
+
+# CoD Protocol Service Stage (Ubuntu-based for Playwright)
+FROM node:18 AS cod-service
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    postgresql-client \
+    redis-tools \
+    curl \
+    jq \
+    make \
+    git \
+    openssh-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files and install dependencies
+COPY package.json package-lock.json* ./
 RUN npm ci --only=production && \
     npx playwright install chromium && \
     npx playwright install-deps
 
-# CoD Protocol Service Stage
-FROM base AS cod-service
-
 # Install Python dependencies for CoD service
-RUN pip3 install fastapi uvicorn pydantic python-multipart aiofiles
+RUN pip3 install --break-system-packages fastapi uvicorn pydantic python-multipart aiofiles
 
 # Copy CoD service files
 COPY scripts/cod-service.py ./scripts/
@@ -48,7 +68,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 CMD ["python3", "scripts/cod-service.py"]
 
 # Terminal Interface Stage (Main hybrid interface)
-FROM base AS terminal
+FROM base-alpine AS terminal
 
 # Install additional tools for terminal operations
 RUN apk add --no-cache \
@@ -86,7 +106,7 @@ USER node
 CMD ["/bin/bash", "-c", "echo '🚀 UltraMCP Terminal-First Interface Ready!' && echo 'Available commands: make help' && /bin/bash"]
 
 # Web Dashboard Stage (Optional monitoring interface)
-FROM node:18-alpine AS web-dashboard
+FROM base-alpine AS web-dashboard
 
 WORKDIR /app
 

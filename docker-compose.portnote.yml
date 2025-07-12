@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  portnote-web:
+    image: haedlessdev/portnote:latest
+    container_name: ultramcp-portnote-web
+    ports:
+      - "3002:3000"
+    environment:
+      JWT_SECRET: ultramcp_jwt_secret_2024_secure
+      USER_SECRET: ultramcp_user_secret_2024_secure
+      LOGIN_USERNAME: ultramcp
+      LOGIN_PASSWORD: ultramcp_admin_2024
+      DATABASE_URL: "postgresql://postgres:postgres@portnote-db:5432/postgres"
+    depends_on:
+      portnote-db:
+        condition: service_started
+    networks:
+      - ultramcp-network
+
+  portnote-agent:
+    image: haedlessdev/portnote-agent:latest
+    container_name: ultramcp-portnote-agent
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@portnote-db:5432/postgres"
+    depends_on:
+      portnote-db:
+        condition: service_started
+    networks:
+      - ultramcp-network
+
+  portnote-db:
+    image: postgres:17
+    container_name: ultramcp-portnote-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - portnote_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Different port to avoid conflict with UltraMCP postgres
+    networks:
+      - ultramcp-network
+
+networks:
+  ultramcp-network:
+    external: true
+
+volumes:
+  portnote_data:
+    name: ultramcp-portnote-data
