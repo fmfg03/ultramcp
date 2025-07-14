@@ -147,6 +147,11 @@ ultramcp/
 ├── 🛠️ tools/                          # Development Tools
 ├── 🎨 integrations/                   # External Integrations
 │   └── claudia/                       # Claudia Visual Interface
+├── stagewise-integration/             # 🖱️ Browser-First AI Integration
+│   ├── install-stagewise.sh          # Automated setup script
+│   ├── service/src/index.js           # DOM context capture microservice
+│   ├── framework-toolbars/react/      # React/Next.js integration
+│   └── examples/                      # Usage examples and demos
 ├── 🔧 Makefile                        # ✅ Terminal-First Command Interface
 ├── 🐳 docker-compose.hybrid.yml       # ✅ Complete Service Orchestration
 ├── ⚙️ .env.example                    # ✅ Complete Environment Configuration
@@ -285,6 +290,24 @@ make health-check
 make local-chat TEXT="Test all integrated services"
 make cod-local TOPIC="Test the complete integration"
 ```
+
+### 5. Stagewise Browser Integration (NEW!)
+
+Add browser-first AI agent orchestration to your web applications:
+
+```bash
+# Install Stagewise integration
+cd stagewise-integration
+./install-stagewise.sh
+
+# Add to your React project
+npm install @ultramcp/stagewise-react
+
+# Add toolbar to your app (see examples/)
+# Ctrl+Alt+Click any DOM element for instant AI analysis
+```
+
+**Results**: Click any UI element → get contextual Chain of Debate, Plandex planning, or component analysis!
 
 ### Docker Deployment
 
