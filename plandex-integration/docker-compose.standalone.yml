@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # UltraMCP Agent Registry
+  agent-registry:
+    build: ./services/agent-registry
+    container_name: ultramcp-agent-registry
+    restart: unless-stopped
+    ports:
+      - "7778:7778"
+    environment:
+      - PORT=7778
+      - PLANDEX_BINARY=/usr/local/bin/plandex
+      - POSTGRES_URL=postgresql://localhost:5432/plandex
+      - REDIS_URL=redis://localhost:6379
+      - NODE_ENV=production
+    volumes:
+      - ./data/registry:/data
+      - ./logs:/logs
+      - /usr/local/bin/plandex:/usr/local/bin/plandex:ro
+    network_mode: host
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7778/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Context Bridge Service  
+  context-bridge:
+    build: ./services/context-bridge
+    container_name: ultramcp-context-bridge
+    restart: unless-stopped
+    ports:
+      - "7779:7779"
+    environment:
+      - PORT=7779
+      - PLANDEX_BINARY=/usr/local/bin/plandex
+      - ULTRAMCP_MEMORY_URL=http://localhost:8007
+      - ULTRAMCP_API_URL=http://localhost:3000
+      - REDIS_URL=redis://localhost:6379
+      - NODE_ENV=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./data/contexts:/data
+      - ./logs:/logs
+      - /usr/local/bin/plandex:/usr/local/bin/plandex:ro
+      - ./workspace:/workspace
+    network_mode: host
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7779/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - agent-registry
+
+volumes:
+  plandex-workspace:
+    driver: local
+  plandex-data:
+    driver: local

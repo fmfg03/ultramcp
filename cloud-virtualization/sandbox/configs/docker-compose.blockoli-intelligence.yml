@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  blockoli-intelligence:
+    image: ultramcp/blockoli-intelligence:latest
+    container_name: blockoli-intelligence-service
+    restart: unless-stopped
+    ports:
+      - "8080:8003"
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=blockoli-intelligence
+      - PORT=8003
+      - POSTGRES_URL=${POSTGRES_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - LOG_LEVEL=info
+      - CODE_ANALYSIS_ENABLED=true
+      - PATTERN_RECOGNITION=true
+      - SEMANTIC_SEARCH=true
+      - AST_PARSING=true
+      - TREESITTER_ENABLED=true
+      - ANALYSIS_TIMEOUT=600
+      - MAX_FILE_SIZE=10MB
+      - SUPPORTED_LANGUAGES=python,javascript,typescript,go,rust,java,cpp
+    volumes:
+      - ./data/analysis:/app/data/analysis
+      - ./data/patterns:/app/data/patterns
+      - ./data/cache:/app/data/cache
+      - ./logs:/app/logs
+      - ./config:/app/config
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 90s
+    networks:
+      - ultramcp-network
+    labels:
+      - "ultramcp.service=blockoli-intelligence"
+      - "ultramcp.version=latest"
+      - "ultramcp.cpu_intensive=true"
+
+  tree-sitter:
+    image: ultramcp/tree-sitter-service:latest
+    container_name: tree-sitter-parser
+    restart: unless-stopped
+    ports:
+      - "9001:9001"
+    environment:
+      - PORT=9001
+      - LOG_LEVEL=info
+      - MAX_PARSE_SIZE=5MB
+      - CACHE_ENABLED=true
+    volumes:
+      - ./data/parsed:/app/data/parsed
+      - treesitter-cache:/app/cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ultramcp-network
+
+  code-embeddings:
+    image: ultramcp/code-embeddings:latest
+    container_name: code-embeddings-service
+    restart: unless-stopped
+    ports:
+      - "9002:9002"
+    environment:
+      - PORT=9002
+      - MODEL_NAME=microsoft/codebert-base
+      - MAX_SEQUENCE_LENGTH=512
+      - BATCH_SIZE=16
+      - CACHE_EMBEDDINGS=true
+    volumes:
+      - ./data/embeddings:/app/data/embeddings
+      - embeddings-cache:/app/cache
+      - model-cache:/app/models
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 1.5G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
+      interval: 60s
+      timeout: 20s
+      retries: 3
+    networks:
+      - ultramcp-network
+
+networks:
+  ultramcp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  treesitter-cache:
+    driver: local
+  embeddings-cache:
+    driver: local
+  model-cache:
+    driver: local

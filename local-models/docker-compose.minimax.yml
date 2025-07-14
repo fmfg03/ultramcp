@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  ultramcp-enhanced-models:
+    build: .
+    container_name: ultramcp-enhanced-models-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8012:8012"
+      - "8888:8888"  # MiniMax vLLM server port
+    environment:
+      - CUDA_VISIBLE_DEVICES=0  # Adjust based on GPU setup
+      - HF_HOME=/models/.cache
+      - TRANSFORMERS_CACHE=/models/.cache
+    volumes:
+      - ./models:/models
+      - ./logs:/logs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - ultramcp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8012/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+
+networks:
+  ultramcp:
+    driver: bridge
+    external: false
+
+volumes:
+  minimax-models:
+    driver: local

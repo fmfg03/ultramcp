@@ -1,0 +1,30 @@
+{
+  "models": {
+    "default": "anthropic/claude-3-sonnet",
+    "planning": "anthropic/claude-3-opus",
+    "execution": "openai/gpt-4-turbo",
+    "fallback": "openai/gpt-3.5-turbo"
+  },
+  "limits": {
+    "maxTokens": 4000,
+    "maxContext": 2000000,
+    "maxSteps": 50,
+    "timeoutMs": 300000
+  },
+  "features": {
+    "autonomousMode": true,
+    "contextCaching": true,
+    "errorRecovery": true,
+    "multiModelSupport": true
+  },
+  "ultramcp": {
+    "agentRegistry": "http://agent-registry:7778",
+    "contextBridge": "http://context-bridge:7779",
+    "defaultAgents": [
+      "chain-of-debate",
+      "asterisk-security", 
+      "blockoli-intelligence",
+      "claude-memory"
+    ]
+  }
+}

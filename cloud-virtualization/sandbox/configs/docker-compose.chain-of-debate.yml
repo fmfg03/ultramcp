@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  chain-of-debate:
+    image: ultramcp/chain-of-debate:latest
+    container_name: chain-of-debate-service
+    restart: unless-stopped
+    ports:
+      - "8080:8001"
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=chain-of-debate
+      - PORT=8001
+      - POSTGRES_URL=${POSTGRES_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - OPENAI_API_KEY_FILE=/run/secrets/openai_api_key
+      - ANTHROPIC_API_KEY_FILE=/run/secrets/anthropic_api_key
+      - LOG_LEVEL=info
+      - ENABLE_METRICS=true
+      - DEBATE_TIMEOUT=300
+      - MAX_PARTICIPANTS=5
+      - LOCAL_LLM_ENABLED=true
+    volumes:
+      - ./data/debates:/app/data/debates
+      - ./logs:/app/logs
+      - ./config:/app/config
+    secrets:
+      - openai_api_key
+      - anthropic_api_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - ultramcp-network
+    labels:
+      - "ultramcp.service=chain-of-debate"
+      - "ultramcp.version=latest"
+
+  redis:
+    image: redis:7-alpine
+    container_name: cod-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-ultramcp_redis}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ultramcp-network
+
+networks:
+  ultramcp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+
+secrets:
+  openai_api_key:
+    file: ./secrets/openai_api_key.txt
+  anthropic_api_key:
+    file: ./secrets/anthropic_api_key.txt

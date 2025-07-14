@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # UltraMCP Agent Registry
+  agent-registry:
+    build: ./services/agent-registry
+    container_name: ultramcp-agent-registry
+    restart: unless-stopped
+    ports:
+      - "7778:7778"
+    environment:
+      - PORT=7778
+      - PLANDEX_BINARY=/usr/local/bin/plandex
+      - POSTGRES_URL=${POSTGRES_URL:-postgresql://postgres:ultramcp_password@postgres:5432/ultramcp}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - NODE_ENV=production
+    volumes:
+      - ./data/registry:/data
+      - ./logs:/logs
+      - /usr/local/bin/plandex:/usr/local/bin/plandex:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7778/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - plandex-network
+      - ultramcp
+
+  # Context Bridge Service  
+  context-bridge:
+    build: ./services/context-bridge
+    container_name: ultramcp-context-bridge
+    restart: unless-stopped
+    ports:
+      - "7779:7779"
+    environment:
+      - PORT=7779
+      - PLANDEX_BINARY=/usr/local/bin/plandex
+      - ULTRAMCP_MEMORY_URL=${ULTRAMCP_MEMORY_URL:-http://ultramcp-memory:8007}
+      - ULTRAMCP_API_URL=${ULTRAMCP_API_URL:-http://ultramcp-api:3000}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - NODE_ENV=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./data/contexts:/data
+      - ./logs:/logs
+      - /usr/local/bin/plandex:/usr/local/bin/plandex:ro
+      - ./workspace:/workspace
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7779/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - plandex-network
+      - ultramcp
+    depends_on:
+      - agent-registry
+
+networks:
+  plandex-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+  
+  # Connect to existing UltraMCP network
+  ultramcp:
+    external: true
+
+volumes:
+  plandex-workspace:
+    driver: local
+  plandex-data:
+    driver: local

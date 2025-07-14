@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # Plandex Core Service
+  plandex:
+    image: plandex/plandex:latest
+    container_name: ultramcp-plandex
+    restart: unless-stopped
+    ports:
+      - "7777:7777"
+    environment:
+      - PLANDEX_ENV=production
+      - PLANDEX_HOST=0.0.0.0
+      - PLANDEX_PORT=7777
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PLANDEX_WORKSPACE=/workspace
+      - PLANDEX_DATA_DIR=/data
+      - ULTRAMCP_REGISTRY_URL=http://agent-registry:7778
+    volumes:
+      - ./workspace:/workspace
+      - ./data:/data
+      - ./config:/config:ro
+      - ./logs:/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7777/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - plandex-network
+      - ultramcp
+
+  # UltraMCP Agent Registry
+  agent-registry:
+    build: ./services/agent-registry
+    container_name: ultramcp-agent-registry
+    restart: unless-stopped
+    ports:
+      - "7778:7778"
+    environment:
+      - PORT=7778
+      - PLANDEX_URL=http://plandex:7777
+      - POSTGRES_URL=${POSTGRES_URL:-postgresql://postgres:ultramcp_password@postgres:5432/ultramcp}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - NODE_ENV=production
+    volumes:
+      - ./data/registry:/data
+      - ./logs:/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7778/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - plandex-network
+      - ultramcp
+    depends_on:
+      - plandex
+
+  # Context Bridge Service  
+  context-bridge:
+    build: ./services/context-bridge
+    container_name: ultramcp-context-bridge
+    restart: unless-stopped
+    ports:
+      - "7779:7779"
+    environment:
+      - PORT=7779
+      - PLANDEX_URL=http://plandex:7777
+      - ULTRAMCP_MEMORY_URL=${ULTRAMCP_MEMORY_URL:-http://ultramcp-memory:8007}
+      - ULTRAMCP_API_URL=${ULTRAMCP_API_URL:-http://ultramcp-api:3000}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - NODE_ENV=production
+    volumes:
+      - ./data/contexts:/data
+      - ./logs:/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7779/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - plandex-network
+      - ultramcp
+    depends_on:
+      - plandex
+      - agent-registry
+
+  # Plandex Web UI (optional)
+  plandex-ui:
+    image: plandex/plandex-ui:latest
+    container_name: ultramcp-plandex-ui
+    restart: unless-stopped
+    ports:
+      - "7780:3000"
+    environment:
+      - PLANDEX_API_URL=http://plandex:7777
+      - NEXT_PUBLIC_API_URL=http://localhost:7777
+    networks:
+      - plandex-network
+    depends_on:
+      - plandex
+
+networks:
+  plandex-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+  
+  # Connect to existing UltraMCP network
+  ultramcp:
+    external: true
+
+volumes:
+  plandex-workspace:
+    driver: local
+  plandex-data:
+    driver: local

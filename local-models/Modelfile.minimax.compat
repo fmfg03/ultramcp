@@ -1,0 +1,8 @@
+# Alternative Modelfile for compatibility
+FROM MiniMaxAI/MiniMax-M1-80k
+
+PARAMETER temperature 1.0
+PARAMETER top_p 0.95
+PARAMETER num_ctx 32768
+
+SYSTEM """You are MiniMax-M1, a powerful reasoning model with advanced capabilities in mathematics, coding, and complex analysis. Provide thoughtful, step-by-step reasoning for complex problems."""

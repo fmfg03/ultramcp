@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  asterisk-security:
+    image: ultramcp/asterisk-security:latest
+    container_name: asterisk-security-service
+    restart: unless-stopped
+    ports:
+      - "8080:8002"
+    environment:
+      - NODE_ENV=production
+      - SERVICE_NAME=asterisk-security
+      - PORT=8002
+      - POSTGRES_URL=${POSTGRES_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - LOG_LEVEL=info
+      - SECURITY_SCAN_ENABLED=true
+      - VULNERABILITY_DB_UPDATE=daily
+      - COMPLIANCE_FRAMEWORKS=SOC2,HIPAA,GDPR
+      - THREAT_DETECTION=true
+      - REALTIME_MONITORING=true
+      - SCAN_TIMEOUT=1800
+      - MAX_CONCURRENT_SCANS=3
+    volumes:
+      - ./data/scans:/app/data/scans
+      - ./data/reports:/app/data/reports
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    privileged: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    networks:
+      - ultramcp-network
+    labels:
+      - "ultramcp.service=asterisk-security"
+      - "ultramcp.version=latest"
+      - "ultramcp.security=true"
+
+  clamav:
+    image: clamav/clamav:latest
+    container_name: security-clamav
+    restart: unless-stopped
+    volumes:
+      - clamav-db:/var/lib/clamav
+      - ./data/quarantine:/quarantine
+    environment:
+      - CLAMAV_NO_CLAMD=false
+      - CLAMAV_NO_FRESHCLAMD=false
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+    networks:
+      - ultramcp-network
+
+  trivy:
+    image: aquasec/trivy:latest
+    container_name: security-trivy
+    restart: unless-stopped
+    volumes:
+      - trivy-cache:/root/.cache/trivy
+      - ./data/scans:/reports
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: ["server", "--listen", "0.0.0.0:4954"]
+    networks:
+      - ultramcp-network
+
+networks:
+  ultramcp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  clamav-db:
+    driver: local
+  trivy-cache:
+    driver: local

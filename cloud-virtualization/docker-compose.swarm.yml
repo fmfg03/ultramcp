@@ -1,0 +1,765 @@
+# UltraMCP Docker Swarm Orchestration
+# Production-ready multi-node deployment with service discovery and load balancing
+version: '3.8'
+
+services:
+  # Core Infrastructure Services
+  traefik:
+    image: traefik:v3.0
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    ports:
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
+      - target: 8080
+        published: 8080
+        mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-data:/data
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedByDefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge=true
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@ultramcp.com}
+      - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
+      - --metrics.prometheus=true
+      - --metrics.prometheus.addRoutersLabels=true
+      - --log.level=INFO
+    networks:
+      - ultramcp-overlay
+      - traefik-public
+    environment:
+      - TRAEFIK_API_DASHBOARD=true
+
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.postgres == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    environment:
+      - POSTGRES_DB=ultramcp
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    secrets:
+      - postgres_password
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ultramcp"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  redis:
+    image: redis:7-alpine
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.redis == true
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly yes --save 900 1 --save 300 10 --save 60 10000
+    volumes:
+      - redis-data:/data
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Vector Database for Semantic Search
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.qdrant == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - ultramcp-overlay
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # UltraMCP Core Services
+  chain-of-debate:
+    image: ultramcp/chain-of-debate:latest
+    deploy:
+      mode: replicated
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == worker
+        preferences:
+          - spread: node.labels.zone
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: pause
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.cod.rule=Host(`${COD_DOMAIN:-cod.ultramcp.local}`)
+        - traefik.http.routers.cod.entrypoints=websecure
+        - traefik.http.routers.cod.tls.certresolver=letsencrypt
+        - traefik.http.services.cod.loadbalancer.server.port=8001
+        - traefik.http.services.cod.loadbalancer.healthcheck.path=/health
+        - traefik.http.services.cod.loadbalancer.healthcheck.interval=30s
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - ENABLE_METRICS=true
+    networks:
+      - ultramcp-overlay
+    secrets:
+      - source: openai_api_key
+        target: /run/secrets/openai_api_key
+      - source: anthropic_api_key
+        target: /run/secrets/anthropic_api_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+
+  asterisk-security:
+    image: ultramcp/asterisk-security:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.security == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 3G
+        reservations:
+          cpus: '0.75'
+          memory: 1.5G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.security.rule=Host(`${SECURITY_DOMAIN:-security.ultramcp.local}`)
+        - traefik.http.routers.security.entrypoints=websecure
+        - traefik.http.routers.security.tls.certresolver=letsencrypt
+        - traefik.http.services.security.loadbalancer.server.port=8002
+        - traefik.http.services.security.loadbalancer.healthcheck.path=/health
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SECURITY_SCAN_ENABLED=true
+      - COMPLIANCE_CHECKS=true
+      - THREAT_DETECTION=true
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  blockoli-intelligence:
+    image: ultramcp/blockoli-intelligence:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.cpu_intensive == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 6G
+        reservations:
+          cpus: '1.0'
+          memory: 3G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.blockoli.rule=Host(`${BLOCKOLI_DOMAIN:-blockoli.ultramcp.local}`)
+        - traefik.http.routers.blockoli.entrypoints=websecure
+        - traefik.http.routers.blockoli.tls.certresolver=letsencrypt
+        - traefik.http.services.blockoli.loadbalancer.server.port=8003
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - CODE_ANALYSIS_ENABLED=true
+      - PATTERN_RECOGNITION=true
+      - SEMANTIC_SEARCH=true
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  voice-system:
+    image: ultramcp/voice-system:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.media == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 4G
+        reservations:
+          cpus: '0.75'
+          memory: 2G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.voice.rule=Host(`${VOICE_DOMAIN:-voice.ultramcp.local}`)
+        - traefik.http.routers.voice.entrypoints=websecure
+        - traefik.http.routers.voice.tls.certresolver=letsencrypt
+        - traefik.http.services.voice.loadbalancer.server.port=8004
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - VOICE_PROCESSING=true
+      - WEBSOCKET_ENABLED=true
+      - REAL_TIME_TRANSCRIPTION=true
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  deepclaude-engine:
+    image: ultramcp/deepclaude-engine:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.ai_intensive == true
+      restart_policy:
+        condition: on-failure
+        delay: 15s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 8G
+        reservations:
+          cpus: '1.0'
+          memory: 4G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.deepclaude.rule=Host(`${DEEPCLAUDE_DOMAIN:-deepclaude.ultramcp.local}`)
+        - traefik.http.routers.deepclaude.entrypoints=websecure
+        - traefik.http.routers.deepclaude.tls.certresolver=letsencrypt
+        - traefik.http.services.deepclaude.loadbalancer.server.port=8005
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - METACOGNITIVE_REASONING=true
+      - ADVANCED_ANALYSIS=true
+      - PATTERN_SYNTHESIS=true
+    networks:
+      - ultramcp-overlay
+    secrets:
+      - source: anthropic_api_key
+        target: /run/secrets/anthropic_api_key
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 20s
+      retries: 5
+
+  control-tower:
+    image: ultramcp/control-tower:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+        preferences:
+          - spread: node.labels.zone
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.control.rule=Host(`${CONTROL_DOMAIN:-control.ultramcp.local}`)
+        - traefik.http.routers.control.entrypoints=websecure
+        - traefik.http.routers.control.tls.certresolver=letsencrypt
+        - traefik.http.services.control.loadbalancer.server.port=8006
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - ORCHESTRATION_ENABLED=true
+      - SERVICE_DISCOVERY=true
+      - LOAD_BALANCING=true
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  claude-memory:
+    image: ultramcp/claude-memory:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+          - node.labels.memory_intensive == true
+      restart_policy:
+        condition: on-failure
+        delay: 15s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 6G
+        reservations:
+          cpus: '1.0'
+          memory: 3G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.memory.rule=Host(`${MEMORY_DOMAIN:-memory.ultramcp.local}`)
+        - traefik.http.routers.memory.entrypoints=websecure
+        - traefik.http.routers.memory.tls.certresolver=letsencrypt
+        - traefik.http.services.memory.loadbalancer.server.port=8007
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - QDRANT_URL=http://qdrant:6333
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SEMANTIC_SEARCH=true
+      - AST_PARSING=true
+      - CODE_INTELLIGENCE=true
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  sam-mcp:
+    image: ultramcp/sam-mcp:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 4G
+        reservations:
+          cpus: '0.75'
+          memory: 2G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.sam.rule=Host(`${SAM_DOMAIN:-sam.ultramcp.local}`)
+        - traefik.http.routers.sam.entrypoints=websecure
+        - traefik.http.routers.sam.tls.certresolver=letsencrypt
+        - traefik.http.services.sam.loadbalancer.server.port=8008
+    environment:
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - AUTONOMOUS_AGENT=true
+      - LANGGRAPH_INTEGRATION=true
+      - LOCAL_LLM_PRIORITY=true
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8008/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+
+  # Backend API Gateway
+  backend-api:
+    image: ultramcp/backend-api:latest
+    deploy:
+      mode: replicated
+      replicas: 3
+      placement:
+        constraints:
+          - node.role == worker
+        preferences:
+          - spread: node.labels.zone
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.api.rule=Host(`${API_DOMAIN:-api.ultramcp.local}`)
+        - traefik.http.routers.api.entrypoints=websecure
+        - traefik.http.routers.api.tls.certresolver=letsencrypt
+        - traefik.http.services.api.loadbalancer.server.port=3000
+        - traefik.http.services.api.loadbalancer.healthcheck.path=/health
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/ultramcp
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - CORS_ORIGIN=${FRONTEND_URL:-https://ultramcp.local}
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Frontend WebUI
+  webui:
+    image: ultramcp/webui:latest
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.webui.rule=Host(`${WEBUI_DOMAIN:-ultramcp.local}`)
+        - traefik.http.routers.webui.entrypoints=websecure
+        - traefik.http.routers.webui.tls.certresolver=letsencrypt
+        - traefik.http.services.webui.loadbalancer.server.port=3001
+        - traefik.http.routers.webui-redirect.rule=Host(`${WEBUI_DOMAIN:-ultramcp.local}`)
+        - traefik.http.routers.webui-redirect.entrypoints=web
+        - traefik.http.routers.webui-redirect.middlewares=redirect-to-https
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=https://${API_DOMAIN:-api.ultramcp.local}
+      - REACT_APP_WS_URL=wss://${API_DOMAIN:-api.ultramcp.local}
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Monitoring and Observability
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.monitoring == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - prometheus-data:/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.monitoring == true
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 512M
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.grafana.rule=Host(`${GRAFANA_DOMAIN:-grafana.ultramcp.local}`)
+        - traefik.http.routers.grafana.entrypoints=websecure
+        - traefik.http.routers.grafana.tls.certresolver=letsencrypt
+        - traefik.http.services.grafana.loadbalancer.server.port=3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-ultramcp2024}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+      - GF_FEATURE_TOGGLES_ENABLE=publicDashboards
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - ultramcp-overlay
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+# Network Configuration
+networks:
+  ultramcp-overlay:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: "true"
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
+        - subnet: 10.0.2.0/24
+
+  traefik-public:
+    driver: overlay
+    attachable: true
+
+# Volume Configuration
+volumes:
+  postgres-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/ultramcp/data/postgres
+
+  redis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/ultramcp/data/redis
+
+  qdrant-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/ultramcp/data/qdrant
+
+  traefik-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/ultramcp/data/traefik
+
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/ultramcp/data/prometheus
+
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/ultramcp/data/grafana
+
+# Secrets Configuration
+secrets:
+  postgres_password:
+    external: true
+  redis_password:
+    external: true
+  openai_api_key:
+    external: true
+  anthropic_api_key:
+    external: true
+
+# Configuration Templates
+configs:
+  prometheus_config:
+    external: true
+  grafana_dashboards:
+    external: true
